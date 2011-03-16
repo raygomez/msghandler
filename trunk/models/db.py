@@ -6,7 +6,8 @@
 #########################################################################
 
 if request.env.web2py_runtime_gae:            # if running on Google App Engine
-    db = DAL('gae://mynamespace')             # connect to Google BigTable
+    db = DAL('gae')                           # connect to Google BigTable
+                                              # optional DAL('gae://namespace')
     session.connect(request, response, db = db) # and store sessions and tickets there
     ### or use the following lines to store sessions in Memcache
     # from gluon.contrib.memdb import MEMDB
@@ -35,17 +36,17 @@ service = Service(globals())                   # for json, xml, jsonrpc, xmlrpc,
 plugins = PluginManager()
 
 mail.settings.server = 'logging' or 'smtp.gmail.com:587'  # your SMTP server
-mail.settings.sender = 'you@gmail.com'         # your email
-mail.settings.login = 'username:password'      # your credentials or None
+mail.settings.sender = 'telehealth.up@gmail.com'         # your email
+mail.settings.login = 'telehealth.up@gmail.com:telehealth'      # your credentials or None
 
-auth.settings.hmac_key = 'sha512:3dbd6821-748b-43c0-9500-426217fe52d4'   # before define_tables()
+auth.settings.hmac_key = 'sha512:7170c6c3-cd99-4212-beb9-41135103ac81'   # before define_tables()
 auth.define_tables()                           # creates all needed tables
 auth.settings.mailer = mail                    # for user email verification
-auth.settings.registration_requires_verification = False
-auth.settings.registration_requires_approval = False
-auth.messages.verify_email = 'Click on the link http://'+request.env.http_host+URL(r=request,c='default',f='user',args=['verify_email'])+'/%(key)s to verify your email'
+auth.settings.registration_requires_verification = True
+auth.settings.registration_requires_approval = True
+auth.messages.verify_email = 'Click on the link http://'+request.env.http_host+URL('default','user',args=['verify_email'])+'/%(key)s to verify your email'
 auth.settings.reset_password_requires_verification = True
-auth.messages.reset_password = 'Click on the link http://'+request.env.http_host+URL(r=request,c='default',f='user',args=['reset_password'])+'/%(key)s to reset your password'
+auth.messages.reset_password = 'Click on the link http://'+request.env.http_host+URL('default','user',args=['reset_password'])+'/%(key)s to reset your password'
 
 #########################################################################
 ## If you need to use OpenID, Facebook, MySpace, Twitter, Linkedin, etc.
@@ -75,3 +76,57 @@ crud.settings.auth = None                      # =auth to enforce authorization 
 ## >>> rows=db(db.mytable.myfield=='value').select(db.mytable.ALL)
 ## >>> for row in rows: print row.id, row.myfield
 #########################################################################
+
+from datetime import datetime
+
+db.define_table('contact',
+      Field('name', notnull=True),
+      Field('contact_type', notnull=True, requires=IS_IN_SET(('mobile', 'landline', 'email'))),
+      Field('contact_info',notnull=True),
+      format='%(name)s')
+
+db.define_table('msg',
+      Field('subject', notnull=True),
+      Field('content', 'text', notnull=True),
+      Field('created_by', db.contact),
+      Field('create_time', 'datetime', notnull=True, default=datetime.now()),
+      format='%(subject)s')
+db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
+
+db.define_table('msg_attachment',
+      Field('msg_id', db.msg),
+      Field('attach_time', 'datetime', notnull=True, default=datetime.now()),
+      Field('attachment_type', notnull=True),
+      Field('attachment', 'upload', notnull=True),
+      format='%(filename)s')
+db.msg_attachment.msg_id.requires = IS_IN_DB(db, 'msg.id')
+db.msg_attachment.msg_id.writable = db.msg_attachment.msg_id.readable = False
+db.msg_attachment.attach_time.writable = db.msg_attachment.attach_time.readable = False
+
+
+db.define_table('msg_recipients',
+      Field('msg_id', db.msg),
+      Field('contact_id', db.contact),
+      Field('process_time', 'datetime'),
+      format='%(msg_id.subject)s %(contact_id.name)s')
+db.msg_recipients.msg_id.requires=IS_IN_DB(db, 'msg.id')
+db.msg_recipients.contact_id.requires=IS_IN_DB(db, 'contact.id')
+
+db.define_table('tag',
+      Field('name', notnull=True),
+      Field('description', 'text', notnull=True),
+      format='%(name)s')
+
+db.define_table('msg_tag',
+      Field('msg_id', db.msg),
+      Field('tag_id', 'list:reference db.tag'),
+      Field('tag_time', 'datetime', notnull=True, default=datetime.now()),
+      format='%(tag_id.name)s %(msg_id.subject)s')
+db.msg_tag.msg_id.requires=IS_IN_DB(db, 'msg.id')
+db.msg_tag.tag_id.requires=IS_IN_DB(db, 'tag.id')
+
+db.define_table('event',
+      Field('time_stamp','datetime', notnull=True, default=datetime.now()),
+      Field('user_id', db.auth_user),
+      Field('description', 'text'),
+      format='%(description)s')
