@@ -15,50 +15,68 @@ def index():
     example action using the internationalization operator T and flash
     rendered by views/default/index.html or views/generic.html
     """
-    #groups = db(db.auth_membership.user_id == auth.user_id).select(db.auth_membership.group_id)
-    groups = db(db.auth_membership.user_id == auth.user_id).select()
-    roles = []
-    for group in groups:
-        roles.append(group.group_id.role)
 
+    grps = db(db.auth_membership.user_id == auth.user_id).select()
+    my_roles = []
+    for grp in grps:
+        roles.append(grp.group_id.role)
+
+    groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
     messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)
     contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
     users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     
-    return dict(grp=roles, messages=messages, contacts=contacts, tags=tags, users=users)
-     
+    return dict(my_roles=my_roles, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
+
+@auth.requires_login()     
 def show_message():
     message = db.msg(request.args(0)) or redirect(URL('index'))    
     attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)    
     form = crud.update(db.msg, message, next=URL('index'))
     return dict(form=form, attachments=attachments,id=message.id)
 
-
+@auth.requires_login()
 def show_contact():
     contact = db.contact(request.args(0)) or redirect(URL('index'))
     form = crud.update(db.contact, contact, next=URL('index'))
     return dict(form=form)
 
+@auth.requires_login()
 def show_user():
     user = db.auth_user(request.args(0)) or redirect(URL('index'))
     form = crud.update(db.auth_user, user, next=URL('index'))
     return dict(form=form)
 
-
+@auth.requires_login()
+def show_group():
+    group = db.auth_group(request.args(0)) or redirect(URL('index'))
+    form = crud.update(db.auth_group, group, next=URL('index'))
+    return dict(form=form)
+    
+@auth.requires_login()
+def show_tag():
+    tag = db.tag(request.args(0)) or redirect(URL('index'))
+    form = crud.update(db.tag, group, next=URL('index'))
+    return dict(form=form)
+        
+@auth.requires_login()
 def show_tag():
     tag = db.tag(request.args(0)) or redirect(URL('index'))
     form = crud.update(db.tag, tag, next=URL('index'))
     return dict(form=form)
 
+@auth.requires_login()
 def data():
     return dict(form=crud())
 
+@auth.requires_login()
 def delete_attach():    
     session.flash = T('Attachment successfully deleted.')
     db(db.msg_attachment.id==request.args(0)).delete()
     redirect(URL(f='show_message', args=request.args(1)))
-    
+
+@auth.requires_login()    
 def user():
     """
     exposes:
@@ -75,7 +93,7 @@ def user():
     """
     return dict(form=auth())
 
-
+@auth.requires_login()
 def download():
     """
     allows downloading of uploaded files
@@ -83,6 +101,7 @@ def download():
     """
     return response.download(request,db)
 
+@auth.requires_login()
 def create_message():
     """
     allows to create a simple message for testing
@@ -114,6 +133,7 @@ def create_message():
     
     return dict(form = form)
 
+@auth.requires_login()
 def create_contact():
     """
     allows to create a simple contact for testing
@@ -122,6 +142,16 @@ def create_contact():
     
     return dict(form = form)
 
+@auth.requires_login()
+def create_tag():
+    """
+    allows to create a simple tag for testing
+    """
+    form = crud.create(db.tag, next=URL('index'))
+    
+    return dict(form = form)
+
+@auth.requires_login()
 def create_attachment():
     """
     allows to create a simple attachment for testing
@@ -131,14 +161,24 @@ def create_attachment():
     #db.msg_attachment.msg_id.default = request.arg(0)
     return dict(form = form)
 
-
+@auth.requires_login()
 def create_tag():
     """
     allows to create a simple contact for testing
     """
     form = crud.create(db.tag, next=URL('index'))
     return dict(form = form)
+
+@auth.requires_login()    
+def create_group():
+    """
+    allows to create a simple contact for testing
+    """
+    form = crud.create(db.auth_group, next=URL('index'))
+    return dict(form = form)
+        
     
+@auth.requires_login()    
 def call():
     """
     exposes services. for example:

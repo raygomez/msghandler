@@ -1,4 +1,11 @@
 {{extend 'layout.html'}}
+
+<h1>Groups</h1>
+[{{=A('Create a new group', _href=URL('create_group'))}}]<br />
+<ul>{{for group in groups:}}
+    {{=LI(A(group.role, _href=URL('show_group',args=group.id)))}}
+{{pass}}</ul>
+
 <h1>Contacts</h1>
 [{{=A('Create a new contact', _href=URL('create_contact'))}}]<br />
 <ul>{{for contact in contacts:}}
