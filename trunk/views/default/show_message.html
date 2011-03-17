@@ -1,0 +1,25 @@
+{{extend 'layout.html'}}
+
+<h1>Message</h1>
+{{=form}}
+
+{{if len(attachments) > 0:}}
+<h3>Attachments</h3>
+<table>
+
+<tr>
+{{for attachment in attachments:}}
+{{=TD(A(IMG(_src=URL('download',args=attachment.attachment), _alt="attachments"),
+      _href=URL('download',args=attachment.attachment)))}}      
+{{pass}}
+</tr>
+<tr>
+{{for attachment in attachments:}}
+<th>{{=A('Delete', _href=URL('delete_attach', args=(attachment.id, id)))}}</th>
+{{pass}}
+</tr>
+</table>
+
+{{pass}}
+
+[{{=A('Attach file', _href=URL('create_attachment', args=id))}}]<br />
