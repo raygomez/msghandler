@@ -78,6 +78,7 @@ crud.settings.auth = None                      # =auth to enforce authorization 
 #########################################################################
 
 from datetime import datetime
+import os
 
 db.define_table('contact',
       Field('name', notnull=True),
@@ -97,7 +98,7 @@ db.define_table('msg_attachment',
       Field('msg_id', db.msg),
       Field('attach_time', 'datetime', notnull=True, default=datetime.now()),
       Field('attachment_type', notnull=True),
-      Field('attachment', 'upload', notnull=True),
+      Field('attachment', 'upload', notnull=True, uploadfolder=os.path.join(request.folder,'uploads')),
       format='%(filename)s')
 db.msg_attachment.msg_id.requires = IS_IN_DB(db, 'msg.id')
 db.msg_attachment.msg_id.writable = db.msg_attachment.msg_id.readable = False

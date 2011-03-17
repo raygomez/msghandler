@@ -24,28 +24,32 @@ def index():
     messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)
     contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
+    users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     
-    return dict(grp=roles, messages=messages, contacts=contacts, tags=tags)
+    return dict(grp=roles, messages=messages, contacts=contacts, tags=tags, users=users)
      
 def show_message():
-    this_message = db.msg(request.args(0)) or redirect(URL('index'))
-    
-    attachments = db(db.msg_attachment.msg_id == this_message.id).select(orderby=db.msg_attachment.attach_time)
-    
-    form = crud.update(db.msg, this_message, next=URL('index'))
-    return dict(form=form, attachments=attachments,id=this_message.id)
+    message = db.msg(request.args(0)) or redirect(URL('index'))    
+    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)    
+    form = crud.update(db.msg, message, next=URL('index'))
+    return dict(form=form, attachments=attachments,id=message.id)
 
 
 def show_contact():
-    this_contact = db.contact(request.args(0)) or redirect(URL('index'))
-    form = crud.update(db.contact, this_contact, next=URL('index'))
+    contact = db.contact(request.args(0)) or redirect(URL('index'))
+    form = crud.update(db.contact, contact, next=URL('index'))
     return dict(form=form)
+
+def show_user():
+    user = db.auth_user(request.args(0)) or redirect(URL('index'))
+    form = crud.update(db.auth_user, user, next=URL('index'))
+    return dict(form=form)
+
 
 def show_tag():
     tag = db.tag(request.args(0)) or redirect(URL('index'))
     form = crud.update(db.tag, tag, next=URL('index'))
     return dict(form=form)
-
 
 def data():
     return dict(form=crud())
@@ -83,7 +87,21 @@ def create_message():
     """
     allows to create a simple message for testing
     """
-    form = crud.create(db.msg, next=URL('index'))
+    import os
+    
+    form = SQLFORM.factory(db.msg, db.msg_attachment)
+
+    if form.accepts(request.vars, session):
+        msg_id = db.msg.insert(subject=request.vars.subject, 
+                content=request.vars.subject, 
+                created_by=request.vars.created_by,
+                create_time=request.vars.create_time)
+                
+        if request.vars.attachment != '':
+            db.msg_attachment.insert(msg_id=msg_id, 
+                attachment_type=request.vars.attachment_type, 
+                attachment=db.msg_attachment.attachment.store(request.vars.attachment.file, filename=request.vars.attachment.filename))
+                               
     return dict(form = form)
 
 def create_contact():
