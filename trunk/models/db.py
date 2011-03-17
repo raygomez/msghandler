@@ -95,10 +95,10 @@ db.define_table('msg',
 db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
 
 db.define_table('msg_attachment',
-      Field('msg_id', db.msg),
+      Field('msg_id', db.msg, notnull=True),
       Field('attach_time', 'datetime', notnull=True, default=datetime.now()),
       Field('attachment_type', notnull=True),
-      Field('attachment', 'upload', notnull=True, uploadfolder=os.path.join(request.folder,'uploads')),
+      Field('attachment', 'upload', notnull=True),
       format='%(filename)s')
 db.msg_attachment.msg_id.requires = IS_IN_DB(db, 'msg.id')
 db.msg_attachment.msg_id.writable = db.msg_attachment.msg_id.readable = False

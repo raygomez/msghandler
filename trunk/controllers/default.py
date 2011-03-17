@@ -88,20 +88,30 @@ def create_message():
     allows to create a simple message for testing
     """
     import os
-    
-    form = SQLFORM.factory(db.msg, db.msg_attachment)
 
+    form = SQLFORM.factory(
+      Field('subject', notnull=True),
+      Field('content', 'text', notnull=True),
+      Field('created_by', db.contact, requires=IS_IN_DB(db, 'contact.id', '%(name)s')),
+      Field('create_time', 'datetime', notnull=True, default=datetime.now()),
+      Field('attachment_type'),
+      Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
+      table_name='msg_attachment'
+    )
     if form.accepts(request.vars, session):
         msg_id = db.msg.insert(subject=request.vars.subject, 
                 content=request.vars.subject, 
                 created_by=request.vars.created_by,
                 create_time=request.vars.create_time)
-                
+
         if request.vars.attachment != '':
-            db.msg_attachment.insert(msg_id=msg_id, 
-                attachment_type=request.vars.attachment_type, 
-                attachment=db.msg_attachment.attachment.store(request.vars.attachment.file, filename=request.vars.attachment.filename))
-                               
+           db.msg_attachment.insert(msg_id=msg_id, 
+               attachment_type=request.vars.attachment_type,
+               attachment= form.vars.attachment)
+
+        session.flash = T('File successfully attached.')
+        redirect(URL(f='show_message', args=msg_id))
+    
     return dict(form = form)
 
 def create_contact():
