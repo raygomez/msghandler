@@ -44,14 +44,32 @@ def show_message():
                 _id='div-tag%d' % row.id)            
             for row in tags ]
 
-    input = INPUT(_id='keyword', _name='keyword', 
+    input = INPUT(_id='keyword', _name='keyword', _autocomplete='off', 
         _onkeyup="ajax('%s', ['keyword'], 'working')" % URL(r=request,f='bg_find', args=request.args(0)))
     searchform = FORM(TABLE( TR(TD(LABEL('Add tag'), _class='w2p_fl'),TD(input)),  TR(TD(LABEL(''), _class='w2p_fl'),TD(DIV(_id='working') ))))
-    return dict(form=form, attachments=attachments, id=message.id, tags=TR(*tr), searchform=searchform)
+    
+    return dict(form=form, attachments=attachments, id=message.id, tags=TR(*tr, _id='tr-tags'), searchform=searchform)
 
 def del_tag():
     del db.msg_tag[int(request.args(0))]
     return "$('#div-tag%s').fadeOut(function() { $(this).remove(); })" % request.args(0)
+
+def add_tag():
+    print request.args
+    
+    row = db.tag[int(request.args(1))]
+    msg_tag_id = db.msg_tag.insert(msg_id=int(request.args(0)), tag_id=int(request.args(1)))
+    td = TD(
+                SPAN(LABEL(row.name),_onclick="$('#tag%d').slideToggle()" % msg_tag_id), 
+                SPAN(INPUT(_type='checkbox', _name=row.name), LABEL('Delete'), _hidden=True, _id='tag%d' % msg_tag_id, 
+                      _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=msg_tag_id)),
+                _id='div-tag%d' % msg_tag_id)            
+
+    
+    
+    
+    return "$('#div-untag%s').fadeOut(function() { $(this).remove(); });$('#tr-tags').append('%s')" % (request.args(1), td)
+
 
 def bg_find():
     if request.vars.keyword.lower():
@@ -62,9 +80,11 @@ def bg_find():
     message = db.msg(request.args(0))
 
     tags1 = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id, orderby=db.msg_tag.tag_time)
-    tags = db(db.tag.name.lower().like(pattern) & ~db.tag.id.belongs(tags1)).select(orderby=db.tag.name)
+    tags = db(db.tag.name.lower().like(pattern) & ~db.tag.id.belongs(tags1)).select(orderby=db.tag.name, limitby=(0,5))
 
-    items = [DIV(INPUT(_type='checkbox', _name=row.name),LABEL(row.name)) for row in tags]
+    items = [DIV(INPUT(_type='checkbox', _name=row.name, 
+            _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='add_tag', args=(request.args(0),row.id))),
+            LABEL(row.name), _id='div-untag%d' % row.id) for row in tags]
     return DIV(*items)
     
 @auth.requires_login()
