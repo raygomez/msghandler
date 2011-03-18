@@ -31,11 +31,42 @@ def index():
 
 @auth.requires_login()     
 def show_message():
-    message = db.msg(request.args(0)) or redirect(URL('index'))    
-    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)    
-    form = crud.update(db.msg, message, next=URL('index'))
-    return dict(form=form, attachments=attachments,id=message.id)
+    message = db.msg(request.args(0)) #or redirect(URL('index'))    
 
+    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
+    tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
+    form = crud.update(db.msg, message, next=URL('index'))
+
+    tr = [TD(
+                SPAN(LABEL(row.tag_id.name),_onclick="$('#tag%d').slideToggle()" % row.id), 
+                SPAN(INPUT(_type='checkbox', _name=row.tag_id.name), LABEL('Delete'), _hidden=True, _id='tag%d' % row.id, 
+                      _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=row.id)),
+                _id='div-tag%d' % row.id)            
+            for row in tags ]
+
+    input = INPUT(_id='keyword', _name='keyword', 
+        _onkeyup="ajax('%s', ['keyword'], 'working')" % URL(r=request,f='bg_find', args=request.args(0)))
+    searchform = FORM(TABLE( TR(TD(LABEL('Add tag'), _class='w2p_fl'),TD(input)),  TR(TD(LABEL(''), _class='w2p_fl'),TD(DIV(_id='working') ))))
+    return dict(form=form, attachments=attachments, id=message.id, tags=TR(*tr), searchform=searchform)
+
+def del_tag():
+    del db.msg_tag[int(request.args(0))]
+    return "$('#div-tag%s').fadeOut(function() { $(this).remove(); })" % request.args(0)
+
+def bg_find():
+    if request.vars.keyword.lower():
+        pattern = '%' + request.vars.keyword.lower() + '%'
+    else:
+        pattern = ''
+
+    message = db.msg(request.args(0))
+
+    tags1 = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id, orderby=db.msg_tag.tag_time)
+    tags = db(db.tag.name.lower().like(pattern) & ~db.tag.id.belongs(tags1)).select(orderby=db.tag.name)
+
+    items = [DIV(INPUT(_type='checkbox', _name=row.name),LABEL(row.name)) for row in tags]
+    return DIV(*items)
+    
 @auth.requires_login()
 def show_contact():
     contact = db.contact(request.args(0)) or redirect(URL('index'))
@@ -76,7 +107,12 @@ def delete_attach():
     db(db.msg_attachment.id==request.args(0)).delete()
     redirect(URL(f='show_message', args=request.args(1)))
 
-@auth.requires_login()    
+@auth.requires_login()
+def delete_tag():    
+    session.flash = T('Tag successfully deleted.')
+    db(db.msg_tag.id==request.args(0)).delete()
+    redirect(URL(f='show_message', args=request.args(1)))
+
 def user():
     """
     exposes:
@@ -158,7 +194,6 @@ def create_attachment():
     """
     db.msg_attachment.msg_id.default = request.args(0)
     form = crud.create(db.msg_attachment, next=URL('show_message', args=request.args(0)))
-    #db.msg_attachment.msg_id.default = request.arg(0)
     return dict(form = form)
 
 @auth.requires_login()

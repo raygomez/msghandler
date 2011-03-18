@@ -3,6 +3,15 @@
 <h1>Message</h1>
 {{=form}}
 
+{{if len(tags) > 0:}}
+<h3>Tags</h3>
+<table>
+{{=tags}}
+</table>
+{{pass}}
+
+{{=searchform}}<br />
+
 {{if len(attachments) > 0:}}
 <h3>Attachments</h3>
 <table>
