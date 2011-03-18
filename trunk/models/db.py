@@ -110,8 +110,8 @@ db.define_table('msg_recipients',
       Field('contact_id', db.contact),
       Field('process_time', 'datetime'),
       format='%(msg_id.subject)s %(contact_id.name)s')
-db.msg_recipients.msg_id.requires=IS_IN_DB(db, 'msg.id')
-db.msg_recipients.contact_id.requires=IS_IN_DB(db, 'contact.id')
+db.msg_recipients.msg_id.requires=IS_IN_DB(db, 'msg.id', '%(subject)s')
+db.msg_recipients.contact_id.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
 
 db.define_table('tag',
       Field('name', notnull=True),
@@ -120,11 +120,11 @@ db.define_table('tag',
 
 db.define_table('msg_tag',
       Field('msg_id', db.msg),
-      Field('tag_id', 'list:reference db.tag'),
+      Field('tag_id', db.tag),
       Field('tag_time', 'datetime', notnull=True, default=datetime.now()),
       format='%(tag_id.name)s %(msg_id.subject)s')
-db.msg_tag.msg_id.requires=IS_IN_DB(db, 'msg.id')
-db.msg_tag.tag_id.requires=IS_IN_DB(db, 'tag.id')
+db.msg_tag.msg_id.requires=IS_IN_DB(db, 'msg.id', '%(subject)s')
+db.msg_tag.tag_id.requires=IS_IN_DB(db, 'tag.id', '%(name)s')
 
 db.define_table('event',
       Field('time_stamp','datetime', notnull=True, default=datetime.now()),
