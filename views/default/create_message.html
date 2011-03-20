@@ -2,19 +2,12 @@
 <script src="{{=URL('static','js/jquery.autocomplete.js')}}"></script>
 <link rel="stylesheet" href="{{=URL('static','css/jquery.autocomplete.css')}}">
 {{=form}}
-{{=searchform}}
 {{=json}}
-
-<h3>Tags</h3>
-<table>
-{{=TR(_id='tr-tags-new')}}
-</table>
 <script>
-x = 0;
 function addtags(widget){    
 
-    tags = $.grep(tags, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
 
+    tags = $.grep(tags, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
     td = $('<td>').append($('<span>').text(widget.target.name) )
     td1 = $('<td>').attr({hidden:true}).append($('<span>').attr({
                                             hidden: false,
@@ -28,22 +21,35 @@ function addtags(widget){
 
     $(widget.target).parent().fadeOut(function() { $(this).remove(); });
     $('#tr-tags-new').append($('<td>').append(td,td1));
+
+    selected = $('.tags-add:checkbox');
+    str = '';
+    for(i= 0 ; i < selected.size(); i++){
+        str = str + selected[i].name + ',';
+    }
     
+    $(':input[name=tags_new]').val(str);
     td.click(function(){
                 $(this).next().fadeToggle();
     });
     
-    $('.tags-add').click(function(){
+    $('.tags-add').one('click', function(){
                 id = parseInt(this.id.split('t')[1]);
                 tag = {id:id, name:this.name};
                 tags.push(tag);
                 $(this).parent().parent().parent().fadeOut();
-                
+                selected = $('.tags-add:checkbox');
+                str = '';
+                for(i= 0 ; i < selected.size(); i++){
+                    str = str + selected[i].name + ',';
+                }
+                $(':input[name=tags_new]').val(str);
+
     });
 }
 function showtags()
 {
-    var text = $('#keyword-new').val().toLowerCase();
+    var text = $(':input[name=tags]').val().toLowerCase();
     var pattern = new RegExp('^.*' + text + '.*$', 'g');
 
     $('#new-tags').children().remove();
@@ -59,19 +65,10 @@ function showtags()
                          id: 't' + tags[i].id,
                          name: tags[i].name,
                        })).append($('<label>').text(tags[i].name)));
-                  $('#t'+tags[i].id).click(addtags);                  
+                  $('#t'+tags[i].id).one('click', addtags);                  
              }
         }
     }
 }
  
 </script>
-
-<button onclick="document.location='{{=URL("admin","default","design",args=request.application)}}'">admin</button>
-<button onclick="jQuery('#request').slideToggle()">request</button>
-<div class="hidden" id="request"><h2>request</h2>{{=BEAUTIFY(request)}}</div>
-<button onclick="jQuery('#session').slideToggle()">session</button>
-<div class="hidden" id="session"><h2>session</h2>{{=BEAUTIFY(session)}}</div>
-<button onclick="jQuery('#response').slideToggle()">response</button>
-<div class="hidden" id="response"><h2>response</h2>{{=BEAUTIFY(response)}}</div>
-<script>jQuery('.hidden').hide();</script>
