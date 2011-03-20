@@ -65,7 +65,6 @@ def add_tag():
     
     if dup is not None : return ''
     
-        
     msg_tag_id = db.msg_tag.insert(msg_id=int(request.args(0)), tag_id=int(request.args(1)))
     td = TD(
                 SPAN(LABEL(row.name),_onclick="$('#tag%d').slideToggle()" % msg_tag_id), 
@@ -139,6 +138,15 @@ def create_message():
     """
     import os
 
+#form[0] is the table in the form
+#form[0][i] is the i-th row
+#form[0][i][1] is the 2nd column of the i-th row
+#form[0][i][1][0] is the INPUT inside that
+#form[0]['_class'] is the class attribute of the table
+#form[0][i][1][0]['_name'] is the name attribute of the INPUT
+#form.element(_name='email')['_class'] is the class attribute of the
+#element with attribute name=='email'
+ 
     form = SQLFORM.factory(
       Field('subject', notnull=True),
       Field('content', 'text', notnull=True),
@@ -146,17 +154,20 @@ def create_message():
       Field('create_time', 'datetime', notnull=True, default=datetime.now()),
       Field('attachment_type'),
       Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
+      Field('tags', label='Search tags'),
+      hidden=dict(tags_new=None),
       table_name='msg_attachment'
     )
-      
-
-    input = INPUT(_id='keyword-new', _name='keyword-new', _autocomplete='off', _onkeyup="showtags()")
-    searchform = FORM(TABLE( TR(TD(LABEL('Add tag'), _class='w2p_fl'),TD(input)),  TR(TD(LABEL(''), _class='w2p_fl'),TD(DIV(_id='new-tags') ))))
-
-      
+    form.element(_name='tags')['_onkeyup']="showtags()" 
+    form.element(_name='tags')['_autocomplete']=False 
+    form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
+    form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
+       
     tags = db(db.tag.id > 0).select(db.tag.id, db.tag.name).json()
     
     if form.accepts(request.vars, session):
+        print request.vars
+        '''
         msg_id = db.msg.insert(subject=request.vars.subject, 
                 content=request.vars.subject, 
                 created_by=request.vars.created_by,
@@ -169,9 +180,9 @@ def create_message():
 
         session.flash = T('File successfully attached.')
         redirect(URL(f='show_message', args=msg_id))
+        '''    
     
-    
-    return dict(form=form, searchform=searchform, json=SCRIPT('var tags=%s' % tags))
+    return dict(form=form, json=SCRIPT('var tags=%s' % tags))
     
 @auth.requires_login()
 def create_attachment():
