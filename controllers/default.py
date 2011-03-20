@@ -46,17 +46,17 @@ def show_message():
 
     input = INPUT(_id='keyword', _name='keyword', _autocomplete='off', 
         _onkeyup="ajax('%s', ['keyword'], 'working')" % URL(r=request,f='bg_find', args=request.args(0)))
-    searchform = FORM(TABLE( TR(TD(LABEL('Add tag'), _class='w2p_fl'),TD(input)),  TR(TD(LABEL(''), _class='w2p_fl'),TD(DIV(_id='working') ))))
+    searchform = FORM(TABLE( TR(TD(LABEL('Add tag')),TD(input)),  TR(TD(LABEL('')),TD(DIV(_id='working') ))))
     
     return dict(form=form, attachments=attachments, id=message.id, tags=TR(*tr, _id='tr-tags'), searchform=searchform)
 
+@auth.requires_login()
 def del_tag():
     del db.msg_tag[int(request.args(0))]
     return "$('#div-tag%s').fadeOut(function() { $(this).remove(); })" % request.args(0)
 
-def add_tag():
-    print request.args
-    
+@auth.requires_login()
+def add_tag():    
     row = db.tag[int(request.args(1))]
     msg_tag_id = db.msg_tag.insert(msg_id=int(request.args(0)), tag_id=int(request.args(1)))
     td = TD(
@@ -64,13 +64,10 @@ def add_tag():
                 SPAN(INPUT(_type='checkbox', _name=row.name), LABEL('Delete'), _hidden=True, _id='tag%d' % msg_tag_id, 
                       _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=msg_tag_id)),
                 _id='div-tag%d' % msg_tag_id)            
-
-    
-    
-    
+                
     return "$('#div-untag%s').fadeOut(function() { $(this).remove(); });$('#tr-tags').append('%s')" % (request.args(1), td)
 
-
+@auth.requires_login()
 def bg_find():
     if request.vars.keyword.lower():
         pattern = '%' + request.vars.keyword.lower() + '%'
@@ -158,6 +155,11 @@ def download():
     return response.download(request,db)
 
 @auth.requires_login()
+def add_new_tag():
+    pass
+
+
+@auth.requires_login()
 def create_message():
     """
     allows to create a simple message for testing
@@ -173,6 +175,14 @@ def create_message():
       Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
       table_name='msg_attachment'
     )
+      
+
+    input = INPUT(_id='keyword-new', _name='keyword-new', _autocomplete='off', _onkeyup="showtags()")
+    searchform = FORM(TABLE( TR(TD(LABEL('Add tag'), _class='w2p_fl'),TD(input)),  TR(TD(LABEL(''), _class='w2p_fl'),TD(DIV(_id='new-tags') ))))
+
+      
+    tags = db(db.tag.id > 0).select(db.tag.id, db.tag.name).json()
+    
     if form.accepts(request.vars, session):
         msg_id = db.msg.insert(subject=request.vars.subject, 
                 content=request.vars.subject, 
@@ -187,8 +197,9 @@ def create_message():
         session.flash = T('File successfully attached.')
         redirect(URL(f='show_message', args=msg_id))
     
-    return dict(form = form)
-
+    
+    return dict(form=form, searchform=searchform, json=SCRIPT('var tags=%s' % tags))
+    
 @auth.requires_login()
 def create_contact():
     """

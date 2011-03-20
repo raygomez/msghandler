@@ -1,5 +1,72 @@
 {{extend 'layout.html'}}
+<script src="{{=URL('static','js/jquery.autocomplete.js')}}"></script>
+<link rel="stylesheet" href="{{=URL('static','css/jquery.autocomplete.css')}}">
 {{=form}}
+{{=searchform}}
+{{=json}}
+
+<h3>Tags</h3>
+<table>
+{{=TR(_id='tr-tags-new')}}
+</table>
+<script>
+x = 0;
+function addtags(widget){    
+
+    tags = $.grep(tags, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
+
+    td = $('<td>').append($('<span>').text(widget.target.name) )
+    td1 = $('<td>').attr({hidden:true}).append($('<span>').attr({
+                                            hidden: false,
+                                            id: 'chk-span' + widget.target.id
+                                      }).append($('<input>').attr({
+                                            type: 'checkbox',
+                                            class: 'tags-add',
+                                            id: 'chk-' + widget.target.id,
+                                            name: widget.target.name,
+                                       })).append($('<label>').text('Delete')));
+
+    $(widget.target).parent().fadeOut(function() { $(this).remove(); });
+    $('#tr-tags-new').append($('<td>').append(td,td1));
+    
+    td.click(function(){
+                $(this).next().fadeToggle();
+    });
+    
+    $('.tags-add').click(function(){
+                id = parseInt(this.id.split('t')[1]);
+                tag = {id:id, name:this.name};
+                tags.push(tag);
+                $(this).parent().parent().parent().fadeOut();
+                
+    });
+}
+function showtags()
+{
+    var text = $('#keyword-new').val().toLowerCase();
+    var pattern = new RegExp('^.*' + text + '.*$', 'g');
+
+    $('#new-tags').children().remove();
+    if(text != ''){
+        for(i = 0; i < tags.length; i++){
+            if (tags[i].name.match(pattern)) 
+            {
+                $('#new-tags').append($('<div>').attr({ 
+                      class: 'tags',
+                      id: 'tag-'+tags[i].id,
+                    }).append($('<input>').attr({
+                         type: 'checkbox',
+                         id: 't' + tags[i].id,
+                         name: tags[i].name,
+                       })).append($('<label>').text(tags[i].name)));
+                  $('#t'+tags[i].id).click(addtags);                  
+             }
+        }
+    }
+}
+ 
+</script>
+
 <button onclick="document.location='{{=URL("admin","default","design",args=request.application)}}'">admin</button>
 <button onclick="jQuery('#request').slideToggle()">request</button>
 <div class="hidden" id="request"><h2>request</h2>{{=BEAUTIFY(request)}}</div>
