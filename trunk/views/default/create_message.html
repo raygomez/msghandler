@@ -25,7 +25,7 @@ function addtags(widget){
     selected = $('.tags-add:checkbox');
     str = '';
     for(i= 0 ; i < selected.size(); i++){
-        str = str + selected[i].name + ',';
+        str = str + selected[i].id.split('t')[1] + ',';
     }
     
     $(':input[name=tags_new]').val(str);
@@ -41,7 +41,7 @@ function addtags(widget){
                 selected = $('.tags-add:checkbox');
                 str = '';
                 for(i= 0 ; i < selected.size(); i++){
-                    str = str + selected[i].name + ',';
+                    str = str + selected[i].id.split('t')[1] + ',';
                 }
                 $(':input[name=tags_new]').val(str);
 
