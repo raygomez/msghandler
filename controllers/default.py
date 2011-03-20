@@ -166,8 +166,6 @@ def create_message():
     tags = db(db.tag.id > 0).select(db.tag.id, db.tag.name).json()
     
     if form.accepts(request.vars, session):
-        print request.vars
-        '''
         msg_id = db.msg.insert(subject=request.vars.subject, 
                 content=request.vars.subject, 
                 created_by=request.vars.created_by,
@@ -177,10 +175,12 @@ def create_message():
            db.msg_attachment.insert(msg_id=msg_id, 
                attachment_type=request.vars.attachment_type,
                attachment= form.vars.attachment)
-
-        session.flash = T('File successfully attached.')
+        if request.vars.tags_new != ',':
+            select_tags = request.vars.tags_new.split(',')
+            for i in range(len(select_tags)-1):
+                db.msg_tag.insert(msg_id=msg_id, tag_id=int(select_tags[i]))             
+        session.flash = T('Message successfully created.')
         redirect(URL(f='show_message', args=msg_id))
-        '''    
     
     return dict(form=form, json=SCRIPT('var tags=%s' % tags))
     
