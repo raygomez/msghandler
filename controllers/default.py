@@ -19,7 +19,7 @@ def index():
     grps = db(db.auth_membership.user_id == auth.user_id).select()
     my_roles = []
     for grp in grps:
-        roles.append(grp.group_id.role)
+        my_roles.append(grp.group_id.role)
 
     groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
     messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)
@@ -31,7 +31,7 @@ def index():
 
 @auth.requires_login()     
 def show_message():
-    message = db.msg(request.args(0)) #or redirect(URL('index'))    
+    message = db.msg(request.args(0)) or redirect(URL('index'))    
 
     attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
     tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
@@ -41,8 +41,7 @@ def show_message():
                 SPAN(LABEL(row.tag_id.name),_onclick="$('#tag%d').slideToggle()" % row.id), 
                 SPAN(INPUT(_type='checkbox', _name=row.tag_id.name), LABEL('Delete'), _hidden=True, _id='tag%d' % row.id, 
                       _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=row.id)),
-                _id='div-tag%d' % row.id)            
-            for row in tags ]
+                _id='div-tag%d' % row.id) for row in tags ]
 
     input = INPUT(_id='keyword', _name='keyword', _autocomplete='off', 
         _onkeyup="ajax('%s', ['keyword'], 'working')" % URL(r=request,f='bg_find', args=request.args(0)))
@@ -57,7 +56,16 @@ def del_tag():
 
 @auth.requires_login()
 def add_tag():    
-    row = db.tag[int(request.args(1))]
+
+    msg_id = int(request.args(0))
+    tag_id = int(request.args(1))
+    row = db.tag[tag_id]
+    
+    dup = db.msg_tag((db.msg_tag.msg_id == msg_id) & (db.msg_tag.tag_id == tag_id ))
+    
+    if dup is not None : return ''
+    
+        
     msg_tag_id = db.msg_tag.insert(msg_id=int(request.args(0)), tag_id=int(request.args(1)))
     td = TD(
                 SPAN(LABEL(row.name),_onclick="$('#tag%d').slideToggle()" % msg_tag_id), 
@@ -84,36 +92,6 @@ def bg_find():
             LABEL(row.name), _id='div-untag%d' % row.id) for row in tags]
     return DIV(*items)
     
-@auth.requires_login()
-def show_contact():
-    contact = db.contact(request.args(0)) or redirect(URL('index'))
-    form = crud.update(db.contact, contact, next=URL('index'))
-    return dict(form=form)
-
-@auth.requires_login()
-def show_user():
-    user = db.auth_user(request.args(0)) or redirect(URL('index'))
-    form = crud.update(db.auth_user, user, next=URL('index'))
-    return dict(form=form)
-
-@auth.requires_login()
-def show_group():
-    group = db.auth_group(request.args(0)) or redirect(URL('index'))
-    form = crud.update(db.auth_group, group, next=URL('index'))
-    return dict(form=form)
-    
-@auth.requires_login()
-def show_tag():
-    tag = db.tag(request.args(0)) or redirect(URL('index'))
-    form = crud.update(db.tag, group, next=URL('index'))
-    return dict(form=form)
-        
-@auth.requires_login()
-def show_tag():
-    tag = db.tag(request.args(0)) or redirect(URL('index'))
-    form = crud.update(db.tag, tag, next=URL('index'))
-    return dict(form=form)
-
 @auth.requires_login()
 def data():
     return dict(form=crud())
@@ -153,11 +131,6 @@ def download():
     http://..../[app]/default/download/[filename]
     """
     return response.download(request,db)
-
-@auth.requires_login()
-def add_new_tag():
-    pass
-
 
 @auth.requires_login()
 def create_message():
@@ -201,24 +174,6 @@ def create_message():
     return dict(form=form, searchform=searchform, json=SCRIPT('var tags=%s' % tags))
     
 @auth.requires_login()
-def create_contact():
-    """
-    allows to create a simple contact for testing
-    """
-    form = crud.create(db.contact, next=URL('index'))
-    
-    return dict(form = form)
-
-@auth.requires_login()
-def create_tag():
-    """
-    allows to create a simple tag for testing
-    """
-    form = crud.create(db.tag, next=URL('index'))
-    
-    return dict(form = form)
-
-@auth.requires_login()
 def create_attachment():
     """
     allows to create a simple attachment for testing
@@ -226,24 +181,7 @@ def create_attachment():
     db.msg_attachment.msg_id.default = request.args(0)
     form = crud.create(db.msg_attachment, next=URL('show_message', args=request.args(0)))
     return dict(form = form)
-
-@auth.requires_login()
-def create_tag():
-    """
-    allows to create a simple contact for testing
-    """
-    form = crud.create(db.tag, next=URL('index'))
-    return dict(form = form)
-
-@auth.requires_login()    
-def create_group():
-    """
-    allows to create a simple contact for testing
-    """
-    form = crud.create(db.auth_group, next=URL('index'))
-    return dict(form = form)
-        
-    
+   
 @auth.requires_login()    
 def call():
     """
