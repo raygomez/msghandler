@@ -1,21 +1,21 @@
 {{extend 'layout.html'}}
 
 <h1>Groups</h1>
-[{{=A('Create a new group', _href=URL('create_group'))}}]<br />
+[{{=A('Create a new group', _href=URL('data', args=('create','auth_group')))}}]<br />
 <ul>{{for group in groups:}}
-    {{=LI(A(group.role, _href=URL('show_group',args=group.id)))}}
+    {{=LI(A(group.role, _href=URL('data', args=('update', 'auth_group', group.id))))}}
 {{pass}}</ul>
 
 <h1>Contacts</h1>
-[{{=A('Create a new contact', _href=URL('create_contact'))}}]<br />
+[{{=A('Create a new contact', _href=URL('data', args=('create', 'contact')))}}]<br />
 <ul>{{for contact in contacts:}}
-    {{=LI(A(contact.name, _href=URL('show_contact',args=contact.id)))}}
+    {{=LI(A(contact.name, _href=URL('data', args=('update', 'contact', contact.id))))}}
 {{pass}}</ul>
 
 <h1>Tags</h1>
-[{{=A('Create a new tag', _href=URL('create_tag'))}}]<br />
+[{{=A('Create a new tag', _href=URL('data', args=('create', 'tag')))}}]<br />
 <ul>{{for tag in tags:}}
-    {{=LI(A(tag.name, _href=URL('show_tag',args=tag.id)))}}
+    {{=LI(A(tag.name, _href=URL('data', args=('update', 'tag', tag.id))))}}
 {{pass}}</ul>
 
 
@@ -28,9 +28,9 @@
 {{pass}}</ul>
 
 <h1>Users</h1>
-[{{=A('Create a new user', _href=URL('create_user'))}}]<br />
+[{{=A('Create a new user', _href=URL('data', args=('create','auth_user')))}}]<br />
 
 <ul>{{for user in users:}}
-    <li>{{=A(user.first_name + ' ' +user.last_name, _href=URL('show_user',args=user.id))}}
+    <li>{{=A(user.first_name + ' ' +user.last_name, _href=URL('data',args=('update', 'auth_user', user.id)))}}
     </li>
 {{pass}}</ul>
