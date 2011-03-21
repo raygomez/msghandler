@@ -4,11 +4,11 @@
 {{=form}}
 {{=json}}
 <script>
+
 function addtags(widget){    
 
-
     tags = $.grep(tags, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
-    td = $('<td>').append($('<span>').text(widget.target.name) )
+    td = $('<td>').append($('<span>'+ widget.target.name +'</span>'))
     td1 = $('<td>').attr({hidden:true}).append($('<span>').attr({
                                             hidden: false,
                                             id: 'chk-span' + widget.target.id
@@ -29,8 +29,11 @@ function addtags(widget){
     }
     
     $(':input[name=tags_new]').val(str);
-    td.click(function(){
-                $(this).next().fadeToggle();
+
+    td.parent().mouseenter(function(){
+            td.next().show();
+    }).mouseleave(function(){
+            td.next().hide();    
     });
     
     $('.tags-add').one('click', function(){
@@ -44,7 +47,6 @@ function addtags(widget){
                     str = str + selected[i].id.split('t')[1] + ',';
                 }
                 $(':input[name=tags_new]').val(str);
-
     });
 }
 function showtags()

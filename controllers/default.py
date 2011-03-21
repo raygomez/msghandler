@@ -40,11 +40,11 @@ def show_message():
         _onkeyup="ajax('%s', ['keyword'], 'working')" % URL(r=request,f='bg_find', args=request.args(0)))
 
     tr = [TD(
-                SPAN(LABEL(row.tag_id.name), _autocomplete='off', _onclick="$('#tag%d').slideToggle()" % row.id), 
+                SPAN(LABEL(row.tag_id.name)), 
                 SPAN(INPUT(_type='checkbox', _name=row.tag_id.name), LABEL('Delete'), _hidden=True, _id='tag%d' % row.id, 
                       _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=row.id)),
-                _id='div-tag%d' % row.id, _float='left') for row in tags ]
-
+                    _id='div-tag%d' % row.id, _class='span-div-tags'
+                ) for row in tags ]
     
     form = SQLFORM(db.msg, message)
     form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'), TD(TABLE(TR(tr, _id='tr-tags')))))
@@ -74,10 +74,10 @@ def add_tag():
     
     msg_tag_id = db.msg_tag.insert(msg_id=int(request.args(0)), tag_id=int(request.args(1)))
     td = TD(
-                SPAN(LABEL(row.name),_onclick="$('#tag%d').slideToggle()" % msg_tag_id), 
+                SPAN(LABEL(row.name)), 
                 SPAN(INPUT(_type='checkbox', _name=row.name), LABEL('Delete'), _hidden=True, _id='tag%d' % msg_tag_id, 
                       _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=msg_tag_id)),
-                _id='div-tag%d' % msg_tag_id)            
+                _id='div-tag%d' % msg_tag_id, _class='span-div-tags')            
                 
     return "$('#div-untag%s').fadeOut(function() { $(this).remove(); });$('#tr-tags').append('%s')" % (request.args(1), td)
 
