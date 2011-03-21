@@ -5,7 +5,7 @@ $(function(){
             $($(this).children()[1]).fadeOut('fast');
     }).live('mouseenter', function(){
             $($(this).children()[1]).fadeIn('fast');
-    });
+    });    
 })
 </script>
 <h1>Message</h1>
@@ -17,8 +17,6 @@ $(function(){
 {{=tags}}
 </table>
 {{pass}}
-
-{{=searchform}}<br />
 
 {{if len(attachments) > 0:}}
 <h3>Attachments</h3>
