@@ -17,7 +17,7 @@ function addtags(widget){
                                             class: 'tags-add',
                                             id: 'chk-' + widget.target.id,
                                             name: widget.target.name,
-                                       })).append($('<label>').text('Delete')));
+                                       })).append($('<label>Delete</label>')));
 
     $(widget.target).parent().fadeOut(function() { $(this).remove(); });
     $('#tr-tags-new').append($('<td>').append(td,td1));

@@ -35,19 +35,26 @@ def show_message():
 
     attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
     tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
-    form = crud.update(db.msg, message, next=URL('index'))
-
-    tr = [TD(
-                SPAN(LABEL(row.tag_id.name),_onclick="$('#tag%d').slideToggle()" % row.id), 
-                SPAN(INPUT(_type='checkbox', _name=row.tag_id.name), LABEL('Delete'), _hidden=True, _id='tag%d' % row.id, 
-                      _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=row.id)),
-                _id='div-tag%d' % row.id) for row in tags ]
-
+    
     input = INPUT(_id='keyword', _name='keyword', _autocomplete='off', 
         _onkeyup="ajax('%s', ['keyword'], 'working')" % URL(r=request,f='bg_find', args=request.args(0)))
-    searchform = FORM(TABLE( TR(TD(LABEL('Add tag')),TD(input)),  TR(TD(LABEL('')),TD(DIV(_id='working') ))))
+
+    tr = [TD(
+                SPAN(LABEL(row.tag_id.name), _autocomplete='off', _onclick="$('#tag%d').slideToggle()" % row.id), 
+                SPAN(INPUT(_type='checkbox', _name=row.tag_id.name), LABEL('Delete'), _hidden=True, _id='tag%d' % row.id, 
+                      _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=row.id)),
+                _id='div-tag%d' % row.id, _float='left') for row in tags ]
+
     
-    return dict(form=form, attachments=attachments, id=message.id, tags=TR(*tr, _id='tr-tags'), searchform=searchform)
+    form = SQLFORM(db.msg, message)
+    form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'), TD(TABLE(TR(tr, _id='tr-tags')))))
+    form[0].insert(5, TR(TD(LABEL('Search tags'), _class='w2p_fl'),TD(input, _id='tr-tags-search')))
+    form[0].insert(6, TR(TD(),TD(DIV(_id='working'))))
+    
+    if form.accepts(request.vars, session):
+       response.flash = 'Message updated.'
+    
+    return dict(form=form, attachments=attachments, id=message.id, tags='', searchform='')
 
 @auth.requires_login()
 def del_tag():
@@ -159,7 +166,7 @@ def create_message():
       table_name='msg_attachment'
     )
     form.element(_name='tags')['_onkeyup']="showtags()" 
-    form.element(_name='tags')['_autocomplete']=False 
+    form.element(_name='tags')['_autocomplete']='off' 
     form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
     form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
        
