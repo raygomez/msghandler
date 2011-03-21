@@ -7,22 +7,27 @@
 
 function addtags(widget){    
 
+    
+    
     tags = $.grep(tags, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
-    td = $('<td>').append($('<span>'+ widget.target.name +'</span>'))
-    td1 = $('<td>').attr({hidden:true}).append($('<span>').attr({
-                                            hidden: false,
-                                            id: 'chk-span' + widget.target.id
-                                      }).append($('<input>').attr({
-                                            type: 'checkbox',
-                                            class: 'tags-add',
-                                            id: 'chk-' + widget.target.id,
-                                            name: widget.target.name,
-                                       })).append($('<label>Delete</label>')));
+    //td = $('<td>').append($('<span>'+ widget.target.name +'</span>'));
+    td = $('<span>'+ widget.target.name +'</span>');
+    //td1 = $('<td>').attr({hidden:true}).append($('<img>').attr({
+    td1 = $('<img>').attr({
+            src:'{{=URL(c='static',f='images', args='delete.png')}}',
+            class:'tags-add',
+            hidden:true,
+            id: widget.target.id,
+            name: widget.target.name,
+        });
 
-    $(widget.target).parent().fadeOut(function() { $(this).remove(); });
-    $('#tr-tags-new').append($('<td>').append(td,td1));
+    $(widget.target).parent().fadeOut(function() { 
+        $(this).remove();
+        $('#msg_attachment_tags').val('').keyup(); 
+    });
+    $('#tr-tags-new').append($('<td class=top-td>').append(td,td1));
 
-    selected = $('.tags-add:checkbox');
+    selected = $('img.tags-add');
     str = '';
     for(i= 0 ; i < selected.size(); i++){
         str = str + selected[i].id.split('t')[1] + ',';
@@ -30,18 +35,17 @@ function addtags(widget){
     
     $(':input[name=tags_new]').val(str);
 
-    td.parent().mouseenter(function(){
-            td.next().show();
+    $('.top-td').live('mouseenter', function(){
+        $($(this).children()[1]).show();
     }).mouseleave(function(){
-            td.next().hide();    
+        $($(this).children()[1]).hide();
     });
-    
     $('.tags-add').one('click', function(){
                 id = parseInt(this.id.split('t')[1]);
                 tag = {id:id, name:this.name};
                 tags.push(tag);
-                $(this).parent().parent().parent().fadeOut();
-                selected = $('.tags-add:checkbox');
+                $(this).parent().parent().fadeOut();
+                selected = $('img.tags-add');
                 str = '';
                 for(i= 0 ; i < selected.size(); i++){
                     str = str + selected[i].id.split('t')[1] + ',';

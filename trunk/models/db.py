@@ -46,6 +46,7 @@ auth.settings.registration_requires_verification = True
 auth.settings.registration_requires_approval = True
 auth.messages.verify_email = 'Click on the link http://'+request.env.http_host+URL('default','user',args=['verify_email'])+'/%(key)s to verify your email'
 auth.settings.reset_password_requires_verification = True
+auth.settings.actions_disabled.append('register') 
 auth.messages.reset_password = 'Click on the link http://'+request.env.http_host+URL('default','user',args=['reset_password'])+'/%(key)s to reset your password'
 
 #########################################################################
