@@ -2,9 +2,9 @@
 <script>
 $(function(){
     $('.span-div-tags').live('mouseleave', function(){
-            $($(this).children()[1]).fadeOut('fast');
+            $($(this).children()[1]).hide();
     }).live('mouseenter', function(){
-            $($(this).children()[1]).fadeIn('fast');
+            $($(this).children()[1]).show();
     });    
 })
 </script>

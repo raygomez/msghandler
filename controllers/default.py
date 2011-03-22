@@ -58,7 +58,7 @@ def show_message():
 @auth.requires_login()
 def del_tag():
     del db.msg_tag[int(request.args(0))]
-    return "$('#div-tag%s').fadeOut('fast', function() { $(this).remove(); })" % request.args(0)
+    return "$('#div-tag%s').fadeOut('fast', function() { $(this).remove(); });$('#keyword').keyup(); " % request.args(0)
 
 @auth.requires_login()
 def add_tag():    
@@ -78,7 +78,7 @@ def add_tag():
                       _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=msg_tag_id)),
                 _id='div-tag%d' % msg_tag_id, _class='span-div-tags')            
                 
-    return "$('#div-untag%s').fadeOut(function() { $(this).remove(); $('#keyword').val('').keyup(); });$('#tr-tags').append('%s')" % (request.args(1), td)
+    return "$('#div-untag%s').fadeOut(function() { $(this).remove();});$('#tr-tags').append('%s')" % (request.args(1), td)
 
 @auth.requires_login()
 def bg_find():
