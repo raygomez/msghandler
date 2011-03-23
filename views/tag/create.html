@@ -1,0 +1,9 @@
+{{extend 'layout.html'}}
+<h2>Create tag</h2>
+{{=form}}
+<h3>Submitted</h3>
+{{=BEAUTIFY(request.vars)}}
+<h3>Accepted</h3>
+{{=BEAUTIFY(form.vars)}}
+<h3>Errors</h3>
+{{=BEAUTIFY(form.errors)}}
