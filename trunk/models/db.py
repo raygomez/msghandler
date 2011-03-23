@@ -42,8 +42,8 @@ mail.settings.login = 'telehealth.up@gmail.com:telehealth'      # your credentia
 auth.settings.hmac_key = 'sha512:7170c6c3-cd99-4212-beb9-41135103ac81'   # before define_tables()
 auth.define_tables()                           # creates all needed tables
 auth.settings.mailer = mail                    # for user email verification
-auth.settings.registration_requires_verification = True
-auth.settings.registration_requires_approval = True
+auth.settings.registration_requires_verification = False
+auth.settings.registration_requires_approval = False
 auth.messages.verify_email = 'Click on the link http://'+request.env.http_host+URL('default','user',args=['verify_email'])+'/%(key)s to verify your email'
 auth.settings.reset_password_requires_verification = True
 auth.settings.actions_disabled.append('register') 
@@ -118,6 +118,7 @@ db.define_table('tag',
       Field('name', notnull=True),
       Field('description', 'text', notnull=True),
       format='%(name)s')
+db.tag.name.requires=IS_NOT_IN_DB(db, 'tag.name')
 
 db.define_table('msg_tag',
       Field('msg_id', db.msg),
