@@ -36,22 +36,33 @@ def show_message():
     attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
     tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
     
-    input = INPUT(_id='keyword', _name='keyword', _autocomplete='off', _onkeyup="ajax('%s', ['keyword'], 'working')" 
-                % URL(r=request,f='bg_find', args=request.args(0)))
-
-    tr = [TD(
-                SPAN(row.tag_id.name), 
-                SPAN(IMG(_src=URL(c='static',f='images', args='delete.png' )), _hidden=True, _id='tag%d' % row.id,  
-                      _onclick="ajax('%s', [''], ':eval')" % (URL(r=request,f='del_tag', args=row.id))),
-                    _id='div-tag%d' % row.id, _class='span-div-tags') for row in tags ]
-    
-    form = crud.update(db.msg, message)
-    form[0].insert(4, TR(TD(LABEL('Tags')), TD(TABLE(TR(tr, _id='tr-tags')))))
-    form[0].insert(5, TR(TD(LABEL('Search tags')),TD(input, _id='tr-tags-search')))
-    form[0].insert(6, TR(TD(),TD(DIV(_id='working'))))
+    for field in db.msg.fields:
+        if field is not 'id':
+            db.msg[field].default = message[field]
+        
+    form = SQLFORM.factory(db.msg,
+      Field('attachment_type'),
+      Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
+      Field('tags', label='Search tags'),
+      hidden=dict(tags_new=None),
+      table_name='msg_attachment'
+    )
+    form.element(_name='tags')['_onkeyup']="showtags()" 
+    form.element(_name='tags')['_autocomplete']='off' 
+    form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
+    form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
     
     if form.accepts(request.vars, session):
-       response.flash = 'Message updated.'
+        db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))
+        form.vars.msg_id = message.id
+        #if request.vars.tags_new != ',':
+        #    select_tags = request.vars.tags_new.split(',')
+        #    for i in range(len(select_tags)-1):
+        #        db.msg_tag.insert(msg_id=msg_id, tag_id=int(select_tags[i]))             
+        session.flash = T('Message successfully created.')
+        redirect(URL('show_message', args=message.id))
+    
+        response.flash = 'Message updated.'
     
     return dict(form=form, attachments=attachments, id=message.id)
 
