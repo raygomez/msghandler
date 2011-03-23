@@ -45,7 +45,7 @@ def show_message():
                       _onclick="ajax('%s', [''], ':eval')" % (URL(r=request,f='del_tag', args=row.id))),
                     _id='div-tag%d' % row.id, _class='span-div-tags') for row in tags ]
     
-    form = SQLFORM(db.msg, message)
+    form = crud.update(db.msg, message)
     form[0].insert(4, TR(TD(LABEL('Tags')), TD(TABLE(TR(tr, _id='tr-tags')))))
     form[0].insert(5, TR(TD(LABEL('Search tags')),TD(input, _id='tr-tags-search')))
     form[0].insert(6, TR(TD(),TD(DIV(_id='working'))))
@@ -53,7 +53,7 @@ def show_message():
     if form.accepts(request.vars, session):
        response.flash = 'Message updated.'
     
-    return dict(form=form, attachments=attachments, id=message.id, tags='')
+    return dict(form=form, attachments=attachments, id=message.id)
 
 @auth.requires_login()
 def del_tag():
@@ -153,11 +153,7 @@ def create_message():
 #form.element(_name='email')['_class'] is the class attribute of the
 #element with attribute name=='email'
  
-    form = SQLFORM.factory(
-      Field('subject', notnull=True),
-      Field('content', 'text', notnull=True),
-      Field('created_by', db.contact, requires=IS_IN_DB(db, 'contact.id', '%(name)s')),
-      Field('create_time', 'datetime', notnull=True, default=datetime.now()),
+    form = SQLFORM.factory(db.msg,
       Field('attachment_type'),
       Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
       Field('tags', label='Search tags'),
