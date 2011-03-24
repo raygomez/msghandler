@@ -39,6 +39,10 @@ def show_message():
     for field in db.msg.fields:
         if field is not 'id':
             db.msg[field].default = message[field]
+
+    tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
+    not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
+    tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
         
     form = SQLFORM.factory(db.msg,
       Field('attachment_type'),
@@ -50,63 +54,38 @@ def show_message():
     form.element(_name='tags')['_onkeyup']="showtags()" 
     form.element(_name='tags')['_autocomplete']='off' 
     form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
+
     form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
+    td = TABLE(TR())
+
+    tags_new = ''
+
+    for i in range(len(tags)): 
+        td[0].append(TD(_class = 'top-td'))
+        td[0][i].append(SPAN(tags[i].tag_id.name))
+        td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
+                        _class='tags-add', _id='imgt'+`tags[i].id`, _name=tags[i].tag_id.name))
+        tags_new  = `tags[i].id` +','+ tags_new
     
+    form[0].append(INPUT(_type='hidden', _name = 'tags_new', value =tags_new))    
+    form.element('#tr-tags-new').append(td)
+       
     if form.accepts(request.vars, session):
         db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))
         form.vars.msg_id = message.id
-        #if request.vars.tags_new != ',':
-        #    select_tags = request.vars.tags_new.split(',')
+        if request.vars.tags_new != ',':
+            tags_before = set(tags_new.split(',')[:-1])
+            select_tags = set(request.vars.tags_new.split(',')[:-1])
+            print tags_before.difference(select_tags)
+            print 
         #    for i in range(len(select_tags)-1):
         #        db.msg_tag.insert(msg_id=msg_id, tag_id=int(select_tags[i]))             
-        session.flash = T('Message successfully created.')
+        session.flash = T('Message successfully updated.')
         redirect(URL('show_message', args=message.id))
     
         response.flash = 'Message updated.'
     
-    return dict(form=form, attachments=attachments, id=message.id)
-
-@auth.requires_login()
-def del_tag():
-    del db.msg_tag[int(request.args(0))]
-    return "$('#div-tag%s').fadeOut('fast', function() { $(this).remove(); });$('#keyword').keyup(); " % request.args(0)
-
-@auth.requires_login()
-def add_tag():    
-
-    msg_id = int(request.args(0))
-    tag_id = int(request.args(1))
-    row = db.tag[tag_id]
-    
-    dup = db.msg_tag((db.msg_tag.msg_id == msg_id) & (db.msg_tag.tag_id == tag_id ))
-    
-    if dup is not None : return ''
-    
-    msg_tag_id = db.msg_tag.insert(msg_id=msg_id, tag_id=tag_id)
-    td = TD(
-                SPAN(row.name), 
-                SPAN(IMG(_src=URL(c='static',f='images', args='delete.png' )), _hidden=True, _id='tag%d' % msg_tag_id, 
-                      _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='del_tag', args=msg_tag_id)),
-                _id='div-tag%d' % msg_tag_id, _class='span-div-tags')            
-                
-    return "$('#div-untag%s').fadeOut(function() { $(this).remove();});$('#tr-tags').append('%s')" % (request.args(1), td)
-
-@auth.requires_login()
-def bg_find():
-    if request.vars.keyword.lower():
-        pattern = '%' + request.vars.keyword.lower() + '%'
-    else:
-        pattern = ''
-
-    message = db.msg(request.args(0))
-
-    tags1 = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id, orderby=db.msg_tag.tag_time)
-    tags = db(db.tag.name.lower().like(pattern) & ~db.tag.id.belongs(tags1)).select(orderby=db.tag.name, limitby=(0,5))
-
-    items = [DIV(INPUT(_type='checkbox', _name=row.name, 
-            _onclick="ajax('%s', [''], ':eval')" % URL(r=request,f='add_tag', args=(request.args(0),row.id))),
-            LABEL(row.name), _id='div-untag%d' % row.id) for row in tags]
-    return DIV(*items)
+    return dict(form=form, attachments=attachments, id=message.id, json=SCRIPT('var tags=%s' % not_tags))
     
 @auth.requires_login()
 def data():

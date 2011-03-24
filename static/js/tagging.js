@@ -1,3 +1,11 @@
+$(
+    function(){
+        $('.top-td').live('mouseenter', function(){ $($(this).children()[1]).show();})
+        .mouseleave(function(){$($(this).children()[1]).hide();});
+    }
+    
+)
+
 function addtags(widget){    
     tags = $.grep(tags, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
     td = $('<span>'+ widget.target.name +'</span>');
@@ -10,7 +18,7 @@ function addtags(widget){
         });
 
     $(widget.target).parent().fadeOut(function() { $(this).remove(); });
-    $('#tr-tags-new').append($('<td class="top-td">').append(td,td1));
+    $('#tr-tags-new table tr').append($('<td class="top-td">').append(td,td1));
 
     selected = $('img.tags-add');
     str = '';
@@ -19,11 +27,8 @@ function addtags(widget){
     }
     
     $(':input[name=tags_new]').val(str);
-
-    $('.top-td').live('mouseenter', function(){ $($(this).children()[1]).show();})
-        .mouseleave(function(){$($(this).children()[1]).hide();});
-        
-    $('.tags-add').one('click', function(){
+    
+    $(td1).one('click', function(){
                 $(this).parent().fadeOut( function() { $(this).remove();});
                 selected = $('img.tags-add');
                 id = parseInt(this.id.split('imgt')[1]);
