@@ -153,6 +153,10 @@ def create_message():
     form.element(_name='tags')['_autocomplete']='off' 
     form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
     form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
+
+    td = TABLE(TR())
+    form.element('#tr-tags-new').append(td)
+
        
     tags = db(db.tag.id > 0).select(db.tag.id, db.tag.name).json()
     
