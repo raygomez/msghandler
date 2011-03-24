@@ -3,7 +3,6 @@ $(
         $('.top-td').live('mouseenter', function(){$($(this).children()[1]).show();})
         $('.top-td').live('mouseleave', function(){$($(this).children()[1]).hide();});
     }
-    
 )
 
 function addtags(widget){    
@@ -30,7 +29,6 @@ function addtags(widget){
     });
     
     update();
-
 }
 
 function update(){
