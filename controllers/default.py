@@ -67,7 +67,6 @@ def show_message():
                         _class='tags-add', _id='imgt'+`tags[i].id`, _name=tags[i].tag_id.name))
         tags_new  = `tags[i].id` +','+ tags_new
     
-    form[0].append(INPUT(_type='hidden', _name = 'tags_new', value =tags_new))    
     form.element('#tr-tags-new').append(td)
        
     if form.accepts(request.vars, session):
