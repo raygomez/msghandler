@@ -1,36 +1,48 @@
 {{extend 'layout.html'}}
 
-<h1>Groups</h1>
-[{{=A('Create a new group', _href=URL('data', args=('create','auth_group')))}}]<br />
-<ul>{{for group in groups:}}
-    {{=LI(A(group.role, _href=URL('data', args=('update', 'auth_group', group.id))))}}
-{{pass}}</ul>
+<h1>My Groups</h1>
+<ul>{{for role in my_roles:}}
+    {{=LI(role)}}
+    {{pass}}
+</ul>
 
 <h1>Contacts</h1>
 [{{=A('Create a new contact', _href=URL('data', args=('create', 'contact')))}}]<br />
 <ul>{{for contact in contacts:}}
-    {{=LI(A(contact.name, _href=URL('data', args=('update', 'contact', contact.id))))}}
-{{pass}}</ul>
+    {{=LI(A(contact.name, _href=URL('data', args=('update', 'contact', contact.id))))}}{{pass}}
+</ul>
+
+
+
+<h1>Groups</h1>
+[{{=A('Create a new group', _href=URL('data', args=('create','auth_group')))}}]<br />
+<ul>{{for group in groups:}}
+    {{=LI(A(group.role, _href=URL('data', args=('update', 'auth_group', group.id))))}}{{pass}}
+</ul>
+
+<h1>Contacts</h1>
+[{{=A('Create a new contact', _href=URL('data', args=('create', 'contact')))}}]<br />
+<ul>{{for contact in contacts:}}
+    {{=LI(A(contact.name, _href=URL('data', args=('update', 'contact', contact.id))))}}{{pass}}
+</ul>
 
 <h1>Tags</h1>
 [{{=A('Create a new tag', _href=URL('data', args=('create', 'tag')))}}]<br />
 <ul>{{for tag in tags:}}
-    {{=LI(A(tag.name, _href=URL('data', args=('update', 'tag', tag.id))))}}
-{{pass}}</ul>
+    {{=LI(A(tag.name, _href=URL('data', args=('update', 'tag', tag.id))))}}{{pass}}
+</ul>
 
 
 <h1>Messages</h1>
 [{{=A('Create a new message', _href=URL('create_message'))}}]<br />
 
 <ul>{{for message in messages:}}
-    <li>{{=A(message.subject, _href=URL('show_message',args=message.id))}} by {{=A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))}}
-    </li>
-{{pass}}</ul>
+    <li>{{=A(message.subject, _href=URL('show_message',args=message.id))}} by {{=A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))}}</li>{{pass}}
+</ul>
 
 <h1>Users</h1>
-[{{=A('Create a new user', _href=URL('data', args=('create','auth_user')))}}]<br />
+[{{=A('Create a new user', _href=URL('create_user'))}}]<br />
 
 <ul>{{for user in users:}}
-    <li>{{=A(user.first_name + ' ' +user.last_name, _href=URL('data',args=('update', 'auth_user', user.id)))}}
-    </li>
-{{pass}}</ul>
+    <li>{{=A(user.first_name + ' ' +user.last_name, _href=URL('data',args=('update', 'auth_user', user.id)))}}</li>{{pass}}
+</ul>
