@@ -19,30 +19,29 @@ function addtags(widget){
 
     $(widget.target).parent().fadeOut(function() { $(this).remove(); });
     $('#tr-tags-new table tr').append($('<td class="top-td">').append(td,td1));
+    
+    $('.tags-add').unbind();
+    $('.tags-add').one('click', function(){
+                $(this).parent().fadeOut( function() { $(this).remove(); update();});
+                id = parseInt(this.id.split('imgt')[1]);
+                tag = {id:id, name:this.name};
+                tags.push(tag);    
+                $('#msg_attachment_tags').keyup();                 
+    });
+    
+    update();
 
+}
+
+function update(){
     selected = $('img.tags-add');
     str = '';
     for(i= 0 ; i < selected.size(); i++){
         str = str + selected[i].id.split('t')[1] + ',';
     }
-    
     $(':input[name=tags_new]').val(str);
-    
-    $(td1).one('click', function(){
-                $(this).parent().fadeOut( function() { $(this).remove();});
-                selected = $('img.tags-add');
-                id = parseInt(this.id.split('imgt')[1]);
-                tag = {id:id, name:this.name};
-                tags.push(tag);    
-                $('#msg_attachment_tags').keyup(); 
-                
-                str = '';
-                for(i= 0 ; i < selected.size(); i++){
-                    str = str + selected[i].id.split('t')[1] + ',';
-                }
-                $(':input[name=tags_new]').val(str);
-    });
 }
+
 function showtags()
 {
     var text = $(':input[name=tags]').val().toLowerCase();
