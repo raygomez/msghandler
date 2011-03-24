@@ -72,7 +72,7 @@ def show_message():
     if form.accepts(request.vars, session):
         db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))
         form.vars.msg_id = message.id
-        if request.vars.tags_new != ',':
+        if request.vars.tags_new:
             tags_before = set(tags_new.split(',')[:-1])
             select_tags = set(request.vars.tags_new.split(',')[:-1])
            
@@ -169,13 +169,15 @@ def create_message():
         form.vars.msg_id = msg_id
         if request.vars.attachment != '':
            db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
-        if request.vars.tags_new != ',':
-            select_tags = form.vars.tags_new.split(',')
-            for i in range(len(select_tags)-1):
-                db.msg_tag.insert(msg_id=msg_id, tag_id=int(select_tags[i]))             
+
+        if request.vars.tags_new:
+            select_tags = request.vars.tags_new.split(',')[:-1]
+            for tag in select_tags:
+                db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag))             
+        
         session.flash = T('Message successfully created.')
         redirect(URL('show_message', args=msg_id))
-    
+        
     return dict(form=form, json=SCRIPT('var tags=%s' % tags))
     
 @auth.requires_login()
