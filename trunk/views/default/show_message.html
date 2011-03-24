@@ -1,14 +1,26 @@
 {{extend 'layout.html'}}
 <script src="{{=URL('static','js/tagging.js')}}"></script>
 <script>
-$(function(){
-    $('.span-div-tags').live('mouseleave', function(){
-            $($(this).children()[1]).hide();
-    }).live('mouseenter', function(){
-            $($(this).children()[1]).show();
-    });    
-})
+$(
+    function(){
+        $('.tags-add').one('click', function(event){
+                    $(this).parent().fadeOut( function() { $(this).remove();});
+                    selected = $('img.tags-add');
+                    id = parseInt(this.id.split('imgt')[1]);
+                    tag = {id:id, name:this.name};
+                    tags.push(tag);    
+                    $('#msg_attachment_tags').keyup(); 
+                
+                    str = '';
+                    for(i= 0 ; i < selected.size(); i++){
+                        str = str + selected[i].id.split('t')[1] + ',';
+                    }
+                    $(':input[name=tags_new]').val(str);                
+        });
+    }
+)
 </script>
+{{=json}}
 <h1>Message</h1>
 {{=form}}
 
