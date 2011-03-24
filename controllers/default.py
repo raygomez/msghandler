@@ -11,10 +11,6 @@
 
 @auth.requires_login()
 def index():
-    """
-    example action using the internationalization operator T and flash
-    rendered by views/default/index.html or views/generic.html
-    """
 
     grps = db(db.auth_membership.user_id == auth.user_id).select()
     my_roles = []
@@ -29,10 +25,41 @@ def index():
     
     return dict(my_roles=my_roles, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
 
+@auth.requires_login()
+def create_user():
+    
+    form = SQLFORM.factory(db.auth_user, 
+        Field('password_again', requires=IS_EQUAL_TO(request.vars.password, error_message='Passwords do not match.')))
+
+    groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).as_list()    
+
+    form[0].insert(5, TR(TD(LABEL('Groups')),TD(TABLE(_width='100%')), TD()))
+        
+    regroup = []
+    for i in range(0, len(groups), 3):
+        regroup.append(groups[i:i+3])
+    
+    for i in range(len(regroup)):
+        form[0][5][1][0].append(TR())
+        for j in range(len(regroup[i])):           
+            form[0][5][1][0][i].append(TD(INPUT(_type='checkbox', _name='role' + `regroup[i][j]['id']`), SPAN(regroup[i][j]['role']),
+                _style='width:90px; float:left;'))
+    
+    if form.accepts(request.vars, session):
+        user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
+
+        for field in form.vars:
+            if 'role' in field and form.vars[field] == 'on':
+                db.auth_membership.insert(user_id=user_id, group_id=int(field.split('role')[1]))                 
+
+        session.flash = T('User successfully added.')
+        redirect(URL('index'))    
+        
+    return dict(form = form)
+
 @auth.requires_login()     
 def show_message():
     message = db.msg(request.args(0)) or redirect(URL('index'))    
-
     attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
     tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
     
@@ -85,8 +112,7 @@ def show_message():
                 db.msg_tag.insert(msg_id=message.id, tag_id=int(tag))
                  
         session.flash = T('Message successfully updated.')
-        redirect(URL('show_message', args=message.id))
-    
+        redirect(URL('show_message', args=message.id))    
         response.flash = 'Message updated.'
     
     return dict(form=form, attachments=attachments, id=message.id, json=SCRIPT('var tags=%s' % not_tags))
