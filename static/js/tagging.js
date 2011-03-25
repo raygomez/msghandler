@@ -35,7 +35,7 @@ function update_tags(){
     selected = $('img.tags-add');
     str = '';
     for(i= 0 ; i < selected.size(); i++){
-        str = str + selected[i].id.split('t')[1] + ',';
+        str = str + selected[i].name + ',';
     }
     $(':input[name=tags_new]').val(str);
 }

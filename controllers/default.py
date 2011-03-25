@@ -38,82 +38,76 @@ def create_user():
 
     form.element(_name='groups')['_onkeyup']="showgroups()" 
     form.element(_name='groups')['_autocomplete']='off' 
-    form[0].insert(5, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
+    form[0].insert(5, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(TABLE(TR()), _id='tr-groups-new')))
     form[0].insert(7, TR(TD(),TD(DIV(_id='new-groups'))))
-    
-    td = TABLE(TR())
-    form.element('#tr-groups-new').append(td)
     
     if form.accepts(request.vars, session):
         user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
-                db.auth_membership.insert(user_id=user_id, group_id=int(group))             
+                grp = db(db.auth_group.role == group).select().first()
+                db.auth_membership.insert(user_id=user_id, group_id=grp.id)
         session.flash = T('User successfully added.')
         redirect(URL('index'))    
-        
+
     return dict(form = form,json=SCRIPT('var groups=%s' % groups))
 
 @auth.requires_login()     
-def show_message():
-    message = db.msg(request.args(0)) or redirect(URL('index'))    
-    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
-    tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
+def show_user():
+    user = db.auth_user(request.args(0)) or redirect(URL('index'))    
+    groups = db(db.auth_membership.user_id == user.id).select()
     
-    for field in db.msg.fields:
-        if field is not 'id':
-            db.msg[field].default = message[field]
+    for field in db.auth_user.fields:
+        if field is not 'id' or field is not 'email':
+            db.auth_user[field].default = user[field]
 
-    tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
-    not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
-    tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
-        
-    form = SQLFORM.factory(db.msg,
-      Field('attachment_type'),
-      Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
-      Field('tags', label='Search tags'),
-      hidden=dict(tags_new=None),
-      table_name='msg_attachment'
-    )
-    form.element(_name='tags')['_onkeyup']="showtags()" 
-    form.element(_name='tags')['_autocomplete']='off' 
-    form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
+    groups_query = db(db.auth_membership.user_id == user.id)._select(db.auth_membership.group_id)
+    not_groups = db(~db.auth_group.id.belongs(groups_query)).select(db.auth_group.id, db.auth_group.role).json()
+    groups = db(db.auth_membership.user_id == user.id).select(db.auth_membership.id, db.auth_membership.group_id, distinct=True)
 
-    form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
+    form = SQLFORM.factory(db.auth_user, 
+        Field('groups', label='Search Groups'),  
+        hidden=dict(groups_new=None),
+        table_name='user')
+    del form[0][2]
+    form.element(_name='groups')['_onkeyup']="showgroups()" 
+    form.element(_name='groups')['_autocomplete']='off' 
+    form[0].insert(3, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
+    form[0].insert(5, TR(TD(),TD(DIV(_id='new-groups'))))
+
     td = TABLE(TR())
-
-    tags_new = ''
-
-    for i in range(len(tags)): 
-        td[0].append(TD(_class = 'top-td'))
-        td[0][i].append(SPAN(tags[i].tag_id.name))
-        td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
-                        _class='tags-add', _id='imgt'+`tags[i].id`, _name=tags[i].tag_id.name))
-        tags_new  = `tags[i].id` +','+ tags_new
+    form.element('#tr-groups-new').append(td)
     
-    form.element('#tr-tags-new').append(td)
+    groups_new = ''    
+    for i in range(len(groups)): 
+        td[0].append(TD(_class = 'top-td'))
+        td[0][i].append(SPAN(groups[i].group_id.role))
+        td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
+                        _class='groups-add', _id='imgt'+`groups[i].id`, _name=groups[i].group_id.role))
+        groups_new  = groups[i].group_id.role +','+ groups_new
        
     if form.accepts(request.vars, session):
-        db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))
-        form.vars.msg_id = message.id
-        if request.vars.tags_new:
-            tags_before = set(tags_new.split(',')[:-1])
-            select_tags = set(request.vars.tags_new.split(',')[:-1])
+        db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
+        form.vars.user_id = user.id
+
+        if request.vars.groups_new:
+            groups_before = set(groups_new.split(',')[:-1])
+            select_groups = set(request.vars.groups_new.split(',')[:-1])                      
+            to_delete = groups_before.difference(select_groups)
+            to_insert = select_groups.difference(groups_before)
            
-            to_delete = tags_before.difference(select_tags)
-            to_insert = select_tags.difference(tags_before)
-            
-            for tag in to_delete:
-                del db.msg_tag[int(tag)]
-            for tag in to_insert:
-                db.msg_tag.insert(msg_id=message.id, tag_id=int(tag))
+            for group in to_delete:
+                grp = db(db.auth_group.role == group).select().first()
+                db(db.auth_membership.group_id == grp.id).delete()
+            for group in to_insert:
+                grp = db(db.auth_group.role == group).select().first()
+                db.auth_membership.insert(user_id=user.id, group_id=grp.id)
                  
-        session.flash = T('Message successfully updated.')
-        redirect(URL('show_message', args=message.id))    
-        response.flash = 'Message updated.'
+        session.flash = T('User successfully updated.')
+        redirect(URL('show_user', args=user.id))    
     
-    return dict(form=form, attachments=attachments, id=message.id, json=SCRIPT('var tags=%s' % not_tags))
+    return dict(form=form, id=user.id, json=SCRIPT('var groups=%s' % not_groups))
     
 @auth.requires_login()
 def data():
@@ -203,6 +197,67 @@ def create_message():
         redirect(URL('show_message', args=msg_id))
         
     return dict(form=form, json=SCRIPT('var tags=%s' % tags))
+
+@auth.requires_login()     
+def show_message():
+    message = db.msg(request.args(0)) or redirect(URL('index'))    
+    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
+    tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
+    
+    for field in db.msg.fields:
+        if field is not 'id':
+            db.msg[field].default = message[field]
+
+    tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
+    not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
+    tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
+        
+    form = SQLFORM.factory(db.msg,
+      Field('attachment_type'),
+      Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
+      Field('tags', label='Search tags'),
+      hidden=dict(tags_new=None),
+      table_name='msg_attachment'
+    )
+    form.element(_name='tags')['_onkeyup']="showtags()" 
+    form.element(_name='tags')['_autocomplete']='off' 
+    form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
+
+    form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
+    td = TABLE(TR())
+
+    tags_new = ''
+
+    for i in range(len(tags)): 
+        td[0].append(TD(_class = 'top-td'))
+        td[0][i].append(SPAN(tags[i].tag_id.name))
+        td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
+                        _class='tags-add', _id='imgt'+`tags[i].id`, _name=tags[i].tag_id.name))
+        tags_new  = `tags[i].id` +','+ tags_new
+    
+    form.element('#tr-tags-new').append(td)
+       
+    if form.accepts(request.vars, session):
+        db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))
+        form.vars.msg_id = message.id
+        if request.vars.tags_new:
+            tags_before = set(tags_new.split(',')[:-1])
+            select_tags = set(request.vars.tags_new.split(',')[:-1])
+           
+            to_delete = tags_before.difference(select_tags)
+            to_insert = select_tags.difference(tags_before)
+            
+            for tag in to_delete:
+                del db.msg_tag[int(tag)]
+            for tag in to_insert:
+                db.msg_tag.insert(msg_id=message.id, tag_id=int(tag))
+                 
+        session.flash = T('Message successfully updated.')
+        redirect(URL('show_message', args=message.id))    
+    
+    return dict(form=form, attachments=attachments, id=message.id, json=SCRIPT('var tags=%s' % not_tags))
+
+
     
 @auth.requires_login()
 def create_attachment():
