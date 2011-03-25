@@ -6,7 +6,7 @@ $(
 )
 
 function addtags(widget){    
-    tags = $.grep(tags, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
+    tags = $.grep(tags, function(tag){ return tag.name != widget.target.name});
     td = $('<span>'+ widget.target.name +'</span>');
     td1 = $('<img>').attr({
             src:'/msghandler/static/images/delete.png',
