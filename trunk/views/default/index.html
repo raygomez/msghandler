@@ -44,5 +44,5 @@
 [{{=A('Create a new user', _href=URL('create_user'))}}]<br />
 
 <ul>{{for user in users:}}
-    <li>{{=A(user.first_name + ' ' +user.last_name, _href=URL('data',args=('update', 'auth_user', user.id)))}}</li>{{pass}}
+    <li>{{=A(user.first_name + ' ' +user.last_name, _href=URL('show_user',args=user.id))}}</li>{{pass}}
 </ul>

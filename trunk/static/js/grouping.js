@@ -6,7 +6,7 @@ $(
 )
 
 function addgroups(widget){    
-    groups = $.grep(groups, function(tag){ return tag.id != parseInt(widget.target.id.split('t')[1])});
+    groups = $.grep(groups, function(tag){ return tag.name != widget.name } )
     td = $('<span>'+ widget.target.name +'</span>');
     td1 = $('<img>').attr({
             src:'/msghandler/static/images/delete.png',
@@ -23,9 +23,9 @@ function addgroups(widget){
     $('.groups-add').one('click', function(){
                 $(this).parent().fadeOut( function() { $(this).remove(); updategroups();});
                 id = parseInt(this.id.split('imgt')[1]);
-                tag = {id:id, name:this.role};
+                tag = {id:id, role:this.name};
                 groups.push(tag);    
-                $('#msg_attachment_groups').keyup();                 
+                $('#user_groups').keyup();                 
     });
     
     updategroups();
@@ -35,7 +35,7 @@ function updategroups(){
     selected = $('img.groups-add');
     str = '';
     for(i= 0 ; i < selected.size(); i++){
-        str = str + selected[i].id.split('t')[1] + ',';
+        str = str + selected[i].name + ',';
     }
     $(':input[name=groups_new]').val(str);
 }
@@ -48,6 +48,7 @@ function showgroups()
     $('#new-groups').children().remove();
     if(text != ''){
         for(i = 0; i < groups.length; i++){
+            if (typeof(groups[i].role) == 'undefined') alert('hello')
             if (groups[i].role.match(pattern)) 
             {
                 $('#new-groups').append($('<div>').attr({ 
