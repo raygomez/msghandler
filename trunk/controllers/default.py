@@ -27,35 +27,33 @@ def index():
 
 @auth.requires_login()
 def create_user():
+
+    groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).json()
     
     form = SQLFORM.factory(db.auth_user, 
-        Field('password_again', requires=IS_EQUAL_TO(request.vars.password, error_message='Passwords do not match.')))
+        Field('password_again', requires=IS_EQUAL_TO(request.vars.password, error_message='Passwords do not match.')),
+        Field('groups', label='Search groups'),  
+        hidden=dict(groups_new=None),
+        table_name='user')
 
-    groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).as_list()    
-
-    form[0].insert(5, TR(TD(LABEL('Groups')),TD(TABLE(_width='100%')), TD()))
-        
-    regroup = []
-    for i in range(0, len(groups), 3):
-        regroup.append(groups[i:i+3])
+    form.element(_name='groups')['_onkeyup']="showgroups()" 
+    form.element(_name='groups')['_autocomplete']='off' 
+    form[0].insert(5, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
+    form[0].insert(7, TR(TD(),TD(DIV(_id='new-groups'))))
     
-    for i in range(len(regroup)):
-        form[0][5][1][0].append(TR())
-        for j in range(len(regroup[i])):           
-            form[0][5][1][0][i].append(TD(INPUT(_type='checkbox', _name='role' + `regroup[i][j]['id']`), SPAN(regroup[i][j]['role']),
-                _style='width:90px; float:left;'))
+    td = TABLE(TR())
+    form.element('#tr-groups-new').append(td)
     
     if form.accepts(request.vars, session):
         user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
-
-        for field in form.vars:
-            if 'role' in field and form.vars[field] == 'on':
-                db.auth_membership.insert(user_id=user_id, group_id=int(field.split('role')[1]))                 
-
+        if request.vars.groups_new:
+            select_groups = request.vars.groups_new.split(',')[:-1]
+            for group in select_groups:
+                db.auth_membership.insert(user_id=user_id, group_id=int(group))             
         session.flash = T('User successfully added.')
         redirect(URL('index'))    
         
-    return dict(form = form)
+    return dict(form = form,json=SCRIPT('var groups=%s' % groups))
 
 @auth.requires_login()     
 def show_message():

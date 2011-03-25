@@ -21,17 +21,17 @@ function addtags(widget){
     
     $('.tags-add').unbind();
     $('.tags-add').one('click', function(){
-                $(this).parent().fadeOut( function() { $(this).remove(); update();});
+                $(this).parent().fadeOut( function() { $(this).remove(); update_tags();});
                 id = parseInt(this.id.split('imgt')[1]);
                 tag = {id:id, name:this.name};
                 tags.push(tag);    
                 $('#msg_attachment_tags').keyup();                 
     });
     
-    update();
+    update_tags();
 }
 
-function update(){
+function update_tags(){
     selected = $('img.tags-add');
     str = '';
     for(i= 0 ; i < selected.size(); i++){
@@ -43,7 +43,7 @@ function update(){
 function showtags()
 {
     var text = $(':input[name=tags]').val().toLowerCase();
-    var pattern = new RegExp('^.*' + text + '.*$', 'g');
+    var pattern = new RegExp('^.*' + text + '.*$', 'ig');
 
     $('#new-tags').children().remove();
     if(text != ''){

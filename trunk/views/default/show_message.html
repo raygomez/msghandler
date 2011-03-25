@@ -2,9 +2,9 @@
 <script src="{{=URL('static','js/tagging.js')}}"></script>
 <script>
 $(function(){
-        update();
+        update_tags();
         $('.tags-add').one('click', function(event){
-                    $(this).parent().fadeOut( function() { $(this).remove(); update();});
+                    $(this).parent().fadeOut( function() { $(this).remove(); update_tags();});
                     id = parseInt(this.id.split('imgt')[1]);
                     tag = {id:id, name:this.name};
                     tags.push(tag);    
