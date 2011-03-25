@@ -187,11 +187,11 @@ def create_message():
         form.vars.msg_id = msg_id
         if request.vars.attachment != '':
            db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
-
         if request.vars.tags_new:
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
-                db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag))             
+                tg = db(db.tag.name == tag).select().first()
+                db.msg_tag.insert(msg_id=msg_id, tag_id=tg.id)             
         
         session.flash = T('Message successfully created.')
         redirect(URL('show_message', args=msg_id))
@@ -233,31 +233,30 @@ def show_message():
         td[0][i].append(SPAN(tags[i].tag_id.name))
         td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
                         _class='tags-add', _id='imgt'+`tags[i].id`, _name=tags[i].tag_id.name))
-        tags_new  = `tags[i].id` +','+ tags_new
+        tags_new  = tags[i].tag_id.name +','+ tags_new
     
     form.element('#tr-tags-new').append(td)
        
     if form.accepts(request.vars, session):
         db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))
-        form.vars.msg_id = message.id
         if request.vars.tags_new:
             tags_before = set(tags_new.split(',')[:-1])
             select_tags = set(request.vars.tags_new.split(',')[:-1])
            
             to_delete = tags_before.difference(select_tags)
             to_insert = select_tags.difference(tags_before)
-            
+                
             for tag in to_delete:
-                del db.msg_tag[int(tag)]
+                tg = db(db.tag.name == tag).select().first()
+                db(db.msg_tag.tag_id == tg.id).delete()
             for tag in to_insert:
-                db.msg_tag.insert(msg_id=message.id, tag_id=int(tag))
+                tg = db(db.tag.name == tag).select().first()
+                db.msg_tag.insert(msg_id=message.id, tag_id=tg.id)
                  
         session.flash = T('Message successfully updated.')
         redirect(URL('show_message', args=message.id))    
     
     return dict(form=form, attachments=attachments, id=message.id, json=SCRIPT('var tags=%s' % not_tags))
-
-
     
 @auth.requires_login()
 def create_attachment():
