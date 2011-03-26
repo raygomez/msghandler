@@ -6,7 +6,7 @@ $(
 )
 
 function addgroups(widget){    
-    groups = $.grep(groups, function(tag){ return tag.name != widget.name } )
+    groups = $.grep(groups, function(group){ return group.role != widget.target.name } )
     td = $('<span>'+ widget.target.name +'</span>');
     td1 = $('<img>').attr({
             src:'/msghandler/static/images/delete.png',
@@ -48,7 +48,6 @@ function showgroups()
     $('#new-groups').children().remove();
     if(text != ''){
         for(i = 0; i < groups.length; i++){
-            if (typeof(groups[i].role) == 'undefined') alert('hello')
             if (groups[i].role.match(pattern)) 
             {
                 $('#new-groups').append($('<div>').attr({ 
