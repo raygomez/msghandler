@@ -13,9 +13,6 @@
 def index():
 
     grps = db(db.auth_membership.user_id == auth.user_id).select()
-    my_roles = []
-    for grp in grps:
-        my_roles.append(grp.group_id.role)
 
     groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
     messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)
@@ -23,7 +20,16 @@ def index():
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
     users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     
-    return dict(my_roles=my_roles, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
+    return dict(my_roles=grps, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
+
+@auth.requires_login()
+def delete_ajax():    
+    tablename,id = request.vars.id.split('-')
+    del db[tablename][id]
+    
+    if 'auth_' in tablename:
+        tablename = tablename.replace('auth_','')
+    return 'You deleted a %s.' % tablename
 
 @auth.requires_login()
 def create_user():
@@ -31,7 +37,7 @@ def create_user():
     groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).json()
     
     form = SQLFORM.factory(db.auth_user, 
-        Field('password_again', requires=IS_EQUAL_TO(request.vars.password, error_message='Passwords do not match.')),
+        Field('password_again', 'password', requires=IS_EQUAL_TO(request.vars.password, error_message='Passwords do not match.')),
         Field('groups', label='Search groups'),  
         hidden=dict(groups_new=None),
         table_name='user')
