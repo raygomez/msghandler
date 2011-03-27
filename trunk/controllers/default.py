@@ -26,7 +26,6 @@ def index():
 def insert_ajax_user_group():
     id = int(request.vars.id)
     group_id = int(request.vars.group[1:])
-    print id, group_id
     db.auth_membership.insert(user_id = id, group_id = group_id)
 
 @auth.requires_login()
@@ -70,7 +69,6 @@ def delete_ajax():
 
 @auth.requires_login()
 def create_user():
-
     groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).json()
     
     form = SQLFORM.factory(db.auth_user, 
@@ -87,12 +85,15 @@ def create_user():
     if form.accepts(request.vars, session):
         user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         if request.vars.groups_new:
-            insert_groups(request.vars.groups_new, user_id)
+            insert_groups(request.vars.groups_new.split(',')[:-1] , user_id)
         session.flash = T('User successfully added.')
         redirect(URL('index'))    
 
     return dict(form = form,json=SCRIPT('var groups=%s' % groups))
 
+def insert_groups(selected, user_id):
+    for group in selected:     
+        db.auth_membership.insert(user_id=user_id, group_id=int(group[4:]))
 
 @auth.requires_login()     
 def show_user():
