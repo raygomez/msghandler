@@ -23,6 +23,20 @@ def index():
     return dict(my_roles=grps, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
 
 @auth.requires_login()
+def delete_ajax_group():
+    id = int(request.vars.id)
+    group_id = int(request.vars.group[4:])
+    print id, group_id
+    print len(db((db.auth_membership.group_id == group_id) & (db.auth_membership.user_id == id)).select())
+    db((db.auth_membership.group_id == group_id) & (db.auth_membership.user_id == id)).delete()
+
+@auth.requires_login()
+def insert_ajax_group():
+    id = int(request.vars.id)
+    group_id = int(request.vars.group[1:])
+    db.auth_membership.insert(user_id = id, group_id = group_id)
+    
+@auth.requires_login()
 def delete_ajax():    
     tablename,id = request.vars.id.split('-')
     del db[tablename][id]
@@ -50,14 +64,12 @@ def create_user():
     if form.accepts(request.vars, session):
         user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         if request.vars.groups_new:
-            select_groups = request.vars.groups_new.split(',')[:-1]
-            for group in select_groups:
-                grp = db(db.auth_group.role == group).select().first()
-                db.auth_membership.insert(user_id=user_id, group_id=grp.id)
+            insert_groups(request.vars.groups_new, user_id)
         session.flash = T('User successfully added.')
         redirect(URL('index'))    
 
     return dict(form = form,json=SCRIPT('var groups=%s' % groups))
+
 
 @auth.requires_login()     
 def show_user():
@@ -85,31 +97,15 @@ def show_user():
     td = TABLE(TR())
     form.element('#tr-groups-new').append(td)
     
-    groups_new = ''    
     for i in range(len(groups)): 
         td[0].append(TD(_class = 'top-td'))
         td[0][i].append(SPAN(groups[i].group_id.role))
         td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
-                        _class='groups-add', _id='imgt'+`groups[i].id`, _name=groups[i].group_id.role))
-        groups_new  = groups[i].group_id.role +','+ groups_new
+                        _class='groups-add', _id='imgt'+`groups[i].group_id.id`, _name=groups[i].group_id.role))
        
     if form.accepts(request.vars, session):
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
-        form.vars.user_id = user.id
-
-        if request.vars.groups_new:
-            groups_before = set(groups_new.split(',')[:-1])
-            select_groups = set(request.vars.groups_new.split(',')[:-1])                      
-            to_delete = groups_before.difference(select_groups)
-            to_insert = select_groups.difference(groups_before)
-           
-            for group in to_delete:
-                grp = db(db.auth_group.role == group).select().first()
-                db(db.auth_membership.group_id == grp.id).delete()
-            for group in to_insert:
-                grp = db(db.auth_group.role == group).select().first()
-                db.auth_membership.insert(user_id=user.id, group_id=grp.id)
-                 
+                       
         session.flash = T('User successfully updated.')
         redirect(URL('show_user', args=user.id))    
     
@@ -123,12 +119,6 @@ def data():
 def delete_attach():    
     session.flash = T('Attachment successfully deleted.')
     db(db.msg_attachment.id==request.args(0)).delete()
-    redirect(URL(f='show_message', args=request.args(1)))
-
-@auth.requires_login()
-def delete_tag():    
-    session.flash = T('Tag successfully deleted.')
-    db(db.msg_tag.id==request.args(0)).delete()
     redirect(URL(f='show_message', args=request.args(1)))
 
 def user():
@@ -192,8 +182,6 @@ def create_message():
 def show_message():
     message = db.msg(request.args(0)) or redirect(URL('index'))    
     attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
-    #tags = db(db.msg_tag.msg_id == message.id).select(orderby=db.msg_tag.tag_time)
-    #groups = db(db.msg_group.msg_id == message.id).select(orderby=db.msg_group.assign_time)
     
     for field in db.msg.fields:
         if field is not 'id':
