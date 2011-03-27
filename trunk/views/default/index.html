@@ -9,7 +9,7 @@ $(function() {
         if (answer){
             $(this).parent().fadeOut( function() { $(this).remove();});
             $.ajax({
-                url: '{{=URL('delete_ajax')}}',
+                url: '{{=URL('delete_ajax_id')}}',
                 data: 'id=' + this.id,
                 success: function(msg){
                     $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});

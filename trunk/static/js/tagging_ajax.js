@@ -2,8 +2,8 @@ function addtags(widget){
     tags = $.grep(tags, function(tag){ return tag.name != widget.target.name});
     
     $.ajax({
-        url: '/msghandler/default/insert_ajax_msg_tag',
-        data: 'group=' + this.id  + '&id=' + msg_id
+        url: '/msghandler/default/insert_ajax',
+        data: 'group=' + this.id  + '&id=' + msg_id + '&table=msg_tag'
         })             
     
     td1 = $('<img>').attr({
@@ -27,8 +27,8 @@ function click_once_tag(){
         tag = {id:id, name:this.name};
         tags.push(tag);    
         $.ajax({
-            url: '/msghandler/default/delete_ajax_msg_tag',
-            data: 'group=' + this.id  + '&id=' + msg_id
+            url: '/msghandler/default/delete_ajax',
+            data: 'group=' + id  + '&id=' + msg_id + '&table=msg_tag'
         })             
         showtags();
     });

@@ -23,43 +23,26 @@ def index():
     return dict(my_roles=grps, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
 
 @auth.requires_login()
-def insert_ajax_user_group():
+def insert_ajax():
     id = int(request.vars.id)
-    group_id = int(request.vars.group[1:])
-    db.auth_membership.insert(user_id = id, group_id = group_id)
+    second_id = int(request.vars.group[1:])
+    
+    if request.vars.table == 'user_group': db.auth_membership.insert(user_id = id, group_id = second_id)
+    elif request.vars.table == 'msg_group': db.msg_group.insert(msg_id = id, group_id = second_id)
+    elif request.vars.table =='msg_tag': db.msg_tag.insert(msg_id = id, tag_id = second_id)
 
+    
 @auth.requires_login()
-def delete_ajax_user_group():
+def delete_ajax():
     id = int(request.vars.id)
-    group_id = int(request.vars.group[4:])
-    db((db.auth_membership.group_id == group_id) & (db.auth_membership.user_id == id)).delete()
-
-@auth.requires_login()
-def insert_ajax_group_message():
-    id = int(request.vars.id)
-    group_id = int(request.vars.group[1:])
-    db.msg_group.insert(msg_id = id, group_id = group_id)
-
-@auth.requires_login()
-def delete_ajax_group_message():
-    id = int(request.vars.id)
-    group_id = int(request.vars.group[4:])
-    db((db.msg_group.group_id == group_id) & (db.msg_group.msg_id == id)).delete()
-
-@auth.requires_login()
-def insert_ajax_msg_tag():
-    id = int(request.vars.id)
-    tag_id = int(request.vars.group[1:])
-    db.msg_tag.insert(msg_id = id, tag_id = tag_id)
-
-@auth.requires_login()
-def delete_ajax_msg_tag():
-    id = int(request.vars.id)
-    tag_id = int(request.vars.group[4:])
-    db((db.msg_tag.tag_id == tag_id) & (db.msg_tag.msg_id == id)).delete()
+    second_id = int(request.vars.group)
+    
+    if request.vars.table == 'user_group': db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).delete()
+    elif request.vars.table =='msg_group': db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).delete()
+    elif request.vars.table =='msg_tag': db((db.msg_tag.tag_id == second_id) & (db.msg_tag.msg_id == id)).delete()
         
 @auth.requires_login()
-def delete_ajax():    
+def delete_ajax_id():    
     tablename,id = request.vars.id.split('-')
     del db[tablename][id]
     
