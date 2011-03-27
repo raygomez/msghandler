@@ -26,7 +26,8 @@ def index():
 def insert_ajax_user_group():
     id = int(request.vars.id)
     group_id = int(request.vars.group[1:])
-    db.msg_group.insert(msg_id = id, group_id = group_id)
+    print id, group_id
+    db.auth_membership.insert(user_id = id, group_id = group_id)
 
 @auth.requires_login()
 def delete_ajax_user_group():
@@ -127,7 +128,6 @@ def show_user():
        
     if form.accepts(request.vars, session):
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
-                       
         session.flash = T('User successfully updated.')
         redirect(URL('show_user', args=user.id))    
     
