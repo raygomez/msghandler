@@ -11,7 +11,6 @@ function addtags(widget){
             class:'tags-add',
             hidden:true,
             id: 'img' + widget.target.id,
-            name: widget.target.name,
         });
 
     $(widget.target).parent().fadeOut(function() { $(this).remove(); });

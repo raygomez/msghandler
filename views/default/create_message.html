@@ -3,3 +3,11 @@
 {{=json}}
 <script src="{{=URL('static','js/tagging.js')}}"></script>
 <script src="{{=URL('static','js/grouping.js')}}"></script>
+<script>
+$(
+    function(){
+        $('.top-td').live('mouseenter', function(){$($(this).children()[1]).show();})
+        $('.top-td').live('mouseleave', function(){$($(this).children()[1]).hide();});
+    }
+)
+</script>
