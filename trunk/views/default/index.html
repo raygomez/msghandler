@@ -55,7 +55,7 @@ $(function() {
 
 <ul>{{for message in messages:}}
     <li class='top-td'>{{=SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id)))}}
-    {{=IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='message-' + `message.id`)}}</li>{{pass}}
+    {{=IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`)}}</li>{{pass}}
 </ul>
 
 <h1>Users</h1>

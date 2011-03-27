@@ -25,7 +25,7 @@ function addtags(widget){
                 id = parseInt(this.id.split('imgt')[1]);
                 tag = {id:id, name:this.name};
                 tags.push(tag);    
-                $('#msg_attachment_tags').keyup();                 
+                showtags();
     });
     
     update_tags();
