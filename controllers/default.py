@@ -23,19 +23,41 @@ def index():
     return dict(my_roles=grps, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
 
 @auth.requires_login()
-def delete_ajax_group():
+def insert_ajax_user_group():
+    id = int(request.vars.id)
+    group_id = int(request.vars.group[1:])
+    db.msg_group.insert(msg_id = id, group_id = group_id)
+
+@auth.requires_login()
+def delete_ajax_user_group():
     id = int(request.vars.id)
     group_id = int(request.vars.group[4:])
-    print id, group_id
-    print len(db((db.auth_membership.group_id == group_id) & (db.auth_membership.user_id == id)).select())
     db((db.auth_membership.group_id == group_id) & (db.auth_membership.user_id == id)).delete()
 
 @auth.requires_login()
-def insert_ajax_group():
+def insert_ajax_group_message():
     id = int(request.vars.id)
     group_id = int(request.vars.group[1:])
-    db.auth_membership.insert(user_id = id, group_id = group_id)
-    
+    db.msg_group.insert(msg_id = id, group_id = group_id)
+
+@auth.requires_login()
+def delete_ajax_group_message():
+    id = int(request.vars.id)
+    group_id = int(request.vars.group[4:])
+    db((db.msg_group.group_id == group_id) & (db.msg_group.msg_id == id)).delete()
+
+@auth.requires_login()
+def insert_ajax_msg_tag():
+    id = int(request.vars.id)
+    tag_id = int(request.vars.group[1:])
+    db.msg_tag.insert(msg_id = id, tag_id = tag_id)
+
+@auth.requires_login()
+def delete_ajax_msg_tag():
+    id = int(request.vars.id)
+    tag_id = int(request.vars.group[4:])
+    db((db.msg_tag.tag_id == tag_id) & (db.msg_tag.msg_id == id)).delete()
+        
 @auth.requires_login()
 def delete_ajax():    
     tablename,id = request.vars.id.split('-')
@@ -194,7 +216,6 @@ def show_message():
     groups_query = db(db.msg_group.msg_id == message.id)._select(db.msg_group.group_id)
     not_groups = db(~db.auth_group.id.belongs(groups_query)).select(db.auth_group.id, db.auth_group.role).json()
     groups = db(db.msg_group.msg_id == message.id).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
-
         
     form = SQLFORM.factory(db.msg,
       Field('attachment_type'),
@@ -210,14 +231,11 @@ def show_message():
     form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
     td = TABLE(TR())
 
-    tags_new = ''
-
     for i in range(len(tags)): 
         td[0].append(TD(_class = 'top-td'))
         td[0][i].append(SPAN(tags[i].tag_id.name))
         td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
-                        _class='tags-add', _id='imgt'+`tags[i].id`, _name=tags[i].tag_id.name))
-        tags_new  = tags[i].tag_id.name +','+ tags_new
+                        _class='tags-add', _id='imgt'+`tags[i].tag_id.id`, _name=tags[i].tag_id.name))
     
     form.element('#tr-tags-new').append(td)
        
@@ -227,48 +245,16 @@ def show_message():
     form[0].insert(11, TR(TD(),TD(DIV(_id='new-groups'))))
     td = TABLE(TR())
 
-    groups_new = ''
-
     for i in range(len(groups)): 
         td[0].append(TD(_class = 'top-td'))
         td[0][i].append(SPAN(groups[i].group_id.role))
         td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
-                        _class='groups-add', _id='imgt'+`groups[i].id`, _name=groups[i].group_id.role))
-        groups_new  = groups[i].group_id.role +','+ groups_new
+                        _class='groups-add', _id='imgt'+`groups[i].group_id.id`, _name=groups[i].group_id.role))
     
     form.element('#tr-groups-new').append(td)
        
     if form.accepts(request.vars, session):
-        db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))
-        if request.vars.tags_new:
-            tags_before = set(tags_new.split(',')[:-1])
-            select_tags = set(request.vars.tags_new.split(',')[:-1])
-           
-            to_delete = tags_before.difference(select_tags)
-            to_insert = select_tags.difference(tags_before)
-                
-            for tag in to_delete:
-                tg = db(db.tag.name == tag).select().first()
-                db(db.msg_tag.tag_id == tg.id).delete()
-            for tag in to_insert:
-                tg = db(db.tag.name == tag).select().first()
-                db.msg_tag.insert(msg_id=message.id, tag_id=tg.id)
-
-        if request.vars.groups_new:
-            groups_before = set(groups_new.split(',')[:-1])
-            select_groups = set(request.vars.groups_new.split(',')[:-1])
-           
-            to_delete = groups_before.difference(select_groups)
-            to_insert = select_groups.difference(groups_before)
-                
-            for group in to_delete:
-                gp = db(db.auth_group.role == group).select().first()
-                db(db.msg_group.group_id == gp.id).delete()
-            for group in to_insert:
-                gp = db(db.auth_group.role == group).select().first()
-                db.msg_group.insert(msg_id=message.id, group_id=gp.id, assigned_by=auth.user.id)
-                 
-                 
+        db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))                 
         session.flash = T('Message successfully updated.')
         redirect(URL('show_message', args=message.id))    
     
