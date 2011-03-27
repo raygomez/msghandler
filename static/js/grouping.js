@@ -25,7 +25,7 @@ function addgroups(widget){
                 id = parseInt(this.id.split('imgt')[1]);
                 tag = {id:id, role:this.name};
                 groups.push(tag);    
-                $('#user_groups').keyup();                 
+                showgroups();                 
     });
     
     updategroups();

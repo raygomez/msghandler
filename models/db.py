@@ -132,7 +132,7 @@ db.define_table('msg_group',
 db.msg_group.msg_id.requires=IS_IN_DB(db, 'msg.id', '%(subject)s')
 db.msg_group.group_id.requires=IS_IN_DB(db, 'auth_group.id', '%(role)s')    
 db.msg_group.user_id.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')    
-db.msg_group.assigned_by.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s % (last_name)s')    
+db.msg_group.assigned_by.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')    
     
     
 db.define_table('msg_tag',
