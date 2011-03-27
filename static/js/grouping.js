@@ -7,7 +7,6 @@ $(
 
 function addgroups(widget){    
     groups = $.grep(groups, function(group){ return group.role != widget.target.name } )
-    td = $('<span>'+ widget.target.name +'</span>');
     td1 = $('<img>').attr({
             src:'/msghandler/static/images/delete.png',
             class:'groups-add',
@@ -17,7 +16,7 @@ function addgroups(widget){
         });
 
     $(widget.target).parent().fadeOut(function() { $(this).remove(); });
-    $('#tr-groups-new table tr').append($('<td class="top-td">').append(td,td1));
+    $('#tr-groups-new table tr').append($('<td class="top-td">').append($('<span>'+ widget.target.name +'</span>'),td1));
     
     $('.groups-add').unbind();
     $('.groups-add').one('click', function(){
@@ -35,7 +34,7 @@ function updategroups(){
     selected = $('img.groups-add');
     str = '';
     for(i= 0 ; i < selected.size(); i++){
-        str = str + selected[i].name + ',';
+        str = str + selected[i].id + ',';
     }
     $(':input[name=groups_new]').val(str);
 }
@@ -50,10 +49,7 @@ function showgroups()
         for(i = 0; i < groups.length; i++){
             if (groups[i].role.match(pattern)) 
             {
-                $('#new-groups').append($('<div>').attr({ 
-                      class: 'groups',
-                      id: 'tag-'+groups[i].id,
-                    }).append($('<input>').attr({
+                $('#new-groups').append($('<div>').append($('<input>').attr({
                          type: 'checkbox',
                          id: 't' + groups[i].id,
                          name: groups[i].role,
