@@ -161,7 +161,7 @@ def create_message():
       Field('tags', label='Search tags'),
       Field('groups', label='Search groups'),
       hidden=dict(tags_new=None,groups_new=None),
-      table_name='msg'
+      table_name='msg_attachment'
     )
     form.element(_name='tags')['_onkeyup']="showtags()" 
     form.element(_name='tags')['_autocomplete']='off' 
@@ -218,7 +218,7 @@ def show_message():
       Field('tags', label='Search tags'),
       Field('groups', label='Search groups'),
       hidden=dict(tags_new=None, groups_new=None),
-      table_name='msg'
+      table_name='msg_attachment'
     )
     form.element(_name='tags')['_onkeyup']="showtags()" 
     form.element(_name='tags')['_autocomplete']='off' 
