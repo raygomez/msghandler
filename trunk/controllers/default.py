@@ -167,17 +167,13 @@ def create_message():
     form.element(_name='tags')['_autocomplete']='off' 
     form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
     form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
-
-    td = TABLE(TR())
-    form.element('#tr-tags-new').append(td)
+    form.element('#tr-tags-new').append(TABLE(TR()))
 
     form.element(_name='groups')['_onkeyup']="showgroups()" 
     form.element(_name='groups')['_autocomplete']='off' 
     form[0].insert(9, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
     form[0].insert(11, TR(TD(),TD(DIV(_id='new-groups'))))
-
-    td = TABLE(TR())
-    form.element('#tr-groups-new').append(td)
+    form.element('#tr-groups-new').append(TABLE(TR()))
     
     tags = db().select(db.tag.id, db.tag.name).json()
     groups = db().select(db.auth_group.id, db.auth_group.role).json()
@@ -190,13 +186,11 @@ def create_message():
         if request.vars.tags_new:
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
-                tg = db(db.tag.name == tag).select().first()
-                db.msg_tag.insert(msg_id=msg_id, tag_id=tg.id)             
+                db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag[4:]))             
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
-                gp = db(db.auth_group.role == group).select().first()
-                db.msg_group.insert(msg_id=msg_id, group_id=gp.id, assigned_by=auth.user.id)        
+                db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]), assigned_by=auth.user.id)        
         session.flash = T('Message successfully created.')
         redirect(URL('show_message', args=msg_id))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))

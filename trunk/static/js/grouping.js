@@ -1,10 +1,3 @@
-$(
-    function(){
-        $('.top-td').live('mouseenter', function(){$($(this).children()[1]).show();})
-        $('.top-td').live('mouseleave', function(){$($(this).children()[1]).hide();});
-    }
-)
-
 function addgroups(widget){    
     groups = $.grep(groups, function(group){ return group.role != widget.target.name } )
     td1 = $('<img>').attr({
@@ -12,13 +5,11 @@ function addgroups(widget){
             class:'groups-add',
             hidden:true,
             id: 'img' + widget.target.id,
-            name: widget.target.name,
         });
 
     $(widget.target).parent().fadeOut(function() { $(this).remove(); });
     $('#tr-groups-new table tr').append($('<td class="top-td">').append($('<span>'+ widget.target.name +'</span>'),td1));
     
-    $('.groups-add').unbind();
     $('.groups-add').one('click', function(){
                 $(this).parent().fadeOut( function() { $(this).remove(); updategroups();});
                 id = parseInt(this.id.split('imgt')[1]);
