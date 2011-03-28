@@ -25,12 +25,11 @@ def index():
         users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     elif auth.has_membership('Telehealth'):     
         isTelehealth = True
+        users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)                
+        nurse_record = db(db.contact.user_id == auth.user.id).select().first()
         groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
-        messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
-        users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)        
+        messages = db(db.msg.created_by == nurse_record.id).select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
     else:
-        pass
-        '''
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
         messages = db(db.msg.id.belongs(msg_query)).select()
@@ -38,7 +37,6 @@ def index():
         users_query = db(db.auth_membership.group_id.belongs(groups_query))._select(db.auth_membership.user_id)
         users = db(db.auth_user.id.belongs(users_query)).\
                 select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
-        '''
         
     return dict(my_roles=grps, messages=messages, contacts=contacts, 
                 tags=tags, users=users, groups=groups, isAdmin=isAdmin, isTelehealth=isTelehealth)
@@ -162,6 +160,13 @@ def user():
 def download():
     return response.download(request,db)
 
+def get_contact(user):
+    contact =  db(db.contact.user_id==user.id).select().first()
+    if not contact:
+        contact= db.contact.insert(name='%s %s' % (user.first_name, user.last_name), user_id=user.id, 
+            contact_type='email', contact_info=user.email)
+    return contact
+
 @auth.requires_login()
 def create_message():
     import os
@@ -190,6 +195,9 @@ def create_message():
     groups = db().select(db.auth_group.id, db.auth_group.role).json()
     
     if form.accepts(request.vars, session):
+        contact = get_contact(auth.user)
+        form.vars.created_by = contact.id
+        
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
         form.vars.msg_id = msg_id
         if request.vars.attachment != '':
