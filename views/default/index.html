@@ -23,19 +23,22 @@ $(function() {
 <h1>My Groups</h1>
 {{if len(my_roles):}}
 <ul>{{for role in my_roles:}}
-    {{=LI(role.group_id.role)}}
+        {{=LI(role.group_id.role)}}
     {{pass}}
 </ul>
 {{else:}}{{=I('You have no groups.')}}{{pass}}
-
 
 <h1>Users</h1>
 {{if len(users):}}
 [{{=A('Create a new user', _href=URL('create_user'))}}]<br />
 <ul>{{for user in users:}}
-    {{=LI(A(user.first_name + ' ' +user.last_name, _href=URL('show_user',args=user.id)),
-        IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='auth_user-' + `user.id`), _class='top-td' )}}{{pass}}
-    
+        {{if isAdmin:}}
+            {{=LI(A(user.first_name + ' ' +user.last_name, _href=URL('show_user',args=user.id)),
+                IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='auth_user-' + `user.id`), _class='top-td' )}}
+        {{else:}}
+            {{=LI(A(user.first_name + ' ' +user.last_name, _href=URL('show_user',args=user.id)))}}
+        {{pass}}
+    {{pass}}
 </ul>
 {{else:}}{{=I('There are no users.')}}{{pass}}
 
@@ -43,8 +46,13 @@ $(function() {
 {{if len(contacts):}}
 [{{=A('Create a new contact', _href=URL('data', args=('create', 'contact')))}}]<br />
 <ul>{{for contact in contacts:}}
-    {{=LI(A(contact.name, _href=URL('data', args=('update', 'contact', contact.id))), 
-        IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='contact-' + `contact.id`), _class='top-td' )}}{{pass}}
+        {{if isAdmin:}}
+            {{=LI(A(contact.name, _href=URL('data', args=('update', 'contact', contact.id))), 
+                IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='contact-' + `contact.id`), _class='top-td' )}}
+        {{else:}}
+            {{=LI(A(contact.name, _href=URL('data', args=('update', 'contact', contact.id))))}}
+        {{pass}}
+    {{pass}}
 </ul>
 {{else:}}{{=I('There are no contacts.')}}{{pass}}
 
@@ -52,25 +60,34 @@ $(function() {
 <h1>Groups</h1>
 [{{=A('Create a new group', _href=URL('data', args=('create','auth_group')))}}]<br />
 <ul>{{for group in groups:}}
-    {{=LI(A(group.role, _href=URL('data', args=('update', 'auth_group', group.id))),
-        IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='auth_group-' + `group.id`), _class='top-td' )}}{{pass}}
+        {{if isAdmin:}}
+        {{=LI(A(group.role, _href=URL('data', args=('update', 'auth_group', group.id))),
+            IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='auth_group-' + `group.id`), _class='top-td' )}}
+        {{else:}}{{=LI(A(group.role, _href=URL('data', args=('update', 'auth_group', group.id))))}}
+        {{pass}}
+    {{pass}}
 </ul>
 {{pass}}
 
 
 <h1>Tags</h1>
 {{if len(tags):}}
-[{{=A('Create a new tag', _href=URL('data', args=('create', 'tag')))}}]<br />
+{{if isAdmin:}}
+[{{=A('Create a new tag', _href=URL('data', args=('create', 'tag')))}}]<br />{{pass}}
 <ul>{{for tag in tags:}}
-    {{=LI(A(tag.name, _href=URL('data', args=('update', 'tag', tag.id))),
-        IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='tag-' + `tag.id`), _class='top-td' )}}{{pass}}
+        {{if isAdmin:}}
+            {{=LI(A(tag.name, _href=URL('data', args=('update', 'tag', tag.id))),
+                IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='tag-' + `tag.id`), _class='top-td' )}}
+        {{else:}}{{=LI(tag.name)}}
+        {{pass}}
+    {{pass}}
 </ul>
 {{else:}}{{=I('There are no tags.')}}{{pass}}
 
 
 <h1>Messages</h1>
-{{if len(messages):}}
 [{{=A('Create a new message', _href=URL('create_message'))}}]<br />
+{{if len(messages):}}
 <ul>{{for message in messages:}}
     <li class='top-td'>{{=SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id)))}}
     {{=IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`)}}</li>{{pass}}

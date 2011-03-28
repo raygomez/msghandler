@@ -13,22 +13,35 @@
 def index():
 
     grps = db(db.auth_membership.user_id == auth.user_id).select()
-
     contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
     
+    isAdmin = False
+    isTelehealth = False
     if auth.has_membership('Admin'):
-        groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
+        isAdmin = True
+        groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
         messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
         users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
+    elif auth.has_membership('Telehealth'):     
+        isTelehealth = True
+        groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
+        messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
+        users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)        
     else:
+        pass
+        '''
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
-        messages = db(db.msg.id.belongs(msg_query)).select()        
+        messages = db(db.msg.id.belongs(msg_query)).select()
         groups = []
-        users = []
-    
-    return dict(my_roles=grps, messages=messages, contacts=contacts, tags=tags, users=users, groups=groups)
+        users_query = db(db.auth_membership.group_id.belongs(groups_query))._select(db.auth_membership.user_id)
+        users = db(db.auth_user.id.belongs(users_query)).\
+                select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
+        '''
+        
+    return dict(my_roles=grps, messages=messages, contacts=contacts, 
+                tags=tags, users=users, groups=groups, isAdmin=isAdmin, isTelehealth=isTelehealth)
 
 def get_groups ():
     groups = db(db.auth_membership.user_id == auth.user.id).select()
