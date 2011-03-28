@@ -85,17 +85,18 @@ db.define_table('contact',
     Field('name', notnull=True),
     Field('user_id', db.auth_user),
     Field('contact_type', notnull=True, requires=IS_IN_SET(('mobile', 'landline', 'email'))),
-    Field('contact_info',notnull=True),
+    Field('contact_info', notnull=True),
     format='%(name)s')
 db.contact.user_id.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s')
 
 db.define_table('msg',
     Field('subject', notnull=True),
     Field('content', 'text', notnull=True),
-    Field('created_by', db.contact),
+    Field('created_by', db.contact, notnull=True),
     Field('create_time', 'datetime', notnull=True, default=datetime.now()),
     format='%(subject)s')
 db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
+db.msg.created_by.writable = db.msg.created_by.readable = False
 
 db.define_table('msg_attachment',
     Field('msg_id', db.msg, notnull=True),
@@ -133,7 +134,6 @@ db.msg_group.msg_id.requires=IS_IN_DB(db, 'msg.id', '%(subject)s')
 db.msg_group.group_id.requires=IS_IN_DB(db, 'auth_group.id', '%(role)s')    
 db.msg_group.user_id.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')    
 db.msg_group.assigned_by.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')    
-    
     
 db.define_table('msg_tag',
     Field('msg_id', db.msg),
