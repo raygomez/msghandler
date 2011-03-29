@@ -126,15 +126,16 @@ db.tag.name.requires=IS_NOT_IN_DB(db, 'tag.name')
 db.define_table('msg_group',
     Field('msg_id',  db.msg, notnull=True),
     Field('group_id', db.auth_group, notnull=True), 
-    Field('user_id', db.auth_user),
+    Field('assigned_to', db.auth_user),
     Field('assigned_by', db.auth_user),
     Field('assign_time', 'datetime', notnull=True, default=datetime.now()),
     format='%(msg_id.subject)s %(group_id.role)s')
 db.msg_group.msg_id.requires=IS_IN_DB(db, 'msg.id', '%(subject)s')
 db.msg_group.group_id.requires=IS_IN_DB(db, 'auth_group.id', '%(role)s')    
-db.msg_group.user_id.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')    
+db.msg_group.assigned_to.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')    
 db.msg_group.assigned_by.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')    
-    
+db.msg_group.assigned_by.writable = db.msg_group.assigned_by.readable = False
+
 db.define_table('msg_tag',
     Field('msg_id', db.msg),
     Field('tag_id', db.tag),
