@@ -22,11 +22,10 @@ filt_id = db(db.msg.parent_msg>0).select(
 
 [db.msg_tag.insert(msg_id=row.id, tag_id=late_id) for row in
     db((db.msg.parent_msg>0)
-       & cond_time).select(
-            groupby=db.msg.parent_msg,
-            orderby=~db.msg.create_time)]
+       & cond_time
+    ).select(db.msg.id, groupby=db.msg.parent_msg)]
 
 [db.msg_tag.insert(msg_id=row.id, tag_id=late_id) for row in
     db((db.msg.parent_msg==0)
        & ~db.msg.id.belongs(filt_id)
-    ).select()]
+    ).select(db.msg.id)]
