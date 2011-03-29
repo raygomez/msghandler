@@ -97,6 +97,8 @@ db.define_table('msg',
     format='%(subject)s')
 db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
 db.msg.created_by.writable = db.msg.created_by.readable = False
+db.msg.create_time.writable = db.msg.create_time.readable = False
+
 
 db.define_table('msg_attachment',
     Field('msg_id', db.msg, notnull=True),

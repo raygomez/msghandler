@@ -189,14 +189,14 @@ def create_message():
     )
     form.element(_name='tags')['_onkeyup']="showtags()" 
     form.element(_name='tags')['_autocomplete']='off' 
-    form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
-    form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
+    form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
+    form[0].insert(6, TR(TD(),TD(DIV(_id='new-tags'))))
     form.element('#tr-tags-new').append(TABLE(TR()))
 
     form.element(_name='groups')['_onkeyup']="showgroups()" 
     form.element(_name='groups')['_autocomplete']='off' 
-    form[0].insert(9, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
-    form[0].insert(11, TR(TD(),TD(DIV(_id='new-groups'))))
+    form[0].insert(7, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
+    form[0].insert(9, TR(TD(),TD(DIV(_id='new-groups'))))
     form.element('#tr-groups-new').append(TABLE(TR()))
     
     tags = db().select(db.tag.id, db.tag.name).json()
@@ -249,8 +249,8 @@ def show_message():
     )
     form.element(_name='tags')['_onkeyup']="showtags()" 
     form.element(_name='tags')['_autocomplete']='off' 
-    form[0].insert(6, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
-    form[0].insert(8, TR(TD(),TD(DIV(_id='new-tags'))))
+    form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
+    form[0].insert(6, TR(TD(),TD(DIV(_id='new-tags'))))
     td = TABLE(TR())
 
     for i in range(len(tags)): 
@@ -263,8 +263,8 @@ def show_message():
        
     form.element(_name='groups')['_onkeyup']="showgroups()" 
     form.element(_name='groups')['_autocomplete']='off' 
-    form[0].insert(9, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
-    form[0].insert(11, TR(TD(),TD(DIV(_id='new-groups'))))
+    form[0].insert(7, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
+    form[0].insert(9, TR(TD(),TD(DIV(_id='new-groups'))))
     td = TABLE(TR())
 
     for i in range(len(groups)): 

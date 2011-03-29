@@ -86,6 +86,9 @@ $(function() {
 
 
 <h1>Messages</h1>
+{{created = []}}
+{{ungrouped = []}}
+{{assigned = []}}
 [{{=A('Create a new message', _href=URL('create_message'))}}]<br />
 {{if len(messages):}}
 <ul>{{for message in messages:}}
@@ -94,12 +97,31 @@ $(function() {
             {{=IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`)}}</li>
         {{elif isTelehealth:}}
             {{if message.created_by == contact_id:}}
-                <li class='top-td'>{{=SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id)))}}
-                {{=IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`)}}</li>
-            {{else:}}
-                <li class='top-td'>{{=SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id)))}}</li>            
+                
+                {{li = LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))),IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`), _class='top-td')}}
+                {{created.append(li)}}
+            {{elif db((db.msg_group.assigned_by == auth.user.id) & (db.msg_group.msg_id == message.id)).select().first():}}
+                {{li =LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))), _class='top-td')}}
+                {{assigned.append(li)}}
+            {{else:}}  
+                {{li =LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))), _class='top-td')}}
+                {{ungrouped.append(li)}}            
             {{pass}}            
         {{pass}}
     {{pass}}
+    {{if len(created):}}
+        <li><h4>Messages you created</h4></li>
+        {{=UL(*created)}}        
+    {{pass}}
+    {{if len(assigned):}}
+        <li><h4>Messages that you have assigned</h4></li>
+        {{=UL(*assigned)}}        
+    {{pass}}
+    
+    {{if len(ungrouped):}}
+        <li><h4>Messages that have no groups</h4></li>
+        {{=UL(*ungrouped)}}        
+    {{pass}}
+
 </ul>
 {{else:}}{{=I('There are no messages.')}}{{pass}}
