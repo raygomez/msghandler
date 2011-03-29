@@ -42,6 +42,7 @@ $(function() {
 </ul>
 {{else:}}{{=I('There are no users.')}}{{pass}}
 
+{{if isAdmin or isTelehealth:}}
 <h1>Contacts</h1>
 {{if len(contacts):}}
 [{{=A('Create a new contact', _href=URL('data', args=('create', 'contact')))}}]<br />
@@ -55,6 +56,7 @@ $(function() {
     {{pass}}
 </ul>
 {{else:}}{{=I('There are no contacts.')}}{{pass}}
+{{pass}}
 
 {{if len(groups):}}
 <h1>Groups</h1>
@@ -69,7 +71,7 @@ $(function() {
 </ul>
 {{pass}}
 
-
+{{if isAdmin or isTelehealth:}}
 <h1>Tags</h1>
 {{if len(tags):}}
 {{if isAdmin:}}
@@ -83,7 +85,7 @@ $(function() {
     {{pass}}
 </ul>
 {{else:}}{{=I('There are no tags.')}}{{pass}}
-
+{{pass}}
 
 <h1>Messages</h1>
 {{created = []}}
@@ -114,9 +116,21 @@ $(function() {
             {{else:}}  
                 {{li =LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))), _class='top-td')}}
                 {{ungrouped.append(li)}}            
-            {{pass}}            
+            {{pass}}
+        {{else:}}
+            {{if message.created_by == contact_id:}}                
+                {{li = LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))),IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`), _class='top-td')}}
+                {{created.append(li)}}
+            {{pass}}
+            {{groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)}}
+            {{if db(db.msg_group.group_id.belongs(groups_query) & (db.msg_group.msg_id == message.id)).select().first():}}
+                {{li =LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))), _class='top-td')}}
+                {{grouped.append(li)}}                
+            {{pass}}
+
         {{pass}}
     {{pass}}
+    
     {{if len(created):}}
         <li><h4>Messages you created</h4></li>
         {{=UL(*created)}}        
@@ -131,10 +145,14 @@ $(function() {
         {{=UL(*ungrouped)}}        
     {{pass}}
 
-    {{if len(grouped):}}
-        <li><h4>Messages that have groups</h4></li>
+    {{if isAdmin or isTelehealth:}}
+        {{if len(grouped):}}
+            <li><h4>Messages that have groups</h4></li>
+            {{=UL(*grouped)}}        
+        {{pass}}
+    {{else:}}
+        <li><h4>Messages for your groups</h4></li>
         {{=UL(*grouped)}}        
     {{pass}}
-
 </ul>
 {{else:}}{{=I('There are no messages.')}}{{pass}}

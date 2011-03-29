@@ -15,20 +15,19 @@ def index():
     grps = db(db.auth_membership.user_id == auth.user_id).select()
     contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
+    groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
+    users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     
     isAdmin = False
     isTelehealth = False
     if auth.has_membership('Admin'):
         isAdmin = True
-        groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
         messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
-        users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
+        
     elif auth.has_membership('Telehealth'):     
         isTelehealth = True
-        users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)                
         nurse_record = db(db.contact.user_id == auth.user.id).select().first()
-        groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
-        
+                
         msg_query_group = db(db.msg_group.id > 0)._select(db.msg_group.msg_id)
         msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id)._select(db.msg_group.msg_id)
         messages = db((db.msg.created_by == nurse_record.id) |\
@@ -36,13 +35,16 @@ def index():
                       db.msg.id.belongs(msg_query_assigned))\
                     .select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
     else:
+        contacts = []
+        groups = []
+        users = []
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
         messages = db(db.msg.id.belongs(msg_query)).select()
-        groups = []
-        users_query = db(db.auth_membership.group_id.belongs(groups_query))._select(db.auth_membership.user_id)
-        users = db(db.auth_user.id.belongs(users_query)).\
-                select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
+        
+        users_query = db(db.auth_membership.group_id.belongs(groups_query) & (db.auth_membership.user_id != auth.user.id))._select(db.auth_membership.user_id)
+        users = db(db.auth_user.id.belongs(users_query)).select(db.auth_user.id, db.auth_user.first_name, 
+                db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     
     contact = get_contact(auth.user)
         
