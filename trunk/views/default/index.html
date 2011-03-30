@@ -1,4 +1,9 @@
 {{extend 'layout.html'}}
+<script type="text/javascript" src="msghandler/static/js/ui/jquery.ui.core.js"></script> 
+<script type="text/javascript" src="msghandler/static/js/ui/jquery.ui.widget.js"></script> 
+<script type="text/javascript" src="msghandler/static/js/ui/jquery.ui.tabs.js"></script> 
+
+<link rel="stylesheet" href="msghandler/static/js/themes/base/jquery.ui.all.css"> 
 <script>
 
 $(function() {   
@@ -17,9 +22,39 @@ $(function() {
     })
     $('.top-td').live('mouseenter', function(){$($(this).children()[1]).show();})
     $('.top-td').live('mouseleave', function(){$($(this).children()[1]).hide();});
+    
+    $("#tabs").tabs().addClass('ui-tabs-vertical ui-helper-clearfix');
+    $("#tabs li").removeClass('ui-corner-top').addClass('ui-corner-left');
 })
-
 </script>
+    <style type="text/css"> 
+    
+/* Vertical Tabs
+----------------------------------*/
+.ui-tabs-vertical { width: 55em; }
+.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 12em; }
+.ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
+.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
+.ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 40em;}
+
+    </style> 
+ 
+
+<div id="tabs"> 
+    <ul> 
+        <li><a href="#tabs-1">Nunc tincidunt</a></li> 
+        <li><a href="#tabs-2">Proin dolor</a></li> 
+        <li><a href="#tabs-3">Aenean lacinia</a></li> 
+    </ul> 
+    <div id="tabs-1">
+    </div>
+    <div id="tabs-2"> 
+    </div> 
+    <div id="tabs-3"> 
+    </div> 
+</div> 
+
 <h1>My Groups</h1>
 {{if len(my_roles):}}
 {{groups_dict = dict()}}
@@ -160,3 +195,5 @@ $(function() {
     {{pass}}
 </ul>
 {{else:}}{{=I('There are no messages.')}}{{pass}}
+
+comment -->
