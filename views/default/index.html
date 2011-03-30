@@ -22,8 +22,10 @@ $(function() {
 </script>
 <h1>My Groups</h1>
 {{if len(my_roles):}}
+{{groups_dict = dict()}}
 <ul>{{for role in my_roles:}}
         {{=LI(role.group_id.role)}}
+        {{groups_dict[role.group_id.role] = []}}
     {{pass}}
 </ul>
 {{else:}}{{=I('You have no groups.')}}{{pass}}
@@ -99,9 +101,9 @@ $(function() {
             {{li=LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))),IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`), _class='top-td')}}
             {{if message.created_by == contact_id:}}{{created.append(li)}}
             {{pass}}
-            {{if db((db.msg_group.assigned_by == auth.user.id) & (db.msg_group.msg_id == message.id)).select().first():}}
+            {{if len(msg_group.find(lambda row: row.assigned_by == auth.user.id and row.msg_id == message.id)):}}            
                 {{assigned.append(li)}}
-            {{elif not db(db.msg_group.msg_id == message.id).select().first():}}                
+            {{elif len(msg_group.find(lambda row: row.msg_id == message.id)) == 0:}}                
                 {{ungrouped.append(li)}}            
             {{else:}}{{grouped.append(li)}}            
             {{pass}}            
@@ -110,7 +112,7 @@ $(function() {
                 {{li = LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))),IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`), _class='top-td')}}
                 {{created.append(li)}}
             {{pass}}
-            {{if db((db.msg_group.assigned_by == auth.user.id) & (db.msg_group.msg_id == message.id)).select().first():}}
+            {{if len(msg_group.find(lambda row: row.assigned_by == auth.user.id and row.msg_id == message.id)):}}                        
                 {{li =LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))), _class='top-td')}}
                 {{assigned.append(li)}}                
             {{else:}}  
@@ -122,10 +124,10 @@ $(function() {
                 {{li = LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))),IMG(_src=URL('static', 'images/delete.png'), _class='delete', _hidden='true', _id='msg-' + `message.id`), _class='top-td')}}
                 {{created.append(li)}}
             {{pass}}
-            {{groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)}}
-            {{if db(db.msg_group.group_id.belongs(groups_query) & (db.msg_group.msg_id == message.id)).select().first():}}
+            {{group_msgs = msg_group.find(lambda row: row.msg_id == message.id)}}
+            {{for msg in group_msgs:}}
                 {{li =LI(SPAN(A(message.subject, _href=URL('show_message',args=message.id)), ' by ', A(message.created_by.name, _href=URL('show_contact', args=message.created_by.id))), _class='top-td')}}
-                {{grouped.append(li)}}                
+                {{groups_dict[msg.group_id.role].append(li)}}            
             {{pass}}
 
         {{pass}}
@@ -151,8 +153,10 @@ $(function() {
             {{=UL(*grouped)}}        
         {{pass}}
     {{else:}}
-        <li><h4>Messages for your groups</h4></li>
-        {{=UL(*grouped)}}        
+        {{for key in groups_dict.keys():}}
+            <li><h4>{{=key}}</h4></li>
+            {{=UL(*groups_dict[key])}}
+        {{pass}}
     {{pass}}
 </ul>
 {{else:}}{{=I('There are no messages.')}}{{pass}}

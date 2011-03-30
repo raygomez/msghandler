@@ -17,6 +17,7 @@ def index():
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
     groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
     users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
+    msg_group = db(db.msg_group.id > 0).select()
     
     isAdmin = False
     isTelehealth = False
@@ -48,7 +49,7 @@ def index():
     
     contact = get_contact(auth.user)
         
-    return dict(my_roles=grps, messages=messages, contacts=contacts, contact_id=contact.id,
+    return dict(my_roles=grps, messages=messages, contacts=contacts, contact_id=contact.id, msg_group=msg_group,
                 tags=tags, users=users, groups=groups, isAdmin=isAdmin, isTelehealth=isTelehealth)
 
 def get_groups ():
