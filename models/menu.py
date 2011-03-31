@@ -21,7 +21,7 @@ response.meta.copyright = 'Copyright 2007-2010'
 ##########################################
 
 response.menu = [
-    (T('Home'), False, URL(request.application,'default','index'), [])
+    (T('Home'), True, URL(request.application,'default','index'), [])
     ]
 
 ##########################################
@@ -35,8 +35,21 @@ response.menu = [
 ## Make your own menus
 ##########################################
 
+if auth.is_logged_in(): 
+    response.menu+= [(T('Messages'), False, URL(request.application,'default','index'), []),
+                    (T('Users'), False, URL(request.application,'default','index'), []),]
+    
+
+    if auth.has_membership('Admin', auth.user.id) or auth.has_membership('Nurse', auth.user.id):
+        response.menu+= [
+            (T('Groups'), False, URL(request.application,'default','index'), []),
+            (T('Tags'), False, URL(request.application,'default','index'), []),
+            (T('Contacts'), False, URL(request.application,'default','index'), []),
+            (T('Help'), False, URL(request.application,'default','index'), []),    
+        ]
+
 response.menu+=[
-    (T('This App'), False, URL('admin', 'default', 'design/%s' % request.application),
+    (T('This App'), False, URL('admin', 'default', 'design/%s' % request.application), 
      [
             (T('Controller'), False,
              URL('admin', 'default', 'edit/%s/controllers/%s.py' \
