@@ -12,6 +12,10 @@
 @auth.requires_login()
 def index():
 
+    response.files.append(URL(r=request,c='static/jquery.jqGrid/src/i18n',f='grid.locale-en.js'))
+    response.files.append(URL(r=request,c='static/jquery.jqGrid/js',f='jquery.jqGrid.min.js'))
+    response.files.append(URL(r=request,c='static/jquery.jqGrid/css',f='ui.jqgrid.css'))
+
     grps = db(db.auth_membership.user_id == auth.user_id).select()
     contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
