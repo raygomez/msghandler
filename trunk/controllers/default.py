@@ -302,3 +302,27 @@ def create_attachment():
 def call():
     session.forget()
     return service()
+
+@service.json
+def get_rows():
+    fields = ['subject','content','created_by','create_time']
+    rows = []
+    page = int(request.vars.page)
+    pagesize = int(request.vars.rows)    
+    limitby = (page * pagesize - pagesize,page * pagesize)
+    orderby = db.msg[request.vars.sidx]
+    if request.vars.sord == 'desc': orderby = ~orderby
+    for r in db(db.msg.id>0).select(limitby=limitby,orderby=orderby):
+        vals = []
+        for f in fields:
+            rep = db.msg[f].represent
+            if rep:
+                vals.append(rep(r[f]))
+            else:
+                vals.append(r[f])
+        rows.append(dict(id=r.id,cell=vals))
+    total = db(db.msg.id>0).count()       
+    pages = int(total/pagesize)
+    #if total % pagesize == 0: pages -= 1 
+    data = dict(total=pages,page=page,rows=rows)
+    return data

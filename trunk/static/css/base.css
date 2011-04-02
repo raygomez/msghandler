@@ -347,7 +347,7 @@ h6 {font-size: 0.8em;}
 /*body {background-color: #000;}*/
 #container, #header, #page, #content, #statusbar,
 #footer, #wrapper { display:block; line-height: 170%; }
-#wrapper {width: 900px;}
+/*#wrapper {width: 900px;}*/
 #container {
     margin: 0 auto;
     padding: 0;
@@ -453,4 +453,3 @@ div.error {
   p, h2, h3 { orphans: 3; widows: 3; }
   h2, h3{ page-break-after: avoid; }
 }
-

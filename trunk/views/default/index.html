@@ -4,9 +4,23 @@
 <script type="text/javascript" src="msghandler/static/js/ui/jquery.ui.tabs.js"></script> 
 
 <link rel="stylesheet" href="msghandler/static/js/themes/base/jquery.ui.all.css"> 
-<script>
+<style type="text/css"> 
+    
+/* Vertical Tabs
+----------------------------------*/
+/*.ui-tabs-vertical { width: 55em; } */
 
-$(function() {   
+.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 8em; }
+.ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
+.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
+.ui-tabs-vertical .ui-tabs-panel { padding: 0em; float: right;}
+
+    </style> 
+
+<script>
+$(function(){
+
     $('img.delete').one('click', function(){
         var answer = confirm('Are you sure you want to delete this?')
         if (answer){
@@ -25,68 +39,57 @@ $(function() {
     
     $("#tabs").tabs().addClass('ui-tabs-vertical ui-helper-clearfix');
     $("#tabs li").removeClass('ui-corner-top').addClass('ui-corner-left');
-})
-</script>
-    <style type="text/css"> 
-    
-/* Vertical Tabs
-----------------------------------*/
-.ui-tabs-vertical { width: 55em; }
-.ui-tabs-vertical .ui-tabs-nav { padding: .2em .1em .2em .2em; float: left; width: 8em; }
-.ui-tabs-vertical .ui-tabs-nav li { clear: left; width: 100%; border-bottom-width: 1px !important; border-right-width: 0 !important; margin: 0 -1px .2em 0; }
-.ui-tabs-vertical .ui-tabs-nav li a { display:block; }
-.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
-.ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 40em;}
+    $('#tabs-late').width($('#tabs-late').parent().width() - $($('#tabs-late').parent().children()[0]).width() - 5);
 
-    </style> 
-
-<script>
-$(function(){
-jQuery("#list4").jqGrid({
-    datatype: "local",
-    colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Notes'],
-    colModel:[
-        {name:'id',index:'id', sorttype:"int"},
-        {name:'invdate',index:'invdate', sorttype:"date"},
-        {name:'name',index:'name'},
-        {name:'amount',index:'amount', align:"right",sorttype:"float"},
-        {name:'tax',index:'tax', align:"right",sorttype:"float"},     
-        {name:'total',index:'total',align:"right",sorttype:"float"},      
-        {name:'note',index:'note',sortable:false}       
+jQuery("#list").jqGrid({
+    url:'{{=URL(r=request,f='call',args=['json','get_rows'])}}',
+    data: "{}",
+    datatype: "json",
+    autoheight: true,
+    width: $('#tabs-late').width(),
+    mtype: 'GET',
+    contentType: "application/json; charset=utf-8",
+    complete: function(jsondata, stat) {
+        if (stat == "success") {
+            var thegrid = jQuery("#list")[0];
+            thegrid.addJSONData(JSON.parse(jsondata.responseText).d);
+        }
+    },    
+    colNames:['Subject','Content', 'Created_by','Create_time'],
+    colModel :[ 
+      {name:'subject', index:'subject'}, 
+      {name:'content', index:'content'}, 
+      {name:'created_by', index:'created_by'}, 
+      {name:'create_time', index:'create_time'}
     ],
-    caption: "Manipulating Array Data"
-});
-var mydata = [
-        {id:"1",invdate:"2007-10-01",name:"test",note:"note",amount:"200.00",tax:"10.00",total:"210.00"},
-        {id:"2",invdate:"2007-10-02",name:"test2",note:"note2",amount:"300.00",tax:"20.00",total:"320.00"},
-        {id:"3",invdate:"2007-09-01",name:"test3",note:"note3",amount:"400.00",tax:"30.00",total:"430.00"},
-        {id:"4",invdate:"2007-10-04",name:"test",note:"note",amount:"200.00",tax:"10.00",total:"210.00"},
-        {id:"5",invdate:"2007-10-05",name:"test2",note:"note2",amount:"300.00",tax:"20.00",total:"320.00"},
-        {id:"6",invdate:"2007-09-06",name:"test3",note:"note3",amount:"400.00",tax:"30.00",total:"430.00"},
-        {id:"7",invdate:"2007-10-04",name:"test",note:"note",amount:"200.00",tax:"10.00",total:"210.00"},
-        {id:"8",invdate:"2007-10-03",name:"test2",note:"note2",amount:"300.00",tax:"20.00",total:"320.00"},
-        {id:"9",invdate:"2007-09-01",name:"test3",note:"note3",amount:"400.00",tax:"30.00",total:"430.00"}
-        ];
-for(var i=0;i<=mydata.length;i++)
-    jQuery("#list4").jqGrid('addRowData',i+1,mydata[i]);
-    
-});
+    pager: '#pager',
+    rowNum:10,
+    rowList:[10,20,30],
+    sortname: 'subject',
+    sortorder: 'desc',
+    viewrecords: true,
+    scrollOffset: '1',
+  }); 
+});     
 </script>
 
-<div id="tabs"> 
+<div id="tabs">
     <ul> 
         <li><a href="#tabs-late">Late</a></li> 
         <li><a href="#tabs-inbox">Inbox</a></li> 
         <li><a href="#tabs-drafts">Drafts</a></li> 
         <li><a href="#tabs-sent">Sent</a></li> 
         <li><a href="#tabs-trash">Trash</a></li> 
-    </ul> 
+    </ul>
     <div id="tabs-late">
-        <table id="list4"></table>
+        <table id="list"></table>
     </div>
     <div id="tabs-inbox"> 
+<h2>Content heading 1</h2> 
+        <p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Curabitur nec arcu. Donec sollicitudin mi sit amet mauris. Nam elementum quam ullamcorper ante. Etiam aliquet massa et lorem. Mauris dapibus lacus auctor risus. Aenean tempor ullamcorper leo. Vivamus sed magna quis ligula eleifend adipiscing. Duis orci. Aliquam sodales tortor vitae ipsum. Aliquam nulla. Duis aliquam molestie erat. Ut et mauris vel pede varius sollicitudin. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>     
     </div> 
     <div id="tabs-drafts"> 
+    <table id="list5"></table>
     </div> 
     <div id="tabs-sent"> 
     </div> 
