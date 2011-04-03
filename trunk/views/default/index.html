@@ -1,5 +1,6 @@
 {{extend 'layout.html'}}
 <script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.core.js"></script> 
+<script type="text/javascript" src="/{{=request.application}}/static/js/date.format.js"></script> 
 <script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.widget.js"></script> 
 <script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.tabs.js"></script> 
 
@@ -19,6 +20,20 @@
     </style> 
 
 <script>
+
+dateFmatter = function(el, cellval, opts){
+    //check if this year;
+    today = new Date();
+    date = new Date(el);
+    if (today.getFullYear() == date.getFullYear()){
+        if(today.getMonth() ==  date.getMonth() && (today.getDate() == date.getDate())){
+            return dateFormat(el, 'shortTime');    
+        }
+        return dateFormat(el, "mmm d");
+    }
+    return dateFormat(el, "shortDate");
+}  
+
 $(function(){
 
     $('img.delete').one('click', function(){
@@ -46,7 +61,7 @@ jQuery("#list").jqGrid({
     data: "{}",
     datatype: "json",
     autoheight: true,
-    width: $('#tabs-late').width(),
+    autowidth: true,
     mtype: 'GET',
     contentType: "application/json; charset=utf-8",
     complete: function(jsondata, stat) {
@@ -55,22 +70,28 @@ jQuery("#list").jqGrid({
             thegrid.addJSONData(JSON.parse(jsondata.responseText).d);
         }
     },    
-    colNames:['Subject','Content', 'Created_by','Create_time'],
+    colNames:['Id', 'Subject', 'Content', 'Created_by','Create_time'],
     colModel :[ 
+      {name:'id', index:'id', hidden:true},
       {name:'subject', index:'subject'}, 
-      {name:'content', index:'content'}, 
+      {name:'content', index:'content', hidden:true},       
       {name:'created_by', index:'created_by'}, 
-      {name:'create_time', index:'create_time'}
+      {name:'create_time', index:'create_time', formatter:dateFmatter}  
     ],
     pager: '#pager',
     rowNum:10,
     rowList:[10,20,30],
-    sortname: 'subject',
+    sortname: 'create_time',
     sortorder: 'desc',
     viewrecords: true,
     scrollOffset: '1',
   }); 
+  
+
+  
 });     
+
+
 </script>
 
 <div id="tabs">
