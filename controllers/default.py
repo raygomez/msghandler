@@ -63,6 +63,11 @@ def get_groups ():
         roles.append(group.group_id.id)    
     return roles
 
+def get_message():
+    db.msg.created_by.readable = db.msg.create_time.readable = True
+    id = int(request.vars.id)
+    return crud.read(db.msg, id)
+
 @auth.requires_login()
 def insert_ajax():
     id = int(request.vars.id)
