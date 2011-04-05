@@ -34,6 +34,8 @@ dateFmatter = function(el, cellval, opts){
     return dateFormat(el, "shortDate");
 }  
 
+var lastsel;
+
 $(function(){
 
     $('img.delete').one('click', function(){
@@ -70,7 +72,7 @@ jQuery("#list").jqGrid({
             thegrid.addJSONData(JSON.parse(jsondata.responseText).d);
         }
     },    
-    colNames:['Id', 'Subject', 'Content', 'Created_by','Create_time'],
+    colNames:['Id', 'Created_by', 'Subject', 'Content' ,'Create_time'],
     colModel :[ 
       {name:'id', index:'id', hidden:true},
       {name:'subject', index:'subject'}, 
@@ -85,12 +87,17 @@ jQuery("#list").jqGrid({
     sortorder: 'desc',
     viewrecords: true,
     scrollOffset: '1',
+    onSelectRow: function(id){
+        alert(id);
+        if(id && id!==lastsel){
+            jQuery('#list').jqGrid('restoreRow',lastsel);
+            jQuery('#list').jqGrid('editRow',id,true);
+            lastsel=id;
+        }
+    },    
+    
   }); 
-  
-
-  
 });     
-
 
 </script>
 

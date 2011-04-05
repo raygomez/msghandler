@@ -305,7 +305,7 @@ def call():
 
 @service.json
 def get_rows():
-    fields = ['id', 'subject', 'content', 'created_by','create_time']
+    fields = ['id', 'created_by', 'subject', 'content','create_time']
     rows = []
     page = int(request.vars.page)
     pagesize = int(request.vars.rows)    
