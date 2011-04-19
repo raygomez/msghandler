@@ -1,23 +1,24 @@
-# GENERIC HANDLER
-#   Matches messages with the right application, regardless of mode
-#   (SMS, email, etc).
-#
-# code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/
-#   __init__.py
-#
+"""
+GENERIC HANDLER
+  Template for handler tools.
 
-# Rules:
-#   imports should follow PEP 8 (http://www.python.org/dev/peps/pep-0008/)
-#   docstrings should follow PEP 257 (http://www.python.org/dev/peps/pep-0257/)
+Adapted from
+  code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/
+  __init__.py
 
-# IMPORTS START HERE ----------------------------------------------------------
+Rules to follow:
+  http://www.python.org/dev/peps/pep-0008/
+  http://www.python.org/dev/peps/pep-0257/
+"""
+
+# IMPORTS START HERE ---------------------------------------------------------
 # standard library imports
 
 # related third party imports
 
 # local application/library specific imports
 
-# CODE STARTS HERE ------------------------------------------------------------
+# CODE STARTS HERE -----------------------------------------------------------
 class Reader:
     def __init__(self, text_string):
         """Parse message according to mode.
