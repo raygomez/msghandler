@@ -47,8 +47,8 @@ Things to Do
 </ol>
 <table width='100%'>
     <tr>
-        <td width="15%" class='menu'>Logo</td>
-        <td class='menu'>Search: <input></input></td>
+        <td width="15%" class='menu' style="border:0;">Logo</td>
+        <td class='menu' style="border:0;">Search: <input></input></td>
     </tr>
     <tr>
         <td width="15%" class='menu'>
@@ -76,6 +76,11 @@ Things to Do
         </td>
         <td class='menu'>
             <table width='100%'>
+            	<tr style="font-weight:bold;">
+            		<td>Created by</td>
+            		<td>Subject</td>
+            		<td>Timestamp</td>
+            	</tr>
                 {{if len(messages):}}
                     
                     {{for message in messages:}}
