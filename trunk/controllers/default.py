@@ -231,7 +231,9 @@ def create_message():
 
 @auth.requires_login()
 def read_message():
-    return dict(form=crud.read(db.msg,int(request.args(0))))    
+
+    message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
+    return dict(message=message)    
 
 @auth.requires_login()     
 def show_message():
