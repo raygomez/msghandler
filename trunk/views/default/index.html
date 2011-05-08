@@ -8,6 +8,12 @@
 <script>
 
 $(function(){
+    $('tr.messages').click(function(){
+        //$(window.location).attr('href', );
+        window.location.replace('http://localhost:8000/msghandler/default/read_message/' + $(this).children().first().text());
+    });
+
+
     $('img.delete').one('click', function(){
         var answer = confirm('Are you sure you want to delete this?')
         if (answer){
@@ -32,6 +38,13 @@ $(function(){
 .menu { border: 1px solid black};
 
 </style>
+Things to Do
+<ol>
+<li><del>Make messages clickable.</del></li>
+<li>Add Back in each messages</li>
+<li>Add Tags in messages</li>
+<li></li>
+</ol>
 <table width='100%'>
     <tr>
         <td width="15%" class='menu'>Logo</td>
@@ -51,24 +64,26 @@ $(function(){
                 {{if len(my_roles):}}
                     {{groups_dict = dict()}}
                     {{for role in my_roles:}}
-                    <tr><td>
-                        {{=LI(role.group_id.role)}}
-                        {{groups_dict[role.group_id.role] = []}}
-                    </td></tr>
+                    <tr>
+                        <td>
+                            {{=LI(role.group_id.role)}}
+                            {{groups_dict[role.group_id.role] = []}}
+                        </td>
+                    </tr>
                     {{pass}}                
                 {{pass}}
             </table>        
         </td>
         <td class='menu'>
             <table width='100%'>
-                {{print len(messages)}}
                 {{if len(messages):}}
                     
                     {{for message in messages:}}
-                        <tr>
-                        <td width='20%'>{{=message.created_by.name}}</td>
-                        <td>{{=message.subject}}</td>
-                        <td width='20%'>{{=message.create_time}}</td>
+                        <tr class='messages'>
+                            <td style='display: none;'>{{=message.id}}</td>
+                            <td width='20%'>{{=message.created_by.name}}</td>
+                            <td>{{=message.subject}}</td>
+                            <td width='20%'>{{=message.create_time}}</td>
                         </tr>
                     {{pass}}
                 {{pass}}            
