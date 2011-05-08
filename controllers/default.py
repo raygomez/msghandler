@@ -12,10 +12,6 @@
 @auth.requires_login()
 def index():
 
-    response.files.append(URL(r=request,c='static/jquery.jqGrid/src/i18n',f='grid.locale-en.js'))
-    response.files.append(URL(r=request,c='static/jquery.jqGrid/js',f='jquery.jqGrid.min.js'))
-    response.files.append(URL(r=request,c='static/jquery.jqGrid/css',f='ui.jqgrid.css'))
-
     grps = db(db.auth_membership.user_id == auth.user_id).select()
     contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
@@ -232,6 +228,10 @@ def create_message():
         session.flash = T('Message successfully created.')
         redirect(URL('show_message', args=msg_id))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))
+
+@auth.requires_login()
+def read_message():
+    return dict(form=crud.read(db.msg,int(request.args(0))))    
 
 @auth.requires_login()     
 def show_message():
