@@ -37,7 +37,7 @@ plugins = PluginManager()
 
 mail.settings.server = 'logging' or 'smtp.gmail.com:587'  # your SMTP server
 mail.settings.sender = 'telehealth.up@gmail.com'                               # your email
-mail.settings.login = 'telehealth.up@gmail.com:telehealth'    # your credentials or None
+mail.settings.login = '#'    # your credentials or None
 
 auth.settings.hmac_key = 'sha512:7170c6c3-cd99-4212-beb9-41135103ac81'   # before define_tables()
 auth.define_tables()                                                                                                                                                                                                 # creates all needed tables

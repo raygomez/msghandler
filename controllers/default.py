@@ -27,7 +27,7 @@ def index():
     isTelehealth = False
     if auth.has_membership('Admin'):
         isAdmin = True
-        messages = db().select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
+        messages = db().select(db.msg.ALL,orderby=db.msg.subject)    
         
     elif auth.has_membership('Telehealth'):     
         isTelehealth = True
@@ -37,8 +37,7 @@ def index():
         msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id)._select(db.msg_group.msg_id)
         messages = db((db.msg.created_by == nurse_record.id) |\
                      ~db.msg.id.belongs(msg_query_group)|\
-                      db.msg.id.belongs(msg_query_assigned))\
-                    .select(db.msg.id, db.msg.subject, db.msg.created_by, orderby=db.msg.subject)    
+                      db.msg.id.belongs(msg_query_assigned)).select()
     else:
         contacts = []
         groups = []
@@ -307,27 +306,3 @@ def create_attachment():
 def call():
     session.forget()
     return service()
-
-@service.json
-def get_rows():
-    fields = ['id', 'created_by', 'subject', 'content','create_time']
-    rows = []
-    page = int(request.vars.page)
-    pagesize = int(request.vars.rows)    
-    limitby = (page * pagesize - pagesize,page * pagesize)
-    orderby = db.msg[request.vars.sidx]
-    if request.vars.sord == 'desc': orderby = ~orderby
-    for r in db(db.msg.id>0).select(limitby=limitby,orderby=orderby):
-        vals = []
-        for f in fields:
-            rep = db.msg[f].represent
-            if rep:
-                vals.append(rep(r[f]))
-            else:
-                vals.append(r[f])
-        rows.append(dict(id=r.id,cell=vals))
-    total = db(db.msg.id>0).count()       
-    pages = int(total/pagesize)
-    #if total % pagesize == 0: pages -= 1 
-    data = dict(total=pages,page=page,rows=rows)
-    return data
