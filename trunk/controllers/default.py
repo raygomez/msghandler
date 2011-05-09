@@ -19,6 +19,8 @@ def index():
     users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     msg_group = db(db.msg_group.id > 0).select()
     
+    msgs = []
+    
     isAdmin = False
     isTelehealth = False
     if auth.has_membership('Admin'):
@@ -47,9 +49,23 @@ def index():
                 db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     
     contact = get_contact(auth.user)
+    msgs = []
+    for message in messages:
+        msg = {}
+        msg['id'] = message.id
+        msg['subject'] = message.subject
+        msg['by'] = message.created_by.name
+        msg['time'] = message.create_time
+        tags = db(db.msg_tag.msg_id == message.id).select()
+        tg = ''
+        for tag in tags:
+            tg = tg + '['+tag.tag_id.name+']'
+        msg['tags'] = tg
+        msgs.append(msg)
+        
         
     return dict(my_roles=grps, messages=messages, contacts=contacts, contact_id=contact.id, msg_group=msg_group,
-                tags=tags, users=users, groups=groups, isAdmin=isAdmin, isTelehealth=isTelehealth)
+                tags=tags, users=users, groups=groups, isAdmin=isAdmin, isTelehealth=isTelehealth, msgs=msgs)
 
 def get_groups ():
     groups = db(db.auth_membership.user_id == auth.user.id).select()
@@ -231,9 +247,14 @@ def create_message():
 
 @auth.requires_login()
 def read_message():
-
     message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
-    return dict(message=message)    
+    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
+    
+    groups_query = db(db.msg_group.msg_id == message.id)._select(db.msg_group.group_id)
+    not_groups = db(~db.auth_group.id.belongs(groups_query)).select(db.auth_group.id, db.auth_group.role).json()
+    groups = db(db.msg_group.msg_id == message.id).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
+    
+    return dict(message=message, attachments=attachments, groups=groups)
 
 @auth.requires_login()     
 def show_message():
@@ -297,9 +318,6 @@ def show_message():
     
 @auth.requires_login()
 def create_attachment():
-    """
-    allows to create a simple attachment for testing
-    """
     db.msg_attachment.msg_id.default = request.args(0)
     form = crud.create(db.msg_attachment, next=URL('show_message', args=request.args(0)))
     return dict(form = form)

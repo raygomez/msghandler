@@ -36,15 +36,15 @@ $(function(){
 </script>
 <style>
 .menu { border: 1px solid black};
-
 </style>
 Things to Do
 <ol>
 <li><del>Make messages clickable.</del></li>
-<li>Add Back in each messages</li>
-<li>Add Tags in messages</li>
+<li><del>Add Tags in messages in the list</del></li>
+
 <li></li>
 </ol>
+
 <table width='100%'>
     <tr>
         <td width="15%" class='menu' style="border:0;">Logo</td>
@@ -76,19 +76,19 @@ Things to Do
         </td>
         <td class='menu'>
             <table width='100%'>
-            	<tr style="font-weight:bold;">
-            		<td>Created by</td>
-            		<td>Subject</td>
-            		<td>Timestamp</td>
-            	</tr>
-                {{if len(messages):}}
+                <tr style="font-weight:bold;">
+                    <td>Created by</td>
+                    <td>Subject</td>
+                    <td>Timestamp</td>
+                </tr>
+                {{if len(msgs):}}
                     
-                    {{for message in messages:}}
+                    {{for message in msgs:}}
                         <tr class='messages'>
-                            <td style='display: none;'>{{=message.id}}</td>
-                            <td width='20%'>{{=message.created_by.name}}</td>
-                            <td>{{=message.subject}}</td>
-                            <td width='20%'>{{=message.create_time}}</td>
+                            <td style='display: none;'>{{=message['id']}}</td>
+                            <td width='20%'>{{=message['by']}}</td>
+                            <td>{{=message['tags'] + message['subject']}}</td>
+                            <td width='20%'>{{=message['time']}}</td>
                         </tr>
                     {{pass}}
                 {{pass}}            

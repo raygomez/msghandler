@@ -1,6 +1,32 @@
 {{extend 'layout.html'}}
+Things to Do
+<ol>
+<li><del>Add attachments</del></li>
+<li>Add groups</li>
+<li></li>
+</ol>
 
 From: {{=message.created_by.name}}<br/>
 Subject: {{=message.subject}}<br/>
+{{if len(groups):}}
+Groups:
+    {{for group in groups:}}
+        {{=group.group_id.role}}<br/>
+    {{pass}}
+{{pass}}
+
 <br/>
-{{=message.content}}
+{{=message.content}}<br/>
+
+{{if len(attachments) > 0:}}
+Attachments
+<table>
+<tr>
+{{for attachment in attachments:}}
+{{=TD(A(IMG(_src=URL('download',args=attachment.attachment), _alt="attachments"),
+      _href=URL('download',args=attachment.attachment)))}}      
+{{pass}}
+</tr>
+</table>
+
+{{pass}}
