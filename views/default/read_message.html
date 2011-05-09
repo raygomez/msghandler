@@ -2,22 +2,36 @@
 Things to Do
 <ol>
 <li><del>Add attachments</del></li>
-<li>Add groups</li>
+<li><del>Add groups</del></li>
+<li>Add tags</li>
 <li></li>
 </ol>
 
-From: {{=message.created_by.name}}<br/>
-Subject: {{=message.subject}}<br/>
+<table>
+<tr><td>From:</td>{{=TD(message.created_by.name)}}</tr>
+<tr><td>Subject:</td>{{=TD(message.subject)}}
 {{if len(groups):}}
-Groups:
+<tr><td>Groups:</td>
+    <td><table><tr>
     {{for group in groups:}}
-        {{=group.group_id.role}}<br/>
+        {{=TD(group.group_id.role)}}
     {{pass}}
+    </tr></table></td>
+</tr>    
 {{pass}}
 
-<br/>
-{{=message.content}}<br/>
+{{if len(tags):}}
+<tr><td>Tags:</td>
+    <td><table><tr>
+    {{for tag in tags:}}
+        {{=TD(tag.tag_id.name)}}
+    {{pass}}
+    </tr></table></td>
+</tr>
+{{pass}}
 
+<tr><td colspan=2>{{=message.content}}</td></tr>
+</table>
 {{if len(attachments) > 0:}}
 Attachments
 <table>
@@ -29,4 +43,5 @@ Attachments
 </tr>
 </table>
 
+<table>
 {{pass}}
