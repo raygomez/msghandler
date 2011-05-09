@@ -2,9 +2,8 @@
 
 <script src="{{=URL('static','js/tagging_ajax.js')}}"></script>
 <script src="{{=URL('static','js/grouping_ajax.js')}}"></script>
-
+{{=json}}
 <script>
-
 var msg_id = {{=id}};
 
 $(function(){
@@ -49,10 +48,7 @@ function click_once_group(){
     });
 }
 
-
 </script>
-{{=json}}
-
 
 Things to Do
 <ol>
@@ -60,23 +56,30 @@ Things to Do
 <li><del>List groups</del></li>
 <li><del>List tags</del></li>
 <li><del>Add tags</del></li>
-<li>Delete tags</li>
+<li><del>Delete tags</del></li>
+<li><del>Add Groups</del></li>
+<li><del>Delete Groups</del></li>
 <li></li>
 </ol>
 
 <table>
 <tr><td>From:</td>{{=TD(message.created_by.name)}}</tr>
 <tr><td>Subject:</td>{{=TD(message.subject)}}
-{{if len(groups):}}
 <tr><td>Groups:</td>
-    <td><table><tr>
+    <td id='tr-groups-new'><table><tr>
+{{if len(groups):}}    
     {{for group in groups:}}
-        {{=TD(group.group_id.role)}}
+        <td class='top-td'>
+            <span>{{=group.group_id.role}}</span>
+            {{=IMG(_src=URL('static', 'images/delete.png'), _hidden=True, _class='groups-add', _id='imgt'+ `group.group_id.id`, _name=group.group_id.role)}}
+        </td>
     {{pass}}
+{{pass}}    
     </tr></table></td>
 </tr>    
-{{pass}}
-<tr><td>Search Group:</td><td><input /></td>
+
+<tr><td>Search Group:</td><td><input name='groups' onkeyup='showgroups()' autocomplete='off' /></td>
+<tr><td></td><td><div id='new-groups'></div></td><tr>
 <tr><td>Tags:</td>
     <td id='tr-tags-new'><table><tr>
 {{if len(tags):}}    
@@ -84,12 +87,10 @@ Things to Do
         <td class='top-td'>
             <span>{{=tag.tag_id.name}}</span>
             {{=IMG(_src=URL('static', 'images/delete.png'), _hidden=True, _class='tags-add', _id='imgt'+ `tag.tag_id.id`, _name=tag.tag_id.name)}}
-
         </td>
     {{pass}}
 {{pass}}    
     </tr></table></td>
-
 </tr>
 <tr><td>Search Tags:</td><td><input name='tags' onkeyup='showtags()' autocomplete='off' /></td>
 <tr><td></td><td><div id='new-tags'></div></td><tr>
