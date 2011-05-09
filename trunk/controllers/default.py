@@ -258,8 +258,8 @@ def read_message():
     not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
     tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
     
-    return dict(message=message, attachments=attachments, groups=groups, tags=tags, json=SCRIPT('var tags=%s' % (not_tags)), id=message.id)
-#        json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)), id=message.id)
+    return dict(message=message, attachments=attachments, groups=groups, tags=tags, \
+        json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)), id=message.id)
 
 @auth.requires_login()     
 def show_message():
