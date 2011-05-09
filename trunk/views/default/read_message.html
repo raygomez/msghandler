@@ -1,9 +1,66 @@
 {{extend 'layout.html'}}
+
+<script src="{{=URL('static','js/tagging_ajax.js')}}"></script>
+<script src="{{=URL('static','js/grouping_ajax.js')}}"></script>
+
+<script>
+
+var msg_id = {{=id}};
+
+$(function(){
+    click_once_tag();            
+    click_once_group();            
+})
+
+function addgroups(widget){    
+    groups = $.grep(groups, function(group){ return group.role != widget.target.name } )
+    
+    $.ajax({
+        url: '/msghandler/default/insert_ajax',
+        data: 'group=' + this.id  + '&id=' + msg_id + '&table=msg_group'
+        })             
+    
+    td1 = $('<img>').attr({
+            src:'/msghandler/static/images/delete.png',
+            class:'groups-add',
+            hidden:true,
+            name:widget.target.name,
+            id: 'img' + widget.target.id,
+        });
+
+    $(widget.target).parent().fadeOut(function() { $(this).remove(); });
+    $('#tr-groups-new table tr').append($('<td class="top-td">').append($('<span>'+ widget.target.name +'</span>'),td1));
+    
+    $('.groups-add').unbind();
+    click_once_group();
+}
+
+function click_once_group(){
+    $('.groups-add').one('click', function(){
+        $(this).parent().fadeOut( function() { $(this).remove();});
+        id = parseInt(this.id.split('imgt')[1]);
+        tag = {id:id, role:this.name};
+        groups.push(tag); 
+        $.ajax({
+            url: '/msghandler/default/delete_ajax',
+            data: 'group=' + id  + '&id=' + msg_id + '&table=msg_group'
+        })             
+        showgroups();                 
+    });
+}
+
+
+</script>
+{{=json}}
+
+
 Things to Do
 <ol>
-<li><del>Add attachments</del></li>
-<li><del>Add groups</del></li>
-<li>Add tags</li>
+<li><del>List attachments</del></li>
+<li><del>List groups</del></li>
+<li><del>List tags</del></li>
+<li><del>Add tags</del></li>
+<li>Delete tags</li>
 <li></li>
 </ol>
 
@@ -19,16 +76,23 @@ Things to Do
     </tr></table></td>
 </tr>    
 {{pass}}
-
-{{if len(tags):}}
+<tr><td>Search Group:</td><td><input /></td>
 <tr><td>Tags:</td>
-    <td><table><tr>
+    <td id='tr-tags-new'><table><tr>
+{{if len(tags):}}    
     {{for tag in tags:}}
-        {{=TD(tag.tag_id.name)}}
+        <td class='top-td'>
+            <span>{{=tag.tag_id.name}}</span>
+            {{=IMG(_src=URL('static', 'images/delete.png'), _hidden=True, _class='tags-add', _id='imgt'+ `tag.tag_id.id`, _name=tag.tag_id.name)}}
+
+        </td>
     {{pass}}
+{{pass}}    
     </tr></table></td>
+
 </tr>
-{{pass}}
+<tr><td>Search Tags:</td><td><input name='tags' onkeyup='showtags()' autocomplete='off' /></td>
+<tr><td></td><td><div id='new-tags'></div></td><tr>
 
 <tr><td colspan=2>{{=message.content}}</td></tr>
 </table>
