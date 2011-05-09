@@ -10,6 +10,7 @@ function addtags(widget){
             src:'/msghandler/static/images/delete.png',
             class:'tags-add',
             hidden:true,
+            name:widget.target.name,
             id: 'img' + widget.target.id,
         });
 
@@ -32,7 +33,6 @@ function click_once_tag(){
         })             
         showtags();
     });
-
 }
 function showtags()
 {
