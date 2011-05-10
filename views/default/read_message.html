@@ -66,7 +66,8 @@ Things to Do
 
 <table>
 <tr><td>From:</td>{{=TD(message.created_by.name)}}</tr>
-<tr><td>Subject:</td>{{=TD(message.subject)}}
+<tr><td>Subject:</td>{{=TD(message.subject)}}<tr/>
+<tr><td>Created time:</td>{{=TD(message.create_time)}}</tr>
 <tr><td>Groups:</td>
     <td id='tr-groups-new'><table><tr>
 {{if len(groups):}}    
@@ -112,7 +113,15 @@ Attachments
 <table>
 {{pass}}
 [{{=A('Attach file', _href=URL('create_attachment', args=id))}}]<br />
-<a onclick="$('#courses').slideToggle()">[Reply]</a>
+Replies:
+<table>
+{{for reply in replies:}}
+<tr><td>{{=IMG(_src=URL('static', 'images/reload.png'))}}From:</td>{{=TD(message.created_by.name)}}</tr>
+<tr><td>Created time:</td>{{=TD(message.create_time)}}</tr>
+<tr><td colspan=2>{{=message.content}}</td></tr>
+{{pass}}
+</table>
+<a onclick="$('#courses').slideToggle()">[Reply]</a><br/>
 <div id='courses' class='hidden'>
 {{=form}}
 </div>
