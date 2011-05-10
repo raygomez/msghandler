@@ -112,3 +112,7 @@ Attachments
 <table>
 {{pass}}
 [{{=A('Attach file', _href=URL('create_attachment', args=id))}}]<br />
+<a onclick="$('#courses').slideToggle()">[Reply]</a>
+<div id='courses' class='hidden'>
+{{=form}}
+</div>

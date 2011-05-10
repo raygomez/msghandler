@@ -93,11 +93,13 @@ db.define_table('msg',
     Field('subject', notnull=True),
     Field('content', 'text', notnull=True),
     Field('created_by', db.contact, notnull=True),
+    Field('parent_msg', 'reference msg', notnull=True, default=0),    
     Field('create_time', 'datetime', notnull=True, default=datetime.now()),
     format='%(subject)s')
 db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
 db.msg.created_by.writable = db.msg.created_by.readable = False
 db.msg.create_time.writable = db.msg.create_time.readable = False
+db.msg.parent_msg.writable = db.msg.parent_msg.readable = False
 
 
 db.define_table('msg_attachment',

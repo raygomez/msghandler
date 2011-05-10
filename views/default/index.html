@@ -10,9 +10,8 @@
 $(function(){
     $('tr.messages').click(function(){
         //$(window.location).attr('href', );
-        window.location.replace('http://localhost:8000/msghandler/default/read_message/' + $(this).children().first().text());
+        window.location.replace('/msghandler/default/read_message/' + $(this).children().first().text());
     });
-
 
     $('img.delete').one('click', function(){
         var answer = confirm('Are you sure you want to delete this?')
