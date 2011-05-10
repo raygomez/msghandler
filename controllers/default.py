@@ -182,8 +182,11 @@ def groups():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_group():
-    db.auth_group.insert(**request.vars)
-    return 'Group successfully added.'
+    groups  = db(db.auth_group.role == request.vars.role).select()
+    if len(groups) == 0:
+        db.auth_group.insert(**request.vars)
+        return 'Group successfully added.'
+    else: return 'Sorry, that group has already been created.' 
     
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def del_group():
