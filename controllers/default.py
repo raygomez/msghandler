@@ -177,16 +177,16 @@ def show_user():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def groups():
-    groups = db(db.auth_group.role != 'Admin').select()
+    groups = db(db.auth_group.role != 'Admin').select(orderby=~db.auth_group.id)
     return dict(groups=groups)
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_group():
     groups  = db(db.auth_group.role == request.vars.role).select()
     if len(groups) == 0:
-        db.auth_group.insert(**request.vars)
-        return 'Group successfully added.'
-    else: return 'Sorry, that group has already been created.' 
+        id = db.auth_group.insert(**request.vars)
+        return `id`
+    else: return '0'
     
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def del_group():

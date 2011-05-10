@@ -1,0 +1,52 @@
+{{extend 'layout.html'}}
+<style type="text/css">
+table, td, th {border: 1px solid black;}
+table{width: 100%;}
+input[type=text]{width: 98%;}
+td:last-child {text-align:center;}
+</style>
+<script>
+$(function() {
+    $('#add-tag').click(function(){
+        role = $('input[name=role]').val()
+        description = $('input[name=description]').val()
+        if(role =='') {alert('Role should not be blank.'); return }
+        if(description==''){alert('Description should not be blank.'); return }
+
+        $.ajax({
+                url: '{{=URL('add_group')}}',
+                data: 'role=' + role + '&' + 'description=' + description,
+                success: function(data){
+                    if(data != 0) {
+                        msg = 'Group successfully added.'
+                        role = $('input[name=role]').val()
+                        description = $('input[name=description]').val()       
+                        $('#add-row').after('<tr><td><input type="text" value='+role+'></td><td><input type="text" value='+description+'></td><td><a href="/msghandler/default/update_group/'+data+'">Update</a> | <a href="/msghandler/default/delete_group/'+data+'">Delete</a></td></tr>')                        
+                        $('input[name=role]').val('')
+                        $('input[name=description]').val('')                        
+                    }
+                    else msg = 'Sorry, that group has already been created.'
+                    $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
+
+                }                
+            })        
+    })
+});
+</script>
+
+Things to Do
+<ol>
+<li><del>Display all groups except Admin</del></li>
+<li>Add a group</li>
+<li>Delete a group</li>
+<li>Update group</li>
+<li></li>
+</ol>
+
+<table>
+{{=TR(TH('Role'), TH('Description', _colspan=2))}}
+{{=TR(TD(INPUT(_name='role')),TD(INPUT(_name='description')), TD(A('Add', _id='add-tag')), _id='add-row')}}
+{{for group in groups:}}
+{{=TR(TD(INPUT(_value=group.role)), TD(INPUT(_value=group.description)),TD(A('Update', _href=URL('update_group', args=group.id)),' | ',A('Delete', _href=URL('delete_group', args=group.id))))}}
+{{pass}}
+</table>
