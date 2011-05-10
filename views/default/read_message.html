@@ -116,9 +116,9 @@ Attachments
 Replies:
 <table>
 {{for reply in replies:}}
-<tr><td>{{=IMG(_src=URL('static', 'images/reload.png'))}}From:</td>{{=TD(message.created_by.name)}}</tr>
-<tr><td>Created time:</td>{{=TD(message.create_time)}}</tr>
-<tr><td colspan=2>{{=message.content}}</td></tr>
+<tr><td>{{=IMG(_src=URL('static', 'images/reload.png'))}}From:</td>{{=TD(reply.created_by.name)}}</tr>
+<tr><td>Created time:</td>{{=TD(reply.create_time)}}</tr>
+<tr><td colspan=2>{{=reply.content}}</td></tr>
 {{pass}}
 </table>
 <a onclick="$('#courses').slideToggle()">[Reply]</a><br/>
