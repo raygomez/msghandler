@@ -74,6 +74,7 @@ def get_groups ():
         roles.append(group.group_id.id)    
     return roles
 
+
 def get_message():
     db.msg.created_by.readable = db.msg.create_time.readable = True
     id = int(request.vars.id)
@@ -173,6 +174,25 @@ def show_user():
         redirect(URL('show_user', args=user.id))    
     
     return dict(form=form, id=user.id, json=SCRIPT('var groups=%s' % not_groups))
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def groups():
+    groups = db(db.auth_group.role != 'Admin').select()
+    return dict(groups=groups)
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def add_group():
+    db.auth_group.insert(**request.vars)
+    return 'Group successfully added.'
+    
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def del_group():
+    groups = db(db.auth_group.role != 'Admin').select()
+    return dict(groups=groups)
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def update_group():
+    return request.args(0)
     
 @auth.requires_login()
 def data():
