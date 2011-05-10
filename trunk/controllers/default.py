@@ -257,8 +257,19 @@ def read_message():
     tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
     not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
     tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
-    
-    return dict(message=message, attachments=attachments, groups=groups, tags=tags, \
+
+    db.msg.subject.writable = db.msg.subject.readable = False
+    form = SQLFORM.factory(db.msg)
+
+    if form.accepts(request.vars, session):
+        contact = get_contact(auth.user)
+        form.vars.created_by = contact.id
+        form.vars.parent_msg = message.id   
+        form.vars.subject = 'Re:'   
+        msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
+        response.flash = T('Comment successfully created.')
+
+    return dict(message=message, form=form, attachments=attachments, groups=groups, tags=tags, \
         json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)), id=message.id)
 
 @auth.requires_login()     
