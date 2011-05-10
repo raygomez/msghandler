@@ -324,7 +324,7 @@ def show_message():
 @auth.requires_login()
 def create_attachment():
     db.msg_attachment.msg_id.default = request.args(0)
-    form = crud.create(db.msg_attachment, next=URL('show_message', args=request.args(0)))
+    form = crud.create(db.msg_attachment, next=URL('read_message', args=request.args(0)))
     return dict(form = form)
    
 @auth.requires_login()    
