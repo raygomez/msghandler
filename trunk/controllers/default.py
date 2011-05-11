@@ -204,6 +204,36 @@ def update_group():
         db.auth_group[id] = dict(role=role,description=description)
         return '0'
     else: return db(db.auth_group.id == id).select().json()
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def tags():
+    tags = db(db.tag.id).select(orderby=~db.tag.id)
+    return dict(tags=tags)
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def add_tag():
+    tags  = db(db.tag.name == request.vars.name).select()
+    if len(tags) == 0:
+        id = db.tag.insert(**request.vars)
+        return `id`
+    else: return '0'
+    
+@auth.requires_membership('Admin')
+def del_tag():
+    del db.tag[request.vars.id]
+    return ''
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def update_tag():
+    id = request.vars.id
+    name = request.vars.name
+    description = request.vars.description
+    
+    others = db((db.tag.name == name) & (db.tag.id != id)).select()
+    if len(others) == 0:
+        db.tag[id] = dict(name=name,description=description)
+        return '0'
+    else: return db(db.tag.id == id).select().json()
     
 @auth.requires_login()
 def data():

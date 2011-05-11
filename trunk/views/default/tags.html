@@ -7,28 +7,28 @@ td:last-child {text-align:center;}
 </style>
 <script>
 $(function() {
-    $('#add-group').live('click', function(){
-        role = $('input[name=role]').val()
+    $('#add-tag').live('click', function(){
+        name = $('input[name=name]').val()
         description = $('input[name=description]').val()
-        if(role =='') {alert('Role should not be blank.'); return }
+        if(name =='') {alert('Name should not be blank.'); return }
         if(description==''){alert('Description should not be blank.'); return }
 
         $.ajax({
-            url: '{{=URL('add_group')}}',
-            data: 'role=' + role + '&' + 'description=' + description,
+            url: '{{=URL('add_tag')}}',
+            data: 'name=' + name + '&' + 'description=' + description,
             success: function(data){
                 if(data != 0) {
-                    msg = 'Group is successfully added.'
-                    role = $('input[name=role]').val()
+                    msg = 'Tag is successfully added.'
+                    name = $('input[name=name]').val()
                     description = $('input[name=description]').val()
 {{if auth.has_membership('Admin'):}}                    
-    $('#add-row').after('<tr><td><input type="text" value='+role+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
+    $('#add-row').after('<tr><td><input type="text" value='+name+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
 {{else:}}
-    $('#add-row').after('<tr><td><input type="text" value='+role+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
+    $('#add-row').after('<tr><td><input type="text" value='+name+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
 {{pass}}                    
-                    $('input[name=role]').val('')
+                    $('input[name=name]').val('')
                     $('input[name=description]').val('')                        
-                } else msg = 'Sorry, that group has already been created.'
+                } else msg = 'Sorry, that tag has already been created.'
             
                 $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
             }
@@ -36,23 +36,23 @@ $(function() {
     })
 
     $('.update-row').live('click',function(){
-        role = $(this).parent().prev().prev().children().first().val()
+        name = $(this).parent().prev().prev().children().first().val()
         description = $(this).parent().prev().children().first().val()
-        if(role =='') {alert('Role should not be blank.'); return }
+        if(name =='') {alert('name should not be blank.'); return }
         if(description==''){alert('Description should not be blank.'); return }
 
         $.ajax({
-            url: '{{=URL('update_group')}}',
-            data: 'id=' + this.name +'&' + 'role=' + role + '&' + 'description=' + description,
+            url: '{{=URL('update_tag')}}',
+            data: 'id=' + this.name +'&' + 'name=' + name + '&' + 'description=' + description,
             context: $(this).parent().parent(),
             success: function(data){
                 
-                if(data == 0) msg = 'Group successfully updated.'
+                if(data == 0) msg = 'Tag successfully updated.'
                 else {
                     obj = JSON.parse(data)
-                    $(this).children().first().children().first().val(obj[0].role)
+                    $(this).children().first().children().first().val(obj[0].name)
                     $(this).children().eq(1).children().first().val(obj[0].description)
-                    msg = 'Sorry, there is already an existing group with the same role.'
+                    msg = 'Sorry, there is already an existing tag with the same name.'
                 }
             
                 $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
@@ -64,11 +64,11 @@ $(function() {
         var answer = confirm('Are you sure you want to delete this?')
         if (answer){
             $.ajax({
-                url: '{{=URL('del_group')}}',
+                url: '{{=URL('del_tag')}}',
                 data: 'id=' + this.name,
                 context: this,
                 success: function(data){
-                    msg = 'The group has been successfully deleted.'
+                    msg = 'The tag has been successfully deleted.'
                     $(this).parent().parent().fadeOut(1000, function(){ $(this).remove()})
                     $('.flash').html(msg).slideDown(function(){ $('.flash').delay(500).fadeOut(function(){$('.flash').html('')});});
                 }                
@@ -81,24 +81,24 @@ $(function() {
 
 Things to Do
 <ol>
-<li><del>Display all groups except Admin</del></li>
-<li><del>Add a group</del></li>
-<li><del>Delete a group with confirmation</del></li>
-<li><del>Update group</del></li>
+<li><del>Display all tag</del></li>
+<li><del>Add a tag</del></li>
+<li><del>Delete a tag with confirmation<del></li>
+<li><del>Update tag</del></li>
 <li><del>Only admin can delete</del></li>
 </ol>
 
 <table>
-{{=TR(TH('Role'), TH('Description', _colspan=2))}}
-{{=TR(TD(INPUT(_name='role')),TD(INPUT(_name='description')), TD(A('Add', _id='add-group')), _id='add-row')}}
-{{for group in groups:}}
+{{=TR(TH('name'), TH('Description', _colspan=2))}}
+{{=TR(TD(INPUT(_name='name')),TD(INPUT(_name='description')), TD(A('Add', _id='add-tag')), _id='add-row')}}
+{{for tag in tags:}}
 <tr>
-{{=TD(INPUT(_value=group.role))}}
-{{=TD(INPUT(_value=group.description))}}
+{{=TD(INPUT(_value=tag.name))}}
+{{=TD(INPUT(_value=tag.description))}}
 {{if auth.has_membership('Admin'):}}
-{{=TD(A('Update', _name=group.id, _class='update-row'),' | ',A('Delete',  _name=group.id, _class='del-row'))}}
+{{=TD(A('Update', _name=tag.id, _class='update-row'),' | ',A('Delete',  _name=tag.id, _class='del-row'))}}
 {{else:}}
-{{=TD(A('Update', _name=group.id, _class='update-row'))}}
+{{=TD(A('Update', _name=tag.id, _class='update-row'))}}
 {{pass}}
 </tr>
 {{pass}}
