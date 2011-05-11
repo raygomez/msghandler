@@ -33,7 +33,9 @@ $(function() {
     })
     
     $('.del-row').click(function(){
-        $.ajax({
+        var answer = confirm('Are you sure you want to delete this?')
+        if (answer){
+            $.ajax({
                 url: '{{=URL('del_group')}}',
                 data: 'id=' + this.name,
                 context: this,
@@ -43,8 +45,8 @@ $(function() {
                     $('.flash').html(msg).slideDown(function(){ $('.flash').delay(500).fadeOut(function(){$('.flash').html('')});});
                 }                
             })        
+        } 
     })
-    
 });
 </script>
 
