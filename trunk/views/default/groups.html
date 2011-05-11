@@ -7,7 +7,7 @@ td:last-child {text-align:center;}
 </style>
 <script>
 $(function() {
-    $('#add-tag').click(function(){
+    $('#add-group').click(function(){
         role = $('input[name=role]').val()
         description = $('input[name=description]').val()
         if(role =='') {alert('Role should not be blank.'); return }
@@ -31,22 +31,36 @@ $(function() {
                 }                
             })        
     })
+    
+    $('.del-row').click(function(){
+        $.ajax({
+                url: '{{=URL('del_group')}}',
+                data: 'id=' + this.name,
+                context: this,
+                success: function(data){
+                    msg = 'The group has been successfully deleted.'
+                    $(this).parent().parent().fadeOut(1000, function(){ $(this).remove()})
+                    $('.flash').html(msg).slideDown(function(){ $('.flash').delay(500).fadeOut(function(){$('.flash').html('')});});
+                }                
+            })        
+    })
+    
 });
 </script>
 
 Things to Do
 <ol>
 <li><del>Display all groups except Admin</del></li>
-<li>Add a group</li>
-<li>Delete a group</li>
+<li><del>Add a group</del></li>
+<li><del>Delete a group </del> with confirmation</li>
 <li>Update group</li>
 <li></li>
 </ol>
 
 <table>
 {{=TR(TH('Role'), TH('Description', _colspan=2))}}
-{{=TR(TD(INPUT(_name='role')),TD(INPUT(_name='description')), TD(A('Add', _id='add-tag')), _id='add-row')}}
+{{=TR(TD(INPUT(_name='role')),TD(INPUT(_name='description')), TD(A('Add', _id='add-group')), _id='add-row')}}
 {{for group in groups:}}
-{{=TR(TD(INPUT(_value=group.role)), TD(INPUT(_value=group.description)),TD(A('Update', _href=URL('update_group', args=group.id)),' | ',A('Delete', _href=URL('delete_group', args=group.id))))}}
+{{=TR(TD(INPUT(_value=group.role)), TD(INPUT(_value=group.description)),TD(A('Update', _href=URL('update_group', args=group.id)),' | ',A('Delete',  _name=group.id, _class='del-row')))}}
 {{pass}}
 </table>

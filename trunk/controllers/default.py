@@ -190,8 +190,8 @@ def add_group():
     
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def del_group():
-    groups = db(db.auth_group.role != 'Admin').select()
-    return dict(groups=groups)
+    del db.auth_group[request.vars.id]
+    return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def update_group():
