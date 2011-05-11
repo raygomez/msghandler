@@ -62,8 +62,7 @@ def index():
             tg = tg + '['+tag.tag_id.name+']'
         msg['tags'] = tg
         msgs.append(msg)
-        
-        
+                
     return dict(my_roles=grps, messages=messages, contacts=contacts, contact_id=contact.id, msg_group=msg_group,
                 tags=tags, users=users, groups=groups, isAdmin=isAdmin, isTelehealth=isTelehealth, msgs=msgs)
 
@@ -212,7 +211,7 @@ def tags():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_tag():
-    tags  = db(db.tag.name == request.vars.name).select()
+    tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
         return `id`
@@ -242,9 +241,14 @@ def users():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def contacts():
+    users = db(db.auth_user.id > 0).select(orderby=~db.auth_user.id)
     contacts = db(db.contact.id > 0).select(orderby=~db.contact.id)
-    return dict(contacts=contacts)
+    return dict(contacts=contacts,users=users)
 
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def add_contact():
+    id = db.contact.insert(**request.vars)
+    return `id`
     
 @auth.requires_login()
 def data():
