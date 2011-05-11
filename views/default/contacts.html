@@ -1,0 +1,39 @@
+{{extend 'layout.html'}}
+<style type="text/css">
+table, td, th {border: 1px solid black;}
+table{width: 100%;}
+input[type=text]{width: 98%;}
+td:last-child {text-align:center;}
+</style>
+
+Things to Do
+<ol>
+<li>Display all tag</li>
+<li>Add a tag</li>
+<li>Delete a tag with confirmation</li>
+<li>Update tag</li>
+<li>Only admin can delete</li>
+<li>default values to help user on what to do. <a href="http://webdeveloper.beforeseven.com/jquery/default-text-field-value-disappears-focus">code here</a> used <a href="http://blog.pauljamescampbell.co.uk/about-2/default-value/">this</a> instead</li>
+<li>css color problems for default values</li>
+</ol>
+<table>
+{{=TR(TH('Name'), TH('User'), TH('Contact type'), TH('Contact Info', _colspan=2))}}
+{{=TR(TD(INPUT(_name='name', _placeholder='Name')), \
+      TD(INPUT(_name='user', _placeholder='User')), \
+      TD(INPUT(_name='contact_type', _placeholder='Contact Type')), \
+      TD(INPUT(_name='contact_info', _placeholder='Contact Info')), \      
+      TD(A('Add', _id='add-tag')), _id='add-row')}}
+{{for contact in contacts:}}
+<tr>
+{{=TD(INPUT(_value=contact.name))}}
+{{=TD(INPUT(_value=contact.user_id.first_name + ' ' +contact.user_id.last_name))}}
+{{=TD(INPUT(_value=contact.contact_type))}}
+{{=TD(INPUT(_value=contact.contact_info))}}
+{{if auth.has_membership('Admin'):}}
+{{=TD(A('Update', _name=contact.id, _class='update-row'),' | ',A('Delete',  _name=contact.id, _class='del-row'))}}
+{{else:}}
+{{=TD(A('Update', _name=contact.id, _class='update-row'))}}
+{{pass}}
+</tr>
+{{pass}}
+</table>

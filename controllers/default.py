@@ -235,9 +235,16 @@ def update_tag():
         return '0'
     else: return db(db.tag.id == id).select().json()
 
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def users():
     users = db(db.auth_user.id).select(orderby=~db.auth_user.id)
     return dict(users=users)
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def contacts():
+    contacts = db(db.contact.id > 0).select(orderby=~db.contact.id)
+    return dict(contacts=contacts)
+
     
 @auth.requires_login()
 def data():

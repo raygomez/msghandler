@@ -44,7 +44,7 @@ if auth.is_logged_in():
         response.menu+= [
             (T('Groups'), False, URL(request.application,'default','groups'), []),
             (T('Tags'), False, URL(request.application,'default','tags'), []),
-            (T('Contacts'), False, URL(request.application,'default','index'), []),
+            (T('Contacts'), False, URL(request.application,'default','contacts'), []),
             (T('Help'), False, URL(request.application,'default','index'), []),    
         ]
 
