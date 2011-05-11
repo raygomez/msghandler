@@ -234,6 +234,10 @@ def update_tag():
         db.tag[id] = dict(name=name,description=description)
         return '0'
     else: return db(db.tag.id == id).select().json()
+
+def users():
+    users = db(db.auth_user.id).select(orderby=~db.auth_user.id)
+    return dict(users=users)
     
 @auth.requires_login()
 def data():
