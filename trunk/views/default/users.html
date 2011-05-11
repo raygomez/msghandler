@@ -1,0 +1,50 @@
+{{extend 'layout.html'}}
+<style type="text/css">
+table, td, th {border: 1px solid black;}
+table{width: 100%;}
+input[type=text]{width: 98%;}
+td:last-child {text-align:center;}
+</style>
+Things to Do
+<ol>
+<li>Display all users</li>
+<li>Add a user</li>
+<li>Delete a user with confirmation</li>
+<li>Update user</li>
+<li>Only admin can delete</li>
+</ol>
+
+<table>
+{{=TR(TH('User Management', _colspan=3))}}
+<tr>
+<td colspan=2>
+<table>
+    </tr>
+        {{=TD(INPUT( _value='First Name'))}}
+        {{=TD(INPUT( _value='Last Name'))}}
+        {{=TD(INPUT( _value='Password'))}}        
+    </tr>
+</table>
+</td>
+<td rowspan=3 width='15%'>Add</td>
+</tr>
+<tr><td width='20%'>Search Tags</td>{{=TD(INPUT())}}
+<tr><td></td><td><div>Suggestion</div></td></tr>
+
+{{for user in users:}}
+<tr>
+<td colspan=2>
+<table>
+    </tr>
+        {{=TD(INPUT( _value=user.first_name), _width='33%')}}
+        {{=TD(INPUT( _value=user.last_name), _width='34%')}}
+        {{=TD(user.email)}}        
+    </tr>
+</table>
+</td>
+<td rowspan=3 width='15%'>Update | Delete</td>
+</tr>
+<tr><td width='15%'>Search Groups</td>{{=TD(INPUT())}}
+<tr><td></td><td><div>Suggestion</div></td></tr>
+{{pass}}
+</table>

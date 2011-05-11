@@ -37,7 +37,7 @@ response.menu = [
 
 if auth.is_logged_in(): 
     response.menu+= [(T('Messages'), False, URL(request.application,'default','index'), []),
-                    (T('Users'), False, URL(request.application,'default','index'), []),]
+                    (T('Users'), False, URL(request.application,'default','users'), []),]
     
 
     if auth.has_membership('Admin', auth.user.id) or auth.has_membership('Telehealth', auth.user.id):
