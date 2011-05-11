@@ -188,7 +188,7 @@ def add_group():
         return `id`
     else: return '0'
     
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires_membership('Admin')
 def del_group():
     del db.auth_group[request.vars.id]
     return ''
