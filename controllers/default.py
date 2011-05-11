@@ -25,7 +25,7 @@ def index():
     isTelehealth = False
     if auth.has_membership('Admin'):
         isAdmin = True
-        messages = db().select(db.msg.ALL,orderby=db.msg.subject)    
+        messages = db(db.msg.subject<>'Re:').select(db.msg.ALL,orderby=db.msg.subject)    
         
     elif auth.has_membership('Telehealth'):     
         isTelehealth = True
@@ -33,16 +33,16 @@ def index():
                 
         msg_query_group = db(db.msg_group.id > 0)._select(db.msg_group.msg_id)
         msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id)._select(db.msg_group.msg_id)
-        messages = db((db.msg.created_by == nurse_record.id) |\
+        messages = db((db.msg.subject<>'Re:') & ((db.msg.created_by == nurse_record.id) |\
                      ~db.msg.id.belongs(msg_query_group)|\
-                      db.msg.id.belongs(msg_query_assigned)).select()
+                      db.msg.id.belongs(msg_query_assigned))).select()
     else:
         contacts = []
         groups = []
         users = []
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
-        messages = db(db.msg.id.belongs(msg_query)).select()
+        messages = db(db.msg.subject<>'Re:' & db.msg.id.belongs(msg_query)).select()
         
         users_query = db(db.auth_membership.group_id.belongs(groups_query) & (db.auth_membership.user_id != auth.user.id))._select(db.auth_membership.user_id)
         users = db(db.auth_user.id.belongs(users_query)).select(db.auth_user.id, db.auth_user.first_name, 
