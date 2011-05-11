@@ -8,8 +8,8 @@ td:last-child {text-align:center;}
 <script src="/msghandler/static/js/jquerydefaultvalue.js"></script>
 <script>
 $(function() {
-	$("input.tag-name, input.tag-desc").defaultvalue("Input tag name here", "Input tag description here");
-	$('#add-tag').live('click', function(){
+    //$("input.tag-name, input.tag-desc").defaultvalue("Input tag name here", "Input tag description here");
+    $('#add-tag').live('click', function(){
         name = $('input[name=name]').val()
         description = $('input[name=description]').val()
         if(name =='') {alert('Name should not be blank.'); return }
@@ -91,10 +91,11 @@ Things to Do
 <li><del>default values to help user on what to do. <a href="http://webdeveloper.beforeseven.com/jquery/default-text-field-value-disappears-focus">code here</a></del> used <a href="http://blog.pauljamescampbell.co.uk/about-2/default-value/">this</a> instead</li>
 <li>css color problems for default values</li>
 </ol>
+    //$("input.tag-name, input.tag-desc").defaultvalue("Input tag name here", "Input tag description here");
 
 <table>
 {{=TR(TH('Name'), TH('Description', _colspan=2))}}
-{{=TR(TD(INPUT(_name='name', _class='tag-name')),TD(INPUT(_name='description', _class='tag-desc')), TD(A('Add', _id='add-tag')), _id='add-row')}}
+{{=TR(TD(INPUT(_name='name', _placeholder='Input tag name here')),TD(INPUT(_name='description', _placeholder='Input tag description here')), TD(A('Add', _id='add-tag')), _id='add-row')}}
 {{for tag in tags:}}
 <tr>
 {{=TD(INPUT(_value=tag.name))}}
