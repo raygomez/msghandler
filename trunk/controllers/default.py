@@ -195,8 +195,15 @@ def del_group():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def update_group():
-    db.auth_group[request.vars.id] = dict(role=request.vars.role,description=request.vars.description)
-    return '1'
+    id = request.vars.id
+    role = request.vars.role
+    description = request.vars.description
+    
+    others = db((db.auth_group.role == role) & (db.auth_group.id != id)).select()
+    if len(others) == 0:
+        db.auth_group[id] = dict(role=role,description=description)
+        return '0'
+    else: return db(db.auth_group.id == id).select().json()
     
 @auth.requires_login()
 def data():
