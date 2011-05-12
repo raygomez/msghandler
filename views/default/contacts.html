@@ -102,16 +102,23 @@ Things to Do
 {{=TR(TH('Name'), TH('User'), TH('Contact type'), TH('Contact Info', _colspan=2))}}
 {{options=[OPTION(user.first_name+' '+user.last_name, _value=user.id) for user in users]}}
 {{options.insert(0, OPTION('Select User', _value=''))}}
+{{types=[OPTION(type, _value=type) for type in ['mobile','landline','email']]}}
+{{types.insert(0, OPTION('Select Contact Type', _value=''))}}
+
 {{=TR(TD(INPUT(_name='name', _placeholder='Name')), \
       TD(SELECT(options, _name='user_id')),
-      TD(SELECT('Select Contact Type','mobile','landline','email', _name='contact_type')), \
+      TD(SELECT(types, _name='contact_type')), \
       TD(INPUT(_name='contact_info', _placeholder='Contact Info')), \      
       TD(A('Add', _id='add-contact')), _id='add-row')}}
 {{options.pop(0)}}
 {{for contact in contacts:}}
 <tr>
 {{=TD(INPUT(_value=contact.name))}}
-{{=TD(SELECT(options, value=contact.user_id.id, _name='user_id'))}}
+{{if contact.user_id:}}
+    {{=TD(SELECT(options, value=contact.user_id.id, _name='user_id'))}}
+{{else:}}
+    {{=TD(SELECT(options, value='', _name='user_id'))}}
+{{pass}}
 {{=TD(SELECT('mobile','landline','email', value=contact.contact_type, _name='contact_type'))}}
 
 {{=TD(INPUT(_value=contact.contact_info))}}
