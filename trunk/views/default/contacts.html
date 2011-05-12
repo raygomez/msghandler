@@ -15,7 +15,6 @@ $(function() {
         contact_type = $('select[name=contact_type]').first().val()
         contact_info = $('input[name=contact_info]').val()
         if(name =='') {alert('Name should not be blank.'); return }
-        if(user_id==''){alert('Select a user.'); return }
         if(contact_type==''){alert('Select contact type.'); return }
         if(contact_info==''){alert('Contact info should not be blank.'); return }
         
@@ -92,9 +91,9 @@ Things to Do
 <ol>
 <li><del>Display all contacts</del></li>
 <li><del>Add a contact</del></li>
-<li>Delete a contact with confirmation</li>
-<li>Update contact</li>
-<li>Only admin can delete</li>
+<li><del>Delete a contact with confirmation</del></li>
+<li><del>Update contact</del></li>
+<li><del>Only admin can delete</del></li>
 <li>default values to help user on what to do. <a href="http://webdeveloper.beforeseven.com/jquery/default-text-field-value-disappears-focus">code here</a> used <a href="http://blog.pauljamescampbell.co.uk/about-2/default-value/">this</a> instead</li>
 <li>css color problems for default values</li>
 </ol>
