@@ -236,7 +236,19 @@ def update_tag():
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def users():
     users = db(db.auth_user.id).select(orderby=~db.auth_user.id)
-    return dict(users=users)
+    usrs = []
+    for user in users:
+        usr = {};
+        usr['name'] = user.first_name + ' ' + user.last_name
+        usr['email'] = user.email
+        groups = db(db.auth_membership.user_id == user.id).select()
+        grps = ''
+        for group in groups:
+            grps = grps + ' ['+group.group_id.role+']'
+        usr['groups'] = grps
+        
+        usrs.append(usr)
+    return dict(users=users,usrs=usrs)
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def contacts():
