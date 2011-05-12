@@ -111,6 +111,7 @@ Things to Do
       TD(INPUT(_name='contact_info', _placeholder='Contact Info')), \      
       TD(A('Add', _id='add-contact')), _id='add-row')}}
 {{options.pop(0)}}
+{{options.insert(0, OPTION('None', _value=''))}}
 {{for contact in contacts:}}
 <tr>
 {{=TD(INPUT(_value=contact.name))}}
