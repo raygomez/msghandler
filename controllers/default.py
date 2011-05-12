@@ -251,6 +251,11 @@ def users():
         usrs.append(usr)
     return dict(users=users,usrs=usrs)
 
+@auth.requires_membership('Admin')
+def del_user():
+    del db.auth_user[request.vars.id]
+    return ''
+
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def contacts():
     users = db(db.auth_user.id > 0).select(orderby=~db.auth_user.id)
