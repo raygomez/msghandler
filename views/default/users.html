@@ -52,7 +52,7 @@ Things to Do
 {{if auth.has_membership('Admin'):}}    
 {{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%', _rowspan=2)}}
 {{else:}}
-{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])))}}
+{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), _width='15%', _rowspan=2)}}
 {{pass}}
 </tr>
 {{=TR(TD('Groups:'), TD(usr['groups'], _colspan=3))}}
