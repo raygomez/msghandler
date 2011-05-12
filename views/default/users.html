@@ -8,7 +8,7 @@ input[type=text]{width: 98%;}
 </style>
 Things to Do
 <ol>
-<li>Display all users</li>
+<li><del>Display all users</del></li>
 <li>Add a user</li>
 <li>Delete a user with confirmation</li>
 <li>Update user</li>
@@ -17,6 +17,7 @@ Things to Do
 
 <table>
 {{=TR(TH('User Management', _colspan=3))}}
+{{=TR(TD(A('Add a group', _href=URL('create_user')), _text-align='', _colspan=3))}}
 <tr>
 <td colspan=2>
 <table>
