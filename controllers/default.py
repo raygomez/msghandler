@@ -249,6 +249,11 @@ def contacts():
 def add_contact():
     id = db.contact.insert(**request.vars)
     return `id`
+
+@auth.requires_membership('Admin')
+def del_contact():
+    del db.contact[request.vars.id]
+    return ''
     
 @auth.requires_login()
 def data():
