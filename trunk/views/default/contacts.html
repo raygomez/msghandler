@@ -9,6 +9,19 @@ select {width:160px;}
 
 <script>
 $(function() {
+
+    $('[name=user_id]').change(function(){
+        input = $(this).parent().siblings().first().find('input')
+        if($(this).val() == '') {
+            name = ''
+            input.removeAttr('disabled');
+        } else {
+            input.attr('disabled','disabled');
+            name = $(this).children('"[value='+$(this).val()+']"').text()
+        }
+        input.val(name)
+    })
+
     $('#add-contact').live('click', function(){
         name = $('input[name=name]').val()
         user_id = $('select[name=user_id]').first().val()
@@ -48,11 +61,11 @@ $(function() {
     })
 
     $('.update-row').live('click',function(){
-
-        name = $(this).parent().parent().children().first().children().first().val()
-        user_id = $(this).parent().parent().children().eq(1).children().first().val()
-        contact_type = $(this).parent().parent().children().eq(2).children().first().val()
-        contact_info = $(this).parent().parent().children().eq(3).children().first().val()
+        tr = $(this).parent().parent().children()
+        name = tr.first().children().first().val()
+        user_id = tr.eq(1).children().first().val()
+        contact_type = tr.eq(2).children().first().val()
+        contact_info = tr.eq(3).children().first().val()
 
         if(name =='') {alert('Name should not be blank.'); return }
         if(contact_info==''){alert('Contact info should not be blank.'); return }
