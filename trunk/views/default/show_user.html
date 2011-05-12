@@ -1,11 +1,11 @@
 {{extend 'layout.html'}}
-
 <script src="{{=URL('static','js/grouping_ajax.js')}}"></script>
 <script>
 
 var user_id = {{=id}};
 
 $(function(){
+    $('[name=groups]').keyup(showgroups)
     click_once_group();    
 })
 
@@ -45,9 +45,28 @@ function click_once_group(){
                showgroups();                 
     });
 }
-
-
 </script>
 {{=json}}
-<h1>User</h1>
-{{=form}}
+{{=form.custom.begin}}
+<table>
+{{=TR(TD(LABEL('First Name:')), TD(form.custom.widget.first_name))}}
+{{=TR(TD(LABEL('Last Name:')), TD(form.custom.widget.last_name))}}
+{{=TR(TD(LABEL('Password:')), TD(form.custom.widget.password))}}
+<tr>{{=TD(LABEL('Groups:'))}}
+    <td id="tr-groups-new">
+        <table>
+            <tr>
+                {{for group in groups:}}
+                    {{=TD(SPAN(group.group_id.role), 
+                          IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
+                                _class='groups-add', _id='imgt'+`group.group_id.id`, _name=group.group_id.role), _class='top-td')}}
+                {{pass}}
+            </tr>
+        </table>
+    </td>
+</tr>
+{{=TR(TD(LABEL('Search Groups:')), TD(form.custom.widget.groups))}}
+{{=TR(TD(), TD(DIV(_id='new-groups')))}}
+{{=TR(TD(), TD(form.custom.submit))}}
+</table>
+{{=form.custom.end}}
