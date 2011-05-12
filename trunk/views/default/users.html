@@ -3,6 +3,7 @@
 <style type="text/css">
 table, td, th {border: 1px solid black;}
 table{width: 100%;}
+td[rowspan='2'] {text-align: center;vertical-align: middle;}
 input[type=text]{width: 98%;}
 //td:last-child {text-align:center;}
 </style>
@@ -16,39 +17,19 @@ Things to Do
 </ol>
 
 <table>
-{{=TR(TH('User Management', _colspan=3))}}
-{{=TR(TD(A('Add a group', _href=URL('create_user')), _text-align='', _colspan=3))}}
-<tr>
-<td colspan=2>
-<table>
-    <tr>
-        {{=TD(INPUT( _value='First Name'))}}
-        {{=TD(INPUT( _value='Last Name'))}}
-        {{=TD(INPUT( _value='Password'))}}        
-    </tr>
-    {{=TR(TD(SPAN('Groups: ', SPAN('hello')), _colspan=3))}}
-</table>
-</td>
-<td rowspan=3 width='15%'>Add</td>
-</tr>
-<tr><td width='20%'>Search Tags</td>{{=TD(INPUT())}}
-<tr><td></td><td><div>Suggestion</div></td></tr>
+{{=TR(TH('User Management', _colspan=5))}}
+{{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=5), _align='center')}}
 
 {{for user in users:}}
-<tr><td colspan=3><hr/></td></tr>
 <tr>
-<td colspan=2>
-<table>
-    <tr>
-        {{=TD(INPUT( _value=user.first_name), _width='33%')}}
-        {{=TD(INPUT( _value=user.last_name), _width='34%')}}
-        {{=TD(user.email)}}        
-    </tr>
-</table>
-</td>
-<td rowspan=3 width='15%'>Update | Delete</td>
+{{=TD('Name:')}}
+{{=TD(user.first_name +' '+ user.last_name)}}
+{{=TD('Email:')}}
+{{=TD(user.email)}}
+<td width='15%' rowspan=2>Update | Delete</td>
 </tr>
-<tr><td width='15%'>Search Groups</td>{{=TD(INPUT())}}
-<tr><td></td><td><div>Suggestion</div></td></tr>
+{{=TR(TD('Groups:'), TD('hello', _colspan=3))}}
+
+</tr>
 {{pass}}
 </table>
