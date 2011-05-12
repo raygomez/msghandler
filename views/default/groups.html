@@ -22,9 +22,9 @@ $(function() {
                     role = $('input[name=role]').val()
                     description = $('input[name=description]').val()
 {{if auth.has_membership('Admin'):}}                    
-    $('#add-row').after('<tr><td><input type="text" value='+role+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
+    $('#add-row').after('<tr><td><input type="text" value="'+role+'"></td><td><input type="text" value="'+description+'"></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
 {{else:}}
-    $('#add-row').after('<tr><td><input type="text" value='+role+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
+    $('#add-row').after('<tr><td><input type="text" value="'+role+'"></td><td><input type="text" value="'+description+'"></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
 {{pass}}                    
                     $('input[name=role]').val('')
                     $('input[name=description]').val('')                        
