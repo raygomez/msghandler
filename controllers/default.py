@@ -134,44 +134,30 @@ def insert_groups(selected, user_id):
     for group in selected:     
         db.auth_membership.insert(user_id=user_id, group_id=int(group[4:]))
 
-@auth.requires_login()     
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def show_user():
     user = db.auth_user(request.args(0)) or redirect(URL('index'))    
     groups = db(db.auth_membership.user_id == user.id).select()
     
     for field in db.auth_user.fields:
-        if field is not 'id' or field is not 'email':
-            db.auth_user[field].default = user[field]
+        db.auth_user[field].default = user[field]
 
     groups_query = db(db.auth_membership.user_id == user.id)._select(db.auth_membership.group_id)
     not_groups = db(~db.auth_group.id.belongs(groups_query)).select(db.auth_group.id, db.auth_group.role).json()
     groups = db(db.auth_membership.user_id == user.id).select(db.auth_membership.id, db.auth_membership.group_id, distinct=True)
 
+    db.auth_user.email.readable=db.auth_user.email.writable=False
     form = SQLFORM.factory(db.auth_user, 
         Field('groups', label='Search Groups'),  
-        hidden=dict(groups_new=None),
-        table_name='user')
-    del form[0][2]
-    form.element(_name='groups')['_onkeyup']="showgroups()" 
+        hidden=dict(groups_new=None))
     form.element(_name='groups')['_autocomplete']='off' 
-    form[0].insert(3, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
-    form[0].insert(5, TR(TD(),TD(DIV(_id='new-groups'))))
-
-    td = TABLE(TR())
-    form.element('#tr-groups-new').append(td)
     
-    for i in range(len(groups)): 
-        td[0].append(TD(_class = 'top-td'))
-        td[0][i].append(SPAN(groups[i].group_id.role))
-        td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
-                        _class='groups-add', _id='imgt'+`groups[i].group_id.id`, _name=groups[i].group_id.role))
-       
     if form.accepts(request.vars, session):
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
         session.flash = T('User successfully updated.')
         redirect(URL('users'))    
     
-    return dict(form=form, id=user.id, json=SCRIPT('var groups=%s' % not_groups))
+    return dict(form=form, groups=groups, id=user.id, json=SCRIPT('var groups=%s' % not_groups))
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def groups():
