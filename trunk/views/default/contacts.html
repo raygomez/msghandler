@@ -49,25 +49,21 @@ $(function() {
     })
 
     $('.update-row').live('click',function(){
-        name = $(this).parent().prev().prev().children().first().val()
-        description = $(this).parent().prev().children().first().val()
-        if(name =='') {alert('name should not be blank.'); return }
-        if(description==''){alert('Description should not be blank.'); return }
+
+        name = $(this).parent().parent().children().first().children().first().val()
+        user_id = $(this).parent().parent().children().eq(1).children().first().val()
+        contact_type = $(this).parent().parent().children().eq(2).children().first().val()
+        contact_info = $(this).parent().parent().children().eq(3).children().first().val()
+
+        if(name =='') {alert('Name should not be blank.'); return }
+        if(contact_info==''){alert('Contact info should not be blank.'); return }
 
         $.ajax({
             url: '{{=URL('update_contact')}}',
-            data: 'id=' + this.name +'&' + 'name=' + name + '&' + 'description=' + description,
+            data: 'id='+this.name+'&'+'name='+name+'&'+'user_id='+user_id+'&'+'contact_type='+contact_type+'&'+'contact_info='+contact_info,
             context: $(this).parent().parent(),
             success: function(data){
-                
-                if(data == 0) msg = 'contact successfully updated.'
-                else {
-                    obj = JSON.parse(data)
-                    $(this).children().first().children().first().val(obj[0].name)
-                    $(this).children().eq(1).children().first().val(obj[0].description)
-                    msg = 'Sorry, there is already an existing contact with the same name.'
-                }
-            
+                msg = 'Contact is successfully updated.'
                 $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
             }
         })        

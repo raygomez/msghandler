@@ -254,7 +254,13 @@ def add_contact():
 def del_contact():
     del db.contact[request.vars.id]
     return ''
-    
+
+@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+def update_contact():
+    db.contact[request.vars.id] = dict(name=request.vars.name,user_id=request.vars.user_id, \
+        contact_type=request.vars.contact_type,contact_info=request.vars.contact_info)
+    return ''
+        
 @auth.requires_login()
 def data():
     return dict(form=crud())
