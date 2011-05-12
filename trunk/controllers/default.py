@@ -169,7 +169,7 @@ def show_user():
     if form.accepts(request.vars, session):
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
         session.flash = T('User successfully updated.')
-        redirect(URL('show_user', args=user.id))    
+        redirect(URL('users'))    
     
     return dict(form=form, id=user.id, json=SCRIPT('var groups=%s' % not_groups))
 
@@ -235,10 +235,11 @@ def update_tag():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def users():
-    users = db(db.auth_user.id).select(orderby=~db.auth_user.id)
+    users = db(db.auth_user.id > 0 ).select()
     usrs = []
     for user in users:
         usr = {};
+        usr['id'] = user.id
         usr['name'] = user.first_name + ' ' + user.last_name
         usr['email'] = user.email
         groups = db(db.auth_membership.user_id == user.id).select()

@@ -26,7 +26,7 @@ Things to Do
 {{=TD(usr['name'])}}
 {{=TD('Email:')}}
 {{=TD(usr['email'])}}
-{{=TD(A('Edit'), ' | ', A('Delete'), _width='15%', _rowspan=2)}}
+{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete'), _width='15%', _rowspan=2)}}
 </tr>
 {{=TR(TD('Groups:'), TD(usr['groups'], _colspan=3))}}
 </tr>
