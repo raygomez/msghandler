@@ -20,16 +20,16 @@ Things to Do
 {{=TR(TH('User Management', _colspan=5))}}
 {{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=5), _align='center')}}
 
-{{for user in users:}}
+{{for usr in usrs:}}
 <tr>
 {{=TD('Name:')}}
-{{=TD(user.first_name +' '+ user.last_name)}}
+{{=TD(usr['name'])}}
 {{=TD('Email:')}}
-{{=TD(user.email)}}
-<td width='15%' rowspan=2>Update | Delete</td>
+{{=TD(usr['email'])}}
+{{=TD(A('Edit'), ' | ', A('Delete'), _width='15%', _rowspan=2)}}
 </tr>
-{{=TR(TD('Groups:'), TD('hello', _colspan=3))}}
-
+{{=TR(TD('Groups:'), TD(usr['groups'], _colspan=3))}}
 </tr>
 {{pass}}
+
 </table>
