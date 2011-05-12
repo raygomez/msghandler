@@ -21,11 +21,12 @@ $(function() {
                 if(data != 0) {
                     msg = 'Tag is successfully added.'
                     name = $('input[name=name]').val()
+                    console.log(name)
                     description = $('input[name=description]').val()
 {{if auth.has_membership('Admin'):}}                    
-    $('#add-row').after('<tr><td><input type="text" value='+name+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
+    $('#add-row').after('<tr><td><input type="text" value="'+name+'"></td><td><input type="text" value="'+description+'"></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
 {{else:}}
-    $('#add-row').after('<tr><td><input type="text" value='+name+'></td><td><input type="text" value='+description+'></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
+    $('#add-row').after('<tr><td><input type="text" value="'+name+'"></td><td><input type="text" value="'+description+'"></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
 {{pass}}                    
                     $('input[name=name]').val('')
                     $('input[name=description]').val('')                        
@@ -84,12 +85,12 @@ Things to Do
 <ol>
 <li><del>Display all tag</del></li>
 <li><del>Add a tag</del></li>
-<li><del>Delete a tag with confirmation<del></li>
+<li><del>Delete a tag with confirmation</del></li>
 <li><del>Update tag</del></li>
 <li><del>Only admin can delete</del></li>
 <li><del>default values to help user on what to do. <a href="http://webdeveloper.beforeseven.com/jquery/default-text-field-value-disappears-focus">code here</a></del> used <a href="http://blog.pauljamescampbell.co.uk/about-2/default-value/">this</a> instead</li>
 <li>css color problems for default values</li>
-<li>only first word is recorded in both fields</li>
+<li><del>only first word is <b>displayed</b> (record is correct) in both fields</del></li>
 </ol>
     //$("input.tag-name, input.tag-desc").defaultvalue("Input tag name here", "Input tag description here");
 
