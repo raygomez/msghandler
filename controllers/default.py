@@ -126,7 +126,7 @@ def create_user():
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1] , user_id)
         session.flash = T('User successfully added.')
-        redirect(URL('index'))    
+        redirect(URL('users'))    
 
     return dict(form = form,json=SCRIPT('var groups=%s' % groups))
 
