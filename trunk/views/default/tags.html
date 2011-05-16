@@ -19,7 +19,6 @@ $(function() {
         var text2 = $('input[name=s_description]').val().toLowerCase();
         var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
 
-
         if(text1 == '' && text2 == ''){
             list.show()
         } else if (text1 != '' && text2 == '') {
@@ -67,7 +66,6 @@ $(function() {
                 $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
             }
         })        
-        list = $('#list').find('tr:not(#add-row)').has('td');        
     })
 
     $('.update-row').live('click',function(){
@@ -109,7 +107,6 @@ $(function() {
                 }                
             })        
         }     
-        list = $('#list').find('tr:not(#add-row)').has('td');    
     })
 {{pass}}    
 });
