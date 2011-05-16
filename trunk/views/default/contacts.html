@@ -5,12 +5,19 @@ table{width: 100%;}
 input[type=text]{width: 98%;}
 td:last-child {text-align:center;}
 select {width:160px;}
+button{vertical-align:middle;}
 </style>
 
 <script>
 $(function() {
 
-    $('[name=user_id]').change(function(){
+    $('[name^=s_]').change(function(){
+    })
+    $('[name=user_id]').live('keyup', function(){
+        $(this).change()
+    })
+    
+    $('[name=user_id]').live('change', function(){
         input = $(this).parent().siblings().first().find('input')
         if($(this).val() == '') {
             name = ''
@@ -110,8 +117,22 @@ Things to Do
 <li>default values to help user on what to do. <a href="http://webdeveloper.beforeseven.com/jquery/default-text-field-value-disappears-focus">code here</a> used <a href="http://blog.pauljamescampbell.co.uk/about-2/default-value/">this</a> instead</li>
 <li>css color problems for default values</li>
 </ol>
-
+<br/>
 <table>
+{{options=[OPTION(user.first_name+' '+user.last_name, _value=user.id) for user in users]}}
+{{options.insert(0, OPTION('search by user', _value=''))}}
+{{types=[OPTION(type, _value=type) for type in ['mobile','landline','email']]}}
+{{types.insert(0, OPTION('search by contact type', _value=''))}}
+
+{{=TR(LABEL('Search: '),
+      TD(INPUT(_name='s_name', _placeholder='search by name')), \
+      TD(SELECT(options, _name='s_user_id')),
+      TD(SELECT(types, _name='s_contact_type')), \
+      TD(INPUT(_name='s_contact_info', _placeholder='search by contact info')), \      
+      TD(TAG.BUTTON('Clear fields', _onclick="$('[name^=s_]').val('')"), _width='14%'), _id='add-row')}}
+</table>
+<br/>
+<table id='list'>
 {{=TR(TH('Name'), TH('User'), TH('Contact type'), TH('Contact Info', _colspan=2))}}
 {{options=[OPTION(user.first_name+' '+user.last_name, _value=user.id) for user in users]}}
 {{options.insert(0, OPTION('Select User', _value=''))}}

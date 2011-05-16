@@ -15,29 +15,17 @@ $(function() {
         list = $('#list').find('tr:not(#add-row)').has('td');
     
         var text1 = $('input[name=s_name]').val().toLowerCase();
-        var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        else var pattern1 = new RegExp('.*', 'ig');
         var text2 = $('input[name=s_description]').val().toLowerCase();
-        var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
+        if (text2 != '') var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
+        else var pattern2 = new RegExp('.*', 'ig');
 
-        if(text1 == '' && text2 == ''){
-            list.show()
-        } else if (text1 != '' && text2 == '') {
-            for(i = 0; i < list.length; i++){
-                if ($(list[i]).find('input').first().val().match(pattern1)) $(list[i]).show() 
-                else $(list[i]).hide()
-            }                
-        } else if (text1 == '' && text2 != '') {
-            for(i = 0; i < list.length; i++){
-                if ($(list[i]).find('input').eq(1).val().match(pattern2)) $(list[i]).show() 
-                else $(list[i]).hide()
-            }                
-        } else if (text1 != '' && text2 != '') {
-            for(i = 0; i < list.length; i++){
-                if ($(list[i]).find('input').first().val().match(pattern1) && $(list[i]).find('input').eq(1).val().match(pattern2)) 
-                    $(list[i]).show() 
-                else $(list[i]).hide()
-            }                
-        }
+        $.each(list, function(index,value){
+            if ($(this).find('input').first().val().match(pattern1) && $(this).find('input').eq(1).val().match(pattern2)) 
+                $(this).show() 
+            else $(this).hide()        
+        })
     })
 
     $('#add-tag').live('click', function(){
