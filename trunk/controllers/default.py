@@ -72,7 +72,6 @@ def get_groups ():
         roles.append(group.group_id.id)    
     return roles
 
-
 def get_message():
     db.msg.created_by.readable = db.msg.create_time.readable = True
     id = int(request.vars.id)
@@ -108,7 +107,7 @@ def delete_ajax_id():
 
 @auth.requires_login()
 def create_user():
-    groups = db().select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).json()
+    groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).json()
     
     form = SQLFORM.factory(db.auth_user, 
         Field('password_again', 'password', requires=IS_EQUAL_TO(request.vars.password, error_message='Passwords do not match.')),

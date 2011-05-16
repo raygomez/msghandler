@@ -6,7 +6,43 @@ input[type=text]{width: 98%;}
 td:last-child {text-align:center;}
 </style>
 <script>
+
 $(function() {
+    
+    $('input[name=s_name]').keyup(function() {
+
+        list = $('#list').find('tr:not(#add-row)').has('td');
+    
+        var text = $(this).val().toLowerCase();
+        var pattern = new RegExp('^.*' + text + '.*$', 'ig');
+
+        if(text != ''){
+            for(i = 0; i < list.length; i++){
+                if ($(list[i]).find('input').first().val().match(pattern)) $(list[i]).show() 
+                else $(list[i]).hide()
+            }
+        } else list.show()
+    })
+
+    $('input[name=s_description]').keyup(function() {
+        var text = $(this).val().toLowerCase();
+        var pattern = new RegExp('^.*' + text + '.*$', 'ig');
+
+        $('#list').find('tr:not(#add-row)').has('td').remove();
+        if(text != ''){
+            for(i = 0; i < list.length; i++){
+                if ($(list[i]).find('input').eq(1).val().match(pattern)) 
+                {
+                    $('#list').append($(list[i]))
+                 }
+            }
+        } else {
+            for(i = 0; i < list.length; i++){
+                $('#list').append($(list[i]))
+            }
+        }
+    })
+    
 
     $('#add-tag').live('click', function(){
         name = $('input[name=name]').val()
@@ -21,7 +57,6 @@ $(function() {
                 if(data != 0) {
                     msg = 'Tag is successfully added.'
                     name = $('input[name=name]').val()
-                    console.log(name)
                     description = $('input[name=description]').val()
 {{if auth.has_membership('Admin'):}}                    
     $('#add-row').after('<tr><td><input type="text" value="'+name+'"></td><td><input type="text" value="'+description+'"></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
@@ -35,6 +70,7 @@ $(function() {
                 $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
             }
         })        
+        list = $('#list').find('tr:not(#add-row)').has('td');        
     })
 
     $('.update-row').live('click',function(){
@@ -76,6 +112,7 @@ $(function() {
                 }                
             })        
         }     
+        list = $('#list').find('tr:not(#add-row)').has('td');    
     })
 {{pass}}    
 });
@@ -91,10 +128,11 @@ Things to Do
 <li><del>default values to help user on what to do. <a href="http://webdeveloper.beforeseven.com/jquery/default-text-field-value-disappears-focus">code here</a></del> used <a href="http://blog.pauljamescampbell.co.uk/about-2/default-value/">this</a> instead</li>
 <li>css color problems for default values</li>
 <li><del>only first word is <b>displayed</b> (record is correct) in both fields</del></li>
+<li><del>Add search using javascript</del></li>
+<li></li>
 </ol>
-    //$("input.tag-name, input.tag-desc").defaultvalue("Input tag name here", "Input tag description here");
-
-<table>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('')"), _width='20%')))}}<br/>
+<table id='list'>
 {{=TR(TH('Name'), TH('Description', _colspan=2))}}
 {{=TR(TD(INPUT(_name='name', _placeholder='Input tag name here')),TD(INPUT(_name='description', _placeholder='Input tag description here')), TD(A('Add', _id='add-tag')), _id='add-row')}}
 {{for tag in tags:}}
