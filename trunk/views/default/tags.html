@@ -8,8 +8,7 @@ button{vertical-align:middle;}
 </style>
 <script>
 
-$(function() {
-    
+$(function() {    
     $('input[name^=s_]').keyup(function() {
 
         list = $('#list').find('tr:not(#add-row)').has('td');
@@ -113,7 +112,7 @@ Things to Do
 <li><del>Add search using javascript</del></li>
 <li></li>
 </ol>
-{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('')"), _width='20%')))}}<br/>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='20%')))}}<br/>
 <table id='list'>
 {{=TR(TH('Name'), TH('Description', _colspan=2))}}
 {{=TR(TD(INPUT(_name='name', _placeholder='Input tag name here')),TD(INPUT(_name='description', _placeholder='Input tag description here')), TD(A('Add', _id='add-tag')), _id='add-row')}}
