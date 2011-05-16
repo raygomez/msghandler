@@ -4,9 +4,41 @@ table, td, th {border: 1px solid black;}
 table{width: 100%;}
 input[type=text]{width: 98%;}
 td:last-child {text-align:center;}
+button{vertical-align:middle;}
 </style>
 <script>
 $(function() {
+    $('input[name^=s_]').keyup(function() {
+
+        list = $('#list').find('tr:not(#add-row)').has('td');
+    
+        var text1 = $('input[name=s_role]').val().toLowerCase();
+        var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        var text2 = $('input[name=s_description]').val().toLowerCase();
+        var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
+
+
+        if(text1 == '' && text2 == ''){
+            list.show()
+        } else if (text1 != '' && text2 == '') {
+            for(i = 0; i < list.length; i++){
+                if ($(list[i]).find('input').first().val().match(pattern1)) $(list[i]).show() 
+                else $(list[i]).hide()
+            }                
+        } else if (text1 == '' && text2 != '') {
+            for(i = 0; i < list.length; i++){
+                if ($(list[i]).find('input').eq(1).val().match(pattern2)) $(list[i]).show() 
+                else $(list[i]).hide()
+            }                
+        } else if (text1 != '' && text2 != '') {
+            for(i = 0; i < list.length; i++){
+                if ($(list[i]).find('input').first().val().match(pattern1) && $(list[i]).find('input').eq(1).val().match(pattern2)) 
+                    $(list[i]).show() 
+                else $(list[i]).hide()
+            }                
+        }
+    })
+
     $('#add-group').live('click', function(){
         role = $('input[name=role]').val()
         description = $('input[name=description]').val()
@@ -86,9 +118,11 @@ Things to Do
 <li><del>Delete a group with confirmation</del></li>
 <li><del>Update group</del></li>
 <li><del>Only admin can delete</del></li>
+<li><del>Add search using javascript</del></li>
 </ol>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_role', _placeholder='search by role'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('')"), _width='20%')))}}<br/>
 
-<table>
+<table id='list'>
 {{=TR(TH('Role'), TH('Description', _colspan=2))}}
 {{=TR(TD(INPUT(_name='role')),TD(INPUT(_name='description')), TD(A('Add', _id='add-group')), _id='add-row')}}
 {{for group in groups:}}
