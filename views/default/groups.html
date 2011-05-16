@@ -107,7 +107,7 @@ Things to Do
 <li><del>Only admin can delete</del></li>
 <li><del>Add search using javascript</del></li>
 </ol>
-{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_role', _placeholder='search by role'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('')"), _width='20%')))}}<br/>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_role', _placeholder='search by role'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='20%')))}}<br/>
 
 <table id='list'>
 {{=TR(TH('Role'), TH('Description', _colspan=2))}}

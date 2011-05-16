@@ -11,7 +11,42 @@ button{vertical-align:middle;}
 <script>
 $(function() {
 
+    $('select[name$=s_]').keyup(function(){
+        $(this).change()
+    });
+
     $('[name^=s_]').change(function(){
+    
+        list = $('#list').find('tr:not(#add-row)').has('td');
+        var text1 = $('input[name=s_name]').val().toLowerCase();
+        if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        else var pattern1 = new RegExp('.*', 'ig');
+
+        text2 =  $('select[name=s_user_id]').val()
+        text3 =  $('select[name=s_contact_type]').val()
+        
+        var text4 = $('input[name=s_contact_info]').val().toLowerCase();
+        if (text4 != '') var pattern4 = new RegExp('^.*' + text4 + '.*$', 'ig');
+        else var pattern4 = new RegExp('.*', 'ig');
+
+        $.each(list, function(index,value){
+            if(text2 == '') value2 = true
+            else {
+                if ($(this).find('select').first().val() == text2) value2 = true 
+                else value2 = false
+            }
+            if(text3 == '') value3 = true
+            else {
+                if ($(this).find('select').eq(1).val() == text3) value3 = true
+                else value3 = false
+            }
+            
+            if ($(this).find('input').first().val().match(pattern1) && value2 && value3 &&
+                $(this).find('input').eq(1).val().match(pattern4)
+            ) 
+                $(this).show() 
+            else $(this).hide()        
+        })
     })
     $('[name=user_id]').live('keyup', function(){
         $(this).change()
@@ -116,6 +151,8 @@ Things to Do
 <li><del>Only admin can delete</del></li>
 <li>default values to help user on what to do. <a href="http://webdeveloper.beforeseven.com/jquery/default-text-field-value-disappears-focus">code here</a> used <a href="http://blog.pauljamescampbell.co.uk/about-2/default-value/">this</a> instead</li>
 <li>css color problems for default values</li>
+<li><del>Add search using javascript</del></li>
+<li>for search in users, dropdown or input?</li>
 </ol>
 <br/>
 <table>
@@ -129,7 +166,7 @@ Things to Do
       TD(SELECT(options, _name='s_user_id')),
       TD(SELECT(types, _name='s_contact_type')), \
       TD(INPUT(_name='s_contact_info', _placeholder='search by contact info')), \      
-      TD(TAG.BUTTON('Clear fields', _onclick="$('[name^=s_]').val('')"), _width='14%'), _id='add-row')}}
+      TD(TAG.BUTTON('Clear fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').change()"), _width='14%'), _id='add-row')}}
 </table>
 <br/>
 <table id='list'>
