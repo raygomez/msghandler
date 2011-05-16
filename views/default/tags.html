@@ -4,45 +4,42 @@ table, td, th {border: 1px solid black;}
 table{width: 100%;}
 input[type=text]{width: 98%;}
 td:last-child {text-align:center;}
+button{vertical-align:middle;}
 </style>
 <script>
 
 $(function() {
     
-    $('input[name=s_name]').keyup(function() {
+    $('input[name^=s_]').keyup(function() {
 
         list = $('#list').find('tr:not(#add-row)').has('td');
     
-        var text = $(this).val().toLowerCase();
-        var pattern = new RegExp('^.*' + text + '.*$', 'ig');
+        var text1 = $('input[name=s_name]').val().toLowerCase();
+        var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        var text2 = $('input[name=s_description]').val().toLowerCase();
+        var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
 
-        if(text != ''){
+
+        if(text1 == '' && text2 == ''){
+            list.show()
+        } else if (text1 != '' && text2 == '') {
             for(i = 0; i < list.length; i++){
-                if ($(list[i]).find('input').first().val().match(pattern)) $(list[i]).show() 
+                if ($(list[i]).find('input').first().val().match(pattern1)) $(list[i]).show() 
                 else $(list[i]).hide()
-            }
-        } else list.show()
-    })
-
-    $('input[name=s_description]').keyup(function() {
-        var text = $(this).val().toLowerCase();
-        var pattern = new RegExp('^.*' + text + '.*$', 'ig');
-
-        $('#list').find('tr:not(#add-row)').has('td').remove();
-        if(text != ''){
+            }                
+        } else if (text1 == '' && text2 != '') {
             for(i = 0; i < list.length; i++){
-                if ($(list[i]).find('input').eq(1).val().match(pattern)) 
-                {
-                    $('#list').append($(list[i]))
-                 }
-            }
-        } else {
+                if ($(list[i]).find('input').eq(1).val().match(pattern2)) $(list[i]).show() 
+                else $(list[i]).hide()
+            }                
+        } else if (text1 != '' && text2 != '') {
             for(i = 0; i < list.length; i++){
-                $('#list').append($(list[i]))
-            }
+                if ($(list[i]).find('input').first().val().match(pattern1) && $(list[i]).find('input').eq(1).val().match(pattern2)) 
+                    $(list[i]).show() 
+                else $(list[i]).hide()
+            }                
         }
     })
-    
 
     $('#add-tag').live('click', function(){
         name = $('input[name=name]').val()
