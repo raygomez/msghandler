@@ -5,10 +5,38 @@ table, td, th {border: 1px solid black;}
 table{width: 100%;}
 td[rowspan='2'] {text-align: center;vertical-align: middle;}
 input[type=text]{width: 98%;}
+button {vertical-align:middle}
 //td:last-child {text-align:center;}
 </style>
 <script>
 $(function() {
+    $('input[name^=s_]').keyup(function() {
+
+        list = $('#list').find('tr.user');
+    
+        var text1 = $('input[name=s_name]').val().toLowerCase();
+        if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        else var pattern1 = new RegExp('.*', 'ig');
+        var text2 = $('input[name=s_email]').val().toLowerCase();
+        if (text2 != '') var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
+        else var pattern2 = new RegExp('.*', 'ig');
+        var text3 = $('input[name=s_groups]').val().toLowerCase();
+        if (text3 != '') var pattern3 = new RegExp('^.*' + text3 + '.*$', 'ig');
+        else var pattern3 = new RegExp('.*', 'ig');
+
+        $.each(list, function(index,value){
+            if ($(this).children('td').eq(1).text().match(pattern1) && $(this).children('td').eq(3).text().match(pattern2) &&
+                $(this).next().children('td').eq(1).text().match(pattern3)){
+                $(this).show() 
+                $(this).next().show()
+            } else {    
+                $(this).hide()
+                $(this).next().hide() 
+                console.log($(this).next())                
+            }
+        })
+    })
+
 {{if auth.has_membership('Admin'):}}    
     $('.del-row').live('click', function(){
         var answer = confirm('Are you sure you want to delete this?')
@@ -37,14 +65,18 @@ Things to Do
 <li><del>Delete a user with confirmation</del></li>
 <li><del>Update user</del></li>
 <li><del>Only admin can delete</del></li>
+<li><del>Add search using javascript</del></li>
 </ol>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),
+        INPUT(_name='s_email', _placeholder='search by email'),
+        INPUT(_name='s_groups', _placeholder='search by groups'),
+        TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='16%')))}}<br/>
+<table id='list'>
 
-<table>
 {{=TR(TH('User Management', _colspan=5))}}
-{{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=5), _align='center')}}
-
+{{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=5), _align='center', _id='add-row')}}
 {{for usr in usrs:}}
-<tr>
+<tr class='user'>
 {{=TD('Name:')}}
 {{=TD(usr['name'])}}
 {{=TD('Email:')}}
