@@ -143,8 +143,10 @@ def show_user():
 
     groups_query = db(db.auth_membership.user_id == user.id)._select(db.auth_membership.group_id)
     not_groups = db(~db.auth_group.id.belongs(groups_query)).select(db.auth_group.id, db.auth_group.role).json()
+        
     groups = db(db.auth_membership.user_id == user.id).select(db.auth_membership.id, db.auth_membership.group_id, distinct=True)
-
+    groups.exclude(lambda row: row.group_id.role == 'Admin')
+    
     db.auth_user.email.readable=db.auth_user.email.writable=False
     form = SQLFORM.factory(db.auth_user, 
         Field('groups', label='Search Groups'),  
@@ -230,7 +232,8 @@ def users():
         groups = db(db.auth_membership.user_id == user.id).select()
         grps = ''
         for group in groups:
-            grps = grps + ' ['+group.group_id.role+']'
+            if group.group_id.role != 'Admin':
+                grps = grps + ' ['+group.group_id.role+']'
         usr['groups'] = grps
         
         usrs.append(usr)
