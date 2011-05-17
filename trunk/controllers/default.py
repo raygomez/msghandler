@@ -334,7 +334,7 @@ def create_message():
             for group in select_groups:
                 db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]), assigned_by=auth.user.id)        
         session.flash = T('Message successfully created.')
-        redirect(URL('show_message', args=msg_id))
+        redirect(URL('index'))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))
 
 @auth.requires_login()
