@@ -24,7 +24,7 @@ def index():
     isTelehealth = False
     if auth.has_membership('Admin'):
         isAdmin = True
-        messages = db(db.msg.parent_msg == 0).select(db.msg.ALL,orderby=db.msg.subject)    
+        messages = db(db.msg.parent_msg == 0).select(db.msg.ALL,orderby=~db.msg.create_time)    
         
     elif auth.has_membership('Telehealth'):     
         isTelehealth = True
