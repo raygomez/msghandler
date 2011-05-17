@@ -1,20 +1,31 @@
 """
-Run me using
-    python web2py.py -S msghandler -M -N
-        -R applications/msghandler/private/update_late.py
+LATE TAGGER
+  Adds the 'late' tag to messages that exceed a certain period (minutes).
+  The period is [ideally] specified in the admin settings.
+
+Run with
+  python web2py.py -S msghandler -M -N
+  -R applications/msghandler/private/update_late.py
+OR use cron
+
+Rules to follow:
+  http://www.python.org/dev/peps/pep-0008/
+  http://www.python.org/dev/peps/pep-0257/
 """
 
+# IMPORTS START HERE ---------------------------------------------------------
+# standard library imports
 import datetime
 
+# related third party imports
+
+# local application/library specific imports
+
+# CODE STARTS HERE -----------------------------------------------------------
 late_id = db(db.tag.name=='Late').select(db.tag.id).first().id
 
-#cond_all = db(db.msg_tag.tag_id.belongs(late_id))._select(db.msg.ALL)
-#print cond_all
-## condition to filter out messages already tagged as late
-
 cond_time = (db.msg.create_time <
-                (datetime.datetime.now()-datetime.timedelta(minutes=5))
-            )
+                (datetime.datetime.now()-datetime.timedelta(minutes=5)))
 
 qry = []
 
@@ -48,4 +59,5 @@ for elem in qry3:
 
 [db.msg_tag.insert(msg_id=elem, tag_id=late_id) for elem in qry]
 
+# required, transaction will revert if not included
 db.commit()
