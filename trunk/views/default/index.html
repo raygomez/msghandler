@@ -8,7 +8,37 @@
 <script>
 
 $(function(){
-    $('tr.messages').click(function(){
+    $('input[name^=s_]').keyup(function() {
+        list = $('.messages');
+    
+        var text1 = $('input[name=s_user]').val().toLowerCase();
+        if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        else var pattern1 = new RegExp('.*', 'ig');
+        
+        var text2 = $('input[name=s_subject]').val().toLowerCase();
+        if (text2 != '') var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
+        else var pattern2 = new RegExp('.*', 'ig');        
+        
+        var text3 = $('input[name=s_tag]').val().toLowerCase();
+        if (text3 != '') var pattern3 = new RegExp('^.*' + text3 + '.*$', 'ig');
+        else var pattern3 = new RegExp('.*', 'ig');
+        
+        $.each(list, function(index,value){
+            message = $(this).children().eq(2).text()
+            
+            tags = ''
+            if (message.lastIndexOf(']') != -1){
+                tags = message.substring(0,message.lastIndexOf(']'))
+                message = message.substring(message.lastIndexOf(']') + 1)
+            }
+                    
+            if ($(this).children().eq(1).text().match(pattern1) && message.match(pattern2) && tags.match(pattern3))
+                $(this).show() 
+            else $(this).hide()        
+        })
+    })
+
+    $('tr.messages').live('click', function(){
         window.location.replace('/msghandler/default/read_message/' + $(this).children().first().text());
     });
 
@@ -33,6 +63,7 @@ $(function(){
 <style>
 .menu { border: 1px solid black}
 tr.messages:hover{background: lightgray;}
+input[name^=s_]{width:150px}
 </style>
 Things to Do
 <ol>
@@ -41,13 +72,17 @@ Things to Do
 <li>Layout</li>
 <li><del>Remove/hide comments in list of messages (parent_msg = 0 instead those with subject Re:)</del></li>
 <li><del>Change background during hover in messages.</del></li>
+<li>Added Search using ajax</li>
+
 <li></li>
 </ol>
 
 <table width='100%'>
     <tr>
-        <td width="15%" class='menu' style="border:0;">Logo</td>
-        <td class='menu' style="border:0;">Search: <input></input></td>
+        <td width="15%">Logo</td>
+        
+        <td>{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_user', _placeholder='search by author'),INPUT(_name='s_subject', _placeholder='search by subject'),INPUT(_name='s_tag', _placeholder='search by tag'),TD(TAG.BUTTON('Clear search fields',_onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='20%'),_width='100%'))}}
+</td>
     </tr>
     <tr>
         <td width="15%" class='menu'>
@@ -74,14 +109,13 @@ Things to Do
             </table>        
         </td>
         <td class='menu'>
-            <table width='100%'>
-                <tr style="font-weight:bold;">
+            <table width='100%' id='list'>
+                <tr style="font-weight:bold;" id='message-hdr'>
                     <td>Created by</td>
                     <td>Subject</td>
                     <td>Timestamp</td>
                 </tr>
                 {{if len(msgs):}}
-                    
                     {{for message in msgs:}}
                         <tr class='messages'>
                             <td style='display: none;'>{{=message['id']}}</td>
