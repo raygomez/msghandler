@@ -6,7 +6,7 @@
 
 <link rel="stylesheet" href="/{{=request.application}}/static/js/themes/base/jquery.ui.all.css"> 
 <script>
-
+{{ fancydelta=local_import('fancydelta')}}
 $(function(){
     $('input[name^=s_]').keyup(function() {
         list = $('.messages');
@@ -72,7 +72,8 @@ Things to Do
 <li>Layout</li>
 <li><del>Remove/hide comments in list of messages (parent_msg = 0 instead those with subject Re:)</del></li>
 <li><del>Change background during hover in messages.</del></li>
-<li>Added Search using ajax</li>
+<li><del>Added Search using javascript</del></li>
+<li><del>Fixed Timestamps</del></li>
 
 <li></li>
 </ol>
@@ -121,7 +122,7 @@ Things to Do
                             <td style='display: none;'>{{=message['id']}}</td>
                             <td width='20%'>{{=message['by']}}</td>
                             <td>{{=message['tags'] + message['subject']}}</td>
-                            <td width='20%'>{{=message['time']}}</td>
+                            <td width='20%'>{{=fancydelta.FancyDateTimeDelta(message['time']).format()}}</td>
                         </tr>
                     {{pass}}
                 {{pass}}            
