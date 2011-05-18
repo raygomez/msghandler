@@ -1,0 +1,1 @@
+sms_outgoing = '/var/spool/sms/outgoing'

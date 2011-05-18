@@ -5,6 +5,8 @@
 
 # IMPORTS START HERE ---------------------------------------------------------
 # standard library imports
+from __future__ import with_statement
+from os import chmod
 
 # related third party imports
 
@@ -64,6 +66,14 @@ class Message:
     
     def construct_message(self):
         raise NotImplementedError()
+    
+    def write_file(self, myfile, msg):
+        '''Write contents of msg to file path given by myfile.'''
+        with file(myfile, 'w') as f:
+            f.write(msg)
+            chmod(f.name,0666)
+            return myfile
+        return ''
     
     def send_message(self):
         raise NotImplementedError()
