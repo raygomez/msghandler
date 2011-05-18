@@ -149,7 +149,7 @@ db.msg_tag.msg_id.requires=IS_IN_DB(db, 'msg.id', '%(subject)s')
 db.msg_tag.tag_id.requires=IS_IN_DB(db, 'tag.id', '%(name)s')
 
 db.define_table('event',
-    Field('time_stamp','datetime', notnull=True, default=datetime.now()),
+    Field('timestamp','datetime', notnull=True, default=datetime.now()),
     Field('user_id', db.auth_user),
     Field('description', 'text'),
     format='%(description)s')
