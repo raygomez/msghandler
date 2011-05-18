@@ -1,6 +1,6 @@
 """SMS HANDLER
   Tools for SMS messages.
-  Adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/smshandler.py
+  Unless stated otherwise, code here is adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/smshandler.py
 """
 
 # IMPORTS START HERE ---------------------------------------------------------
@@ -9,6 +9,7 @@ import os.path
 import email
 import datetime
 import tempfile
+import time
 
 # related third party imports
 
@@ -21,33 +22,41 @@ cfg = __import__('.'.join(cfg.split('/')), globals(), locals(), ['',], -1)
 
 class Message(handler_generic.Message):
     def parse_message(self, text_string):
+        '''Parse message using RFC 2822.'''
         msg = email.message_from_string(text_string)
         self.attachments = {}
         self.headers = self.get_headers(msg)
     
     def process_message(self):
-        x = dict()
-        x['contact'] = '123'
-        x['headers'] = {}
-        x['body'] = 'asd'
-        x['attachments'] = {}
-        return [x,]
+        return []
     
     def insert_database(self):
         '''Don't forget db.commit()!'''
         return 0
     
     def construct_message(self, contact, headers, body, attachments):
+        '''Create message contents.'''
         return "To: %s\n\n%s\n" % (contact, body)
     
     def send_message(self, msg):
+        """Write message to outgoing directory and return randomly generated
+        filename.
+        Adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_utils/fileutil.py
+        """
         outfile = tempfile.mkstemp(prefix='send_', dir=cfg.sms_outgoing)
-        print outfile
         filename = self.write_file(outfile[1], msg)
-        return filename
+        return os.path.basename(filename)
     
-    def update_send_status(self):
-        return
+    def update_send_status(self, filename):
+        '''Return 1 on success and 0 on failure.'''
+        while os.path.exists(os.path.join(cfg.sms_outgoing, filename)):
+            time.sleep(20)
+        if os.path.exists(os.path.join(cfg.sms_failed, filename)):
+            return 0
+        elif os.path.exists(os.path.join(cfg.sms_sent, filename)):
+            return 1
+        else:
+            return -1
     
     def get_headers(self, msg):
         headers = dict(msg.items())

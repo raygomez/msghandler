@@ -1,6 +1,6 @@
 """GENERIC HANDLER
   Template for handler tools.
-  Adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/__init__.py
+  Unless stated otherwise, code here is adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/__init__.py
 """
 
 # IMPORTS START HERE ---------------------------------------------------------
@@ -38,8 +38,11 @@ class Message:
         msg_resp = self.process_message()
         self.insert_database()
         for elem in msg_resp:
+            # TO DO: fork for each message!
             self._send(elem['contact'], elem['headers'],
                        elem['body'], elem['attachments'])
+            # update status in database
+            # possibly give option for user to resend
     
     def _send(self, contact, headers, body, attachments):
         """Send message according to mode.
@@ -52,7 +55,7 @@ class Message:
         text_string -- message to be parsed
         """
         msg = self.construct_message(contact, headers, body, attachments)
-        self.send_message(msg)
+        self.update_send_status(self.send_message(msg))
     
     def parse_message(self):
         raise NotImplementedError()
@@ -68,7 +71,9 @@ class Message:
         raise NotImplementedError()
     
     def write_file(self, myfile, msg):
-        '''Write contents of msg to file path given by myfile.'''
+        """Write contents of msg to file path given by myfile.
+        Adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_utils/fileutil.py
+        """
         with file(myfile, 'w') as f:
             f.write(msg)
             chmod(f.name,0666)

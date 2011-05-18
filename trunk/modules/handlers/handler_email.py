@@ -1,6 +1,6 @@
 """EMAIL HANDLER
   Tools for email messages.
-  Adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/emailhandler.py
+  Unless stated otherwise, code here is adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/emailhandler.py
 """
 
 # IMPORTS START HERE ---------------------------------------------------------
@@ -15,6 +15,7 @@ import handler_generic
 # CODE STARTS HERE -----------------------------------------------------------
 class Message(handler_generic.Message):
     def parse_message(self, text_string):
+        '''Parse message using RFC 2822.'''
         return email.message_from_string(text_string)
     
     def process_message(self):
