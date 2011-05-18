@@ -7,7 +7,6 @@
 </script>
 <table>
 {{for event in events:}}
-{{=TR(TD('%s %s %s' % (event.user_id.first_name, event.user_id.last_name, event.description), \
-            SPAN(_class='timestamp', _title=event.timestamp.isoformat()),'.'))}}
+{{#=TR(TD('%s %s %s ' % (event.user_id.first_name, event.user_id.last_name, event.description), SPAN(_class='timestamp', _title=event.timestamp.isoformat()),'.'))}}
 {{pass}}
 </table>

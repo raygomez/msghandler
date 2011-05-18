@@ -151,5 +151,7 @@ db.msg_tag.tag_id.requires=IS_IN_DB(db, 'tag.id', '%(name)s')
 db.define_table('event',
     Field('timestamp','datetime', notnull=True, default=datetime.now()),
     Field('user_id', db.auth_user),
-    Field('description', 'text'),
+    Field('item_id', 'integer'),
+    Field('table_name', requires=IS_IN_SET(('message','user','group','tag','contact'))),
+    Field('access', requires=IS_IN_SET(('view','read','update','delete'))),    
     format='%(description)s')
