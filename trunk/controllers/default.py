@@ -41,7 +41,7 @@ def index():
         users = []
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
-        messages = db(db.msg.parent_msg == 0 & db.msg.id.belongs(msg_query)).select()
+        messages = db((db.msg.parent_msg == 0) & db.msg.id.belongs(msg_query)).select()
         
         users_query = db(db.auth_membership.group_id.belongs(groups_query) & (db.auth_membership.user_id != auth.user.id))._select(db.auth_membership.user_id)
         users = db(db.auth_user.id.belongs(users_query)).select(db.auth_user.id, db.auth_user.first_name, 
@@ -220,9 +220,15 @@ def update_tag():
         return '0'
     else: return db(db.tag.id == id).select().json()
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires_login()
 def users():
-    users = db(db.auth_user.id > 0 ).select()
+    if auth.has_membership('Admin') or auth.has_membership('Telehealth') :
+        users = db(db.auth_user.id != auth.user.id ).select()
+    else:
+        groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)    
+        users_query = db(db.auth_membership.group_id.belongs(groups_query))._select(db.auth_membership.user_id)
+        users = db((db.auth_user.id != auth.user.id) & (db.auth_user.id.belongs(users_query))).select()
+    
     usrs = []
     for user in users:
         usr = {};
@@ -234,8 +240,7 @@ def users():
         for group in groups:
             if group.group_id.role != 'Admin':
                 grps = grps + ' ['+group.group_id.role+']'
-        usr['groups'] = grps
-        
+        usr['groups'] = grps    
         usrs.append(usr)
     return dict(users=users,usrs=usrs)
 
