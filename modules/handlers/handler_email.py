@@ -1,18 +1,11 @@
-"""
-EMAIL HANDLER
+"""EMAIL HANDLER
   Tools for email messages.
-
-Adapted from
-  code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/
-  emailhandler.py
-
-Rules to follow:
-  http://www.python.org/dev/peps/pep-0008/
-  http://www.python.org/dev/peps/pep-0257/
+  Adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/emailhandler.py
 """
 
 # IMPORTS START HERE ---------------------------------------------------------
 # standard library imports
+import email
 
 # related third party imports
 
@@ -20,16 +13,22 @@ Rules to follow:
 import handler_generic
 
 # CODE STARTS HERE -----------------------------------------------------------
-class Reader(handler_generic.Reader):
-    def __init__(self, text_string):
-        """Parse message as email.
-        
-        Keyword arguments:
-        text_string -- message to be parsed
-        
-        """
-        print text_string[:5]
-
-class Sender:
-    pass
-
+class Message(handler_generic.Message):
+    def parse_message(self, text_string):
+        return email.message_from_string(text_string)
+    
+    def process_message(self):
+        return []
+    
+    def insert_database(self):
+        '''Don't forget db.commit()!'''
+        return 0
+    
+    def construct_message(self):
+        return
+    
+    def send_message(self):
+        return 0
+    
+    def update_send_status(self):
+        return 0
