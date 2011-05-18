@@ -125,6 +125,7 @@ def create_user():
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1] , user_id)
         session.flash = T('User successfully added.')
+        db.event.insert(description='added a new user %s.' % (form.vars.email))
         redirect(URL('users'))    
 
     return dict(form = form,json=SCRIPT('var groups=%s' % groups))
@@ -159,6 +160,11 @@ def show_user():
         redirect(URL('users'))    
     
     return dict(form=form, groups=groups, id=user.id, json=SCRIPT('var groups=%s' % not_groups))
+
+@auth.requires_login()
+def events():
+    events = db(db.event.id > 0).select()
+    return dict(events=events)
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def groups():
