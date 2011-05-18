@@ -164,8 +164,12 @@ def show_user():
 
 @auth.requires_login()
 def events():
-    events = db(db.event.id > 0).select(orderby=~db.event.timestamp)
+    if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
+        events = db(db.event.id > 0).select(orderby=~db.event.timestamp)
+    else: events = db(db.event.user_id == auth.user.id).select(orderby=~db.event.timestamp)
+        
     return dict(events=events)
+    
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def groups():
