@@ -1,6 +1,5 @@
 """MESSAGE PARSER
   Parses messages according to mode and inserts to database.
-  Adapted from code.google.com/p/ph-sms/source/browse/trunk/python/mh_handlers/__init__.py
 
 Run with
   python web2py.py -S msghandler -M -N -R applications/msghandler/private/insert_message.py -A <mode> <file_path>
@@ -14,6 +13,7 @@ Parameters
 # standard library imports
 from __future__ import with_statement
 from contextlib import closing
+import traceback
 
 # related third party imports
 
@@ -38,6 +38,9 @@ try:
 
     x = handler.Message('r', text_string)
 except Exception, e:
-    '''Print exception and exit.'''
+    '''Print exception and traceback information.'''
     print '\n', e
-    os.sys.exit(0)
+    exceptionType, exceptionValue, exceptionTraceback = os.sys.exc_info()
+    print ''.join(traceback.format_exception(exceptionType,
+                                             exceptionValue,
+                                             exceptionTraceback))
