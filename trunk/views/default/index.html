@@ -3,11 +3,13 @@
 <script type="text/javascript" src="/{{=request.application}}/static/js/date.format.js"></script> 
 <script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.widget.js"></script> 
 <script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.tabs.js"></script> 
-
+<script type="text/javascript" src="/{{=request.application}}/static/js/jquery.timeago.js"></script>
 <link rel="stylesheet" href="/{{=request.application}}/static/js/themes/base/jquery.ui.all.css"> 
 <script>
-{{ fancydelta=local_import('fancydelta')}}
 $(function(){
+
+
+    $('td.timestamp').timeago()
     $('input[name^=s_]').keyup(function() {
         list = $('.messages');
     
@@ -122,7 +124,7 @@ Things to Do
                             <td style='display: none;'>{{=message['id']}}</td>
                             <td width='20%'>{{=message['by']}}</td>
                             <td>{{=message['tags'] + message['subject']}}</td>
-                            <td width='20%'>{{=fancydelta.FancyDateTimeDelta(message['time']).format()}}</td>
+                            <td width='20%' class="timestamp" title={{=message['time'].isoformat()}}></td>
                         </tr>
                     {{pass}}
                 {{pass}}            
