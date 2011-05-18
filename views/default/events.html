@@ -1,0 +1,13 @@
+{{extend 'layout.html'}}
+<script type="text/javascript" src="/{{=request.application}}/static/js/jquery.timeago.js"></script>
+<script>
+    $(function(){
+        $('.timestamp').timeago()             
+    })
+</script>
+<table>
+{{for event in events:}}
+{{=TR(TD('%s %s %s' % (event.user_id.first_name, event.user_id.last_name, event.description), \
+            SPAN(_class='timestamp', _title=event.timestamp.isoformat()),'.'))}}
+{{pass}}
+</table>
