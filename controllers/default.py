@@ -124,8 +124,8 @@ def create_user():
         user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1] , user_id)
-        session.flash = T('User successfully added.')
         db.event.insert(description='added a new user %s.' % (form.vars.email))
+        session.flash = T('User successfully added.')
         redirect(URL('users'))    
 
     return dict(form = form,json=SCRIPT('var groups=%s' % groups))
@@ -156,6 +156,7 @@ def show_user():
     
     if form.accepts(request.vars, session):
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
+        db.event.insert(description='updated user %s.' % (form.vars.email))
         session.flash = T('User successfully updated.')
         redirect(URL('users'))    
     
@@ -174,14 +175,18 @@ def groups():
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_group():
     groups  = db(db.auth_group.role == request.vars.role).select()
+    
     if len(groups) == 0:
         id = db.auth_group.insert(**request.vars)
+        db.event.insert(description='added a new group %s.' % (request.vars.role))
         return `id`
     else: return '0'
     
 @auth.requires_membership('Admin')
 def del_group():
+    role = db.auth_group[request.vars.id].role
     del db.auth_group[request.vars.id]
+    db.event.insert(description='deleted group %s.' % (role))
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
@@ -193,6 +198,7 @@ def update_group():
     others = db((db.auth_group.role == role) & (db.auth_group.id != id)).select()
     if len(others) == 0:
         db.auth_group[id] = dict(role=role,description=description)
+        db.event.insert(description='updated group %s.' % (role))    
         return '0'
     else: return db(db.auth_group.id == id).select().json()
 
@@ -206,11 +212,14 @@ def add_tag():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
+        db.event.insert(description='added tag %s.' % (request.vars.name))    
         return `id`
     else: return '0'
     
 @auth.requires_membership('Admin')
 def del_tag():
+    name = db.tag[request.vars.id].name
+    db.event.insert(description='deleted tag %s.' % (name))    
     del db.tag[request.vars.id]
     return ''
 
@@ -222,6 +231,7 @@ def update_tag():
     
     others = db((db.tag.name == name) & (db.tag.id != id)).select()
     if len(others) == 0:
+        db.event.insert(description='updated tag %s.' % (name))    
         db.tag[id] = dict(name=name,description=description)
         return '0'
     else: return db(db.tag.id == id).select().json()
@@ -252,6 +262,8 @@ def users():
 
 @auth.requires_membership('Admin')
 def del_user():
+    email = db.auth_user[request.vars.id].email
+    db.event.insert(description='deleted user %s.' % (email))    
     del db.auth_user[request.vars.id]
     return ''
 
@@ -263,16 +275,20 @@ def contacts():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_contact():
+    db.event.insert(description='added contact %s.' % (request.vars.name))    
     id = db.contact.insert(**request.vars)
     return `id`
 
 @auth.requires_membership('Admin')
 def del_contact():
+    name = db.contact[request.vars.id].name
+    db.event.insert(description='deleted contact %s.' % (name))        
     del db.contact[request.vars.id]
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def update_contact():
+    db.event.insert(description='updated contact %s.' % (request.vars.name))
     db.contact[request.vars.id] = dict(name=request.vars.name,user_id=request.vars.user_id, \
         contact_type=request.vars.contact_type,contact_info=request.vars.contact_info)
     return ''
@@ -344,6 +360,7 @@ def create_message():
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
                 db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]), assigned_by=auth.user.id)        
+        db.event.insert(description='created a new message %s.' % (form.vars.subject))            
         session.flash = T('Message successfully created.')
         redirect(URL('index'))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))
@@ -370,72 +387,13 @@ def read_message():
         form.vars.parent_msg = message.id   
         form.vars.subject = 'Re:'   
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
+        db.event.insert(description='commented on the message %s.' % (message.subject))    
         response.flash = T('Comment successfully created.')
 
     replies = db(db.msg.parent_msg == message.id).select(orderby=db.msg.create_time)
 
     return dict(message=message, form=form, attachments=attachments, groups=groups, tags=tags, \
         json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)), id=message.id, replies=replies)
-
-@auth.requires_login()     
-def show_message():
-    message = db.msg(request.args(0)) or redirect(URL('index'))    
-    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
-    
-    for field in db.msg.fields:
-        if field is not 'id':
-            db.msg[field].default = message[field]
-
-    tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
-    not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
-    tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
-
-    groups_query = db(db.msg_group.msg_id == message.id)._select(db.msg_group.group_id)
-    not_groups = db(~db.auth_group.id.belongs(groups_query)).select(db.auth_group.id, db.auth_group.role).json()
-    groups = db(db.msg_group.msg_id == message.id).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
-        
-    form = SQLFORM.factory(db.msg,
-      Field('attachment_type'),
-      Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
-      Field('tags', label='Search tags'),
-      Field('groups', label='Search groups'),
-      hidden=dict(tags_new=None, groups_new=None),
-      table_name='msg_attachment'
-    )
-    form.element(_name='tags')['_onkeyup']="showtags()" 
-    form.element(_name='tags')['_autocomplete']='off' 
-    form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
-    form[0].insert(6, TR(TD(),TD(DIV(_id='new-tags'))))
-    td = TABLE(TR())
-
-    for i in range(len(tags)): 
-        td[0].append(TD(_class = 'top-td'))
-        td[0][i].append(SPAN(tags[i].tag_id.name))
-        td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
-                        _class='tags-add', _id='imgt'+`tags[i].tag_id.id`, _name=tags[i].tag_id.name))
-    
-    form.element('#tr-tags-new').append(td)
-       
-    form.element(_name='groups')['_onkeyup']="showgroups()" 
-    form.element(_name='groups')['_autocomplete']='off' 
-    form[0].insert(7, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
-    form[0].insert(9, TR(TD(),TD(DIV(_id='new-groups'))))
-    td = TABLE(TR())
-
-    for i in range(len(groups)): 
-        td[0].append(TD(_class = 'top-td'))
-        td[0][i].append(SPAN(groups[i].group_id.role))
-        td[0][i].append(IMG(_src=URL('static', 'images/delete.png'), _hidden=True, 
-                        _class='groups-add', _id='imgt'+`groups[i].group_id.id`, _name=groups[i].group_id.role))
-    
-    form.element('#tr-groups-new').append(td)
-       
-    if form.accepts(request.vars, session):
-        db(db.msg.id == message.id).update(**db.msg._filter_fields(form.vars))                 
-        session.flash = T('Message successfully updated.')
-        redirect(URL('show_message', args=message.id))    
-    
-    return dict(form=form, attachments=attachments, id=message.id, json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)))
     
 @auth.requires_login()
 def create_attachment():
