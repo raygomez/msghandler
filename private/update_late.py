@@ -1,16 +1,9 @@
-"""
-LATE TAGGER
+"""LATE TAGGER
   Adds the 'late' tag to messages that exceed a certain period (minutes).
   The period is [ideally] specified in the admin settings.
 
 Run with
-  python web2py.py -S msghandler -M -N
-  -R applications/msghandler/private/update_late.py
-OR use cron
-
-Rules to follow:
-  http://www.python.org/dev/peps/pep-0008/
-  http://www.python.org/dev/peps/pep-0257/
+  python web2py.py -S msghandler -M -N -R applications/msghandler/private/update_late.py
 """
 
 # IMPORTS START HERE ---------------------------------------------------------
