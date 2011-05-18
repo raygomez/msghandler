@@ -124,7 +124,7 @@ def create_user():
         user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1] , user_id)
-        db.event.insert(description='added a new user %s.' % (form.vars.email))
+        db.event.insert(description='added a new user %s.' % (form.vars.email), user_id=auth.user.id)
         session.flash = T('User successfully added.')
         redirect(URL('users'))    
 
@@ -156,7 +156,7 @@ def show_user():
     
     if form.accepts(request.vars, session):
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
-        db.event.insert(description='updated user %s.' % (form.vars.email))
+        db.event.insert(description='updated user %s.' % (form.vars.email), user_id=auth.user.id)
         session.flash = T('User successfully updated.')
         redirect(URL('users'))    
     
@@ -178,7 +178,7 @@ def add_group():
     
     if len(groups) == 0:
         id = db.auth_group.insert(**request.vars)
-        db.event.insert(description='added a new group %s.' % (request.vars.role))
+        db.event.insert(description='added a new group %s.' % (request.vars.role), user_id=auth.user.id)
         return `id`
     else: return '0'
     
@@ -186,7 +186,7 @@ def add_group():
 def del_group():
     role = db.auth_group[request.vars.id].role
     del db.auth_group[request.vars.id]
-    db.event.insert(description='deleted group %s.' % (role))
+    db.event.insert(description='deleted group %s.' % (role), user_id=auth.user.id)
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
@@ -197,7 +197,7 @@ def update_group():
     
     others = db((db.auth_group.role == role) & (db.auth_group.id != id)).select()
     if len(others) == 0:
-        db.auth_group[id] = dict(role=role,description=description)
+        db.auth_group[id] = dict(role=role,description=description, user_id=auth.user.id)
         db.event.insert(description='updated group %s.' % (role))    
         return '0'
     else: return db(db.auth_group.id == id).select().json()
@@ -212,14 +212,14 @@ def add_tag():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
-        db.event.insert(description='added tag %s.' % (request.vars.name))    
+        db.event.insert(description='added tag %s.' % (request.vars.name), user_id=auth.user.id)
         return `id`
     else: return '0'
     
 @auth.requires_membership('Admin')
 def del_tag():
     name = db.tag[request.vars.id].name
-    db.event.insert(description='deleted tag %s.' % (name))    
+    db.event.insert(description='deleted tag %s.' % (name), user_id=auth.user.id)
     del db.tag[request.vars.id]
     return ''
 
@@ -231,7 +231,7 @@ def update_tag():
     
     others = db((db.tag.name == name) & (db.tag.id != id)).select()
     if len(others) == 0:
-        db.event.insert(description='updated tag %s.' % (name))    
+        db.event.insert(description='updated tag %s.' % (name), user_id=auth.user.id)
         db.tag[id] = dict(name=name,description=description)
         return '0'
     else: return db(db.tag.id == id).select().json()
@@ -263,7 +263,7 @@ def users():
 @auth.requires_membership('Admin')
 def del_user():
     email = db.auth_user[request.vars.id].email
-    db.event.insert(description='deleted user %s.' % (email))    
+    db.event.insert(description='deleted user %s.' % (email), user_id=auth.user.id)
     del db.auth_user[request.vars.id]
     return ''
 
@@ -275,20 +275,20 @@ def contacts():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_contact():
-    db.event.insert(description='added contact %s.' % (request.vars.name))    
+    db.event.insert(description='added contact %s.' % (request.vars.name), user_id=auth.user.id)
     id = db.contact.insert(**request.vars)
     return `id`
 
 @auth.requires_membership('Admin')
 def del_contact():
     name = db.contact[request.vars.id].name
-    db.event.insert(description='deleted contact %s.' % (name))        
+    db.event.insert(description='deleted contact %s.' % (name), user_id=auth.user.id)
     del db.contact[request.vars.id]
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def update_contact():
-    db.event.insert(description='updated contact %s.' % (request.vars.name))
+    db.event.insert(description='updated contact %s.' % (request.vars.name), user_id=auth.user.id)
     db.contact[request.vars.id] = dict(name=request.vars.name,user_id=request.vars.user_id, \
         contact_type=request.vars.contact_type,contact_info=request.vars.contact_info)
     return ''
@@ -360,7 +360,7 @@ def create_message():
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
                 db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]), assigned_by=auth.user.id)        
-        db.event.insert(description='created a new message %s.' % (form.vars.subject))            
+        db.event.insert(description='created a new message %s.' % (form.vars.subject), user_id=auth.user.id)
         session.flash = T('Message successfully created.')
         redirect(URL('index'))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))
@@ -387,7 +387,7 @@ def read_message():
         form.vars.parent_msg = message.id   
         form.vars.subject = 'Re:'   
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
-        db.event.insert(description='commented on the message %s.' % (message.subject))    
+        db.event.insert(description='commented on the message %s.' % (message.subject), user_id=auth.user.id)
         response.flash = T('Comment successfully created.')
 
     replies = db(db.msg.parent_msg == message.id).select(orderby=db.msg.create_time)
