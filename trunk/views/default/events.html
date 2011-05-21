@@ -7,7 +7,9 @@
 </script>
 <table>
 {{for event in events:}}
-{{#=TR(TD('%s %s %s ' % (event.user_id.first_name, event.user_id.last_name, event.description), SPAN(_class='timestamp', _title=event.timestamp.isoformat()),'.'))}}
+{{if event.table_name == 'tag' and event.access == 'create':}}
+<tr><td>{{='You' if not auth.user.id != event.user_id.id else A('%s %s' % (event.user_id.first_name, event.user_id.last_name),_href=URL('users'))}} added a {{=event.table_name}} {{=A(event.details,_href=URL('tags'))}}.</td></tr>
+{{pass}}
 {{pass}}
 </table>
 
