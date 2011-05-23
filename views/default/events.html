@@ -13,6 +13,8 @@ Things to Do
 <li><del>CUD Tag</del></li>
 <li><del>CUD Group</del></li>
 <li><del>CUD Contact</del></li>
+<li>CUD Message</li>
+<li><del>CUD User</del></li>
 <li></li>
 </ol>
 Sample events
@@ -34,7 +36,7 @@ Sample events
     {{if evnt['access'] == 'create':}}
         <tr><td>{{=evnt['user']}} added a new tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
     {{elif evnt['access'] == 'update':}}
-        <tr><td>{{=evnt['user']}} updated a tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+        <tr><td>{{=evnt['user']}} updated the tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
         {{elif evnt['access'] == 'delete':}}
 <tr><td>{{=evnt['user']}} deleted the tag {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
     {{pass}}
@@ -43,7 +45,7 @@ Sample events
     {{if evnt['access'] == 'create':}}
         <tr><td>{{=evnt['user']}} added a new group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
     {{elif evnt['access'] == 'update':}}
-        <tr><td>{{=evnt['user']}} updated a group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+        <tr><td>{{=evnt['user']}} updated the group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
     {{elif evnt['access'] == 'delete':}}
         <tr><td>{{=evnt['user']}} deleted the group {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
     {{pass}}
@@ -52,11 +54,19 @@ Sample events
     {{if evnt['access'] == 'create':}}
         <tr><td>{{=evnt['user']}} added a new contact {{=A(evnt['item'].name, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
     {{elif evnt['access'] == 'update':}}
-        <tr><td>{{=evnt['user']}} updated a contact {{=A(evnt['item'].name, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+        <tr><td>{{=evnt['user']}} updated the contact {{=A(evnt['item'].name, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
     {{elif evnt['access'] == 'delete':}}
         <tr><td>{{=evnt['user']}} deleted the contact {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
     {{pass}}
 
+{{elif evnt['table'] == 'auth_user':}}
+    {{if evnt['access'] == 'create':}}
+        <tr><td>{{=evnt['user']}} added a new user {{=A(evnt['item'].email, _href=URL('show_user', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+    {{elif evnt['access'] == 'update':}}
+        <tr><td>{{=evnt['user']}} updated the user {{=A(evnt['item'].email, _href=URL('show_user'), args=evnt['item'].id) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+    {{elif evnt['access'] == 'delete':}}
+        <tr><td>{{=evnt['user']}} deleted the user {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+    {{pass}}
 {{pass}}
 {{pass}}
 </table>
