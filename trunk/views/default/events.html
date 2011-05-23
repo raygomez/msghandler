@@ -25,9 +25,22 @@ Sample events
 </ol>
 
 <table>
-{{for event in events:}}
-{{if event.table_name == 'tag' and event.access == 'create':}}
-<tr><td>{{='You' if not auth.user.id != event.user_id.id else A('%s %s' % (event.user_id.first_name, event.user_id.last_name),_href=URL('users'))}} added a {{=event.table_name}} {{=A(event.details,_href=URL('tags'))}}.</td></tr>
+{{for evnt in evnts:}}
+{{if evnt['table'] == 'tag' and evnt['access'] == 'create':}}
+<tr><td>{{=evnt['user']}} added a tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[already deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+{{elif evnt['table'] == 'tag' and evnt['access'] == 'update':}}
+<tr><td>{{=evnt['user']}} updated a tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[already deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+{{elif evnt['table'] == 'tag' and evnt['access'] == 'delete':}}
+<tr><td>{{=evnt['user']}} deleted the tag {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+
+{{elif evnt['table'] == 'auth_group' and evnt['access'] == 'create':}}
+<tr><td>{{=evnt['user']}} added a group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[already deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+{{elif evnt['table'] == 'auth_group' and evnt['access'] == 'update':}}
+<tr><td>{{=evnt['user']}} updated a group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[already deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+{{elif evnt['table'] == 'auth_group' and evnt['access'] == 'delete':}}
+<tr><td>{{=evnt['user']}} deleted the group {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+
+
 {{pass}}
 {{pass}}
 </table>

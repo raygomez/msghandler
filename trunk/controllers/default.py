@@ -166,9 +166,19 @@ def show_user():
 def events():
     if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
         events = db(db.event.id > 0).select(orderby=~db.event.timestamp)
+        evnts = []
+        for event in events:
+            evnt = {}
+            evnt['timestamp'] = event.timestamp
+            evnt['user'] = URL(auth.user.first_name + ' ' + auth.user.last_name, 'show_user', args=event.user_id.id) if auth.user.id != event.user_id.id else 'You'
+            evnt['item'] = db[event.table_name][event.item_id]
+            evnt['details'] = event.details
+            evnt['table'] = event.table_name
+            evnt['access'] = event.access
+            evnts.append(evnt)
     else: events = db(db.event.user_id == auth.user.id).select(orderby=~db.event.timestamp)
         
-    return dict(events=events)
+    return dict(events=events, evnts=evnts)
     
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
@@ -182,15 +192,17 @@ def add_group():
     
     if len(groups) == 0:
         id = db.auth_group.insert(**request.vars)
-        #db.event.insert(description='added a new group %s' % (request.vars.role), user_id=auth.user.id)
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_group',access='create')
         return `id`
     else: return '0'
     
 @auth.requires_membership('Admin')
 def del_group():
-    role = db.auth_group[request.vars.id].role
-    del db.auth_group[request.vars.id]
-    #db.event.insert(description='deleted group %s' % (role), user_id=auth.user.id)
+    id = request.vars.id
+    role = db.auth_group[id].role
+    
+    del db.auth_group[id]
+    db.event.insert(details=role,user_id=auth.user.id,item_id=id,table_name='auth_group',access='delete')
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
@@ -201,8 +213,16 @@ def update_group():
     
     others = db((db.auth_group.role == role) & (db.auth_group.id != id)).select()
     if len(others) == 0:
+        group = db.auth_group[id]
+        
+        details = []
+        if role != group.role: details.append('role from ' + group.role + ' changed to ' + role)
+        if description != group.description: details.append('description from ' + group.description + ' changed to ' + description)
+        
+        details = ', '.join(details)        
+        
+        db.event.insert(details=details,user_id=auth.user.id,item_id=id,table_name='auth_group',access='update')
         db.auth_group[id] = dict(role=role,description=description, user_id=auth.user.id)
-        #db.event.insert(description='updated group %s' % (role))    
         return '0'
     else: return db(db.auth_group.id == id).select().json()
 
@@ -216,15 +236,16 @@ def add_tag():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
-        db.event.insert(details=request.vars.name,user_id=auth.user.id,item_id=id,table_name='tag',access='create')
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='tag',access='create')
         return `id`
     else: return '0'
     
 @auth.requires_membership('Admin')
 def del_tag():
-    name = db.tag[request.vars.id].name
-    #db.event.insert(description='deleted tag %s' % (name), user_id=auth.user.id)
-    del db.tag[request.vars.id]
+    id = request.vars.id
+    name = db.tag[id].name
+    del db.tag[id]
+    db.event.insert(details=name,user_id=auth.user.id,item_id=id,table_name='tag',access='delete')
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
@@ -235,7 +256,15 @@ def update_tag():
     
     others = db((db.tag.name == name) & (db.tag.id != id)).select()
     if len(others) == 0:
-        #db.event.insert(description='updated tag %s' % (name), user_id=auth.user.id)
+        tag = db.tag[id]
+        
+        details = []
+        if name != tag.name: details.append('name from ' + tag.name + ' changed to ' + name)
+        if description != tag.description: details.append('description from ' + tag.description + ' changed to ' + description)
+        
+        details = ', '.join(details)        
+        
+        db.event.insert(details=details,user_id=auth.user.id,item_id=id,table_name='tag',access='update')
         db.tag[id] = dict(name=name,description=description)
         return '0'
     else: return db(db.tag.id == id).select().json()
