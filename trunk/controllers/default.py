@@ -170,7 +170,7 @@ def events():
         for event in events:
             evnt = {}
             evnt['timestamp'] = event.timestamp
-            evnt['user'] = URL(auth.user.first_name + ' ' + auth.user.last_name, 'show_user', args=event.user_id.id) if auth.user.id != event.user_id.id else 'You'
+            evnt['user'] = A(event.user_id.first_name + ' ' + event.user_id.last_name, _href=URL('show_user', args=event.user_id.id)) if auth.user.id != event.user_id.id else 'You'
             evnt['item'] = db[event.table_name][event.item_id]
             evnt['details'] = event.details
             evnt['table'] = event.table_name
@@ -308,22 +308,36 @@ def contacts():
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_contact():
-    #db.event.insert(description='added contact %s' % (request.vars.name), user_id=auth.user.id)
     id = db.contact.insert(**request.vars)
+    db.event.insert(user_id=auth.user.id,item_id=id,table_name='contact',access='create')    
     return `id`
 
 @auth.requires_membership('Admin')
 def del_contact():
     name = db.contact[request.vars.id].name
-    #db.event.insert(description='deleted contact %s' % (name), user_id=auth.user.id)
+    db.event.insert(details=name,user_id=auth.user.id,item_id=request.vars.id,table_name='contact',access='delete')
     del db.contact[request.vars.id]
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def update_contact():
-    #db.event.insert(description='updated contact %s' % (request.vars.name), user_id=auth.user.id)
-    db.contact[request.vars.id] = dict(name=request.vars.name,user_id=request.vars.user_id, \
-        contact_type=request.vars.contact_type,contact_info=request.vars.contact_info)
+    id = request.vars.id
+    name = request.vars.name
+    user_id = request.vars.user_id if request.vars.user_id != '' else None
+    contact_type= request.vars.contact_type
+    contact_info = request.vars.contact_info        
+
+    contact = db.contact[id]
+
+    details = []
+    if name != contact.name: details.append('name changed from ' + contact.name + ' to ' + name)
+    if user_id != contact.user_id: details.append('user changed from ' + contact.user_id + ' to ' + user_id)
+    if contact_type != contact.contact_type: details.append('contact type changed from ' + contact.contact_type + ' to ' + contact.contact_type)
+    if contact_info != contact.contact_info: details.append('contact info changed from ' + contact.contact_info + ' to ' + contact.contact_info)
+    details = ', '.join(details)        
+        
+    db.event.insert(details=details,user_id=auth.user.id,item_id=id,table_name='contact',access='update')
+    db.contact[id] = dict(name=name,user_id=user_id, contact_type=contact_type,contact_info=contact_info)
     return ''
         
 @auth.requires_login()

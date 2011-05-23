@@ -10,6 +10,9 @@ Things to Do
 <li>users can view own events</li>
 <li>users can view events from a referral where they commented (or where they are creator)</li>
 <li>users can view new message events from a group where they are member of</li>
+<li><del>CUD Tag</del></li>
+<li><del>CUD Group</del></li>
+<li><del>CUD Contact</del></li>
 <li></li>
 </ol>
 Sample events
@@ -26,20 +29,33 @@ Sample events
 
 <table>
 {{for evnt in evnts:}}
-{{if evnt['table'] == 'tag' and evnt['access'] == 'create':}}
-<tr><td>{{=evnt['user']}} added a tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[already deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
-{{elif evnt['table'] == 'tag' and evnt['access'] == 'update':}}
-<tr><td>{{=evnt['user']}} updated a tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[already deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
-{{elif evnt['table'] == 'tag' and evnt['access'] == 'delete':}}
+
+{{if evnt['table'] == 'tag':}}
+    {{if evnt['access'] == 'create':}}
+        <tr><td>{{=evnt['user']}} added a new tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+    {{elif evnt['access'] == 'update':}}
+        <tr><td>{{=evnt['user']}} updated a tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+        {{elif evnt['access'] == 'delete':}}
 <tr><td>{{=evnt['user']}} deleted the tag {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+    {{pass}}
 
-{{elif evnt['table'] == 'auth_group' and evnt['access'] == 'create':}}
-<tr><td>{{=evnt['user']}} added a group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[already deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
-{{elif evnt['table'] == 'auth_group' and evnt['access'] == 'update':}}
-<tr><td>{{=evnt['user']}} updated a group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[already deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
-{{elif evnt['table'] == 'auth_group' and evnt['access'] == 'delete':}}
-<tr><td>{{=evnt['user']}} deleted the group {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+{{elif evnt['table'] == 'auth_group':}}
+    {{if evnt['access'] == 'create':}}
+        <tr><td>{{=evnt['user']}} added a new group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+    {{elif evnt['access'] == 'update':}}
+        <tr><td>{{=evnt['user']}} updated a group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+    {{elif evnt['access'] == 'delete':}}
+        <tr><td>{{=evnt['user']}} deleted the group {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+    {{pass}}
 
+{{elif evnt['table'] == 'contact':}}
+    {{if evnt['access'] == 'create':}}
+        <tr><td>{{=evnt['user']}} added a new contact {{=A(evnt['item'].name, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+    {{elif evnt['access'] == 'update':}}
+        <tr><td>{{=evnt['user']}} updated a contact {{=A(evnt['item'].name, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
+    {{elif evnt['access'] == 'delete':}}
+        <tr><td>{{=evnt['user']}} deleted the contact {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+    {{pass}}
 
 {{pass}}
 {{pass}}
