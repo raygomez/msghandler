@@ -121,10 +121,10 @@ def create_user():
     form[0].insert(7, TR(TD(),TD(DIV(_id='new-groups'))))
     
     if form.accepts(request.vars, session):
-        user_id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
+        id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         if request.vars.groups_new:
-            insert_groups(request.vars.groups_new.split(',')[:-1] , user_id)
-        #db.event.insert(description='added a new user %s' % (form.vars.email), user_id=auth.user.id)
+            insert_groups(request.vars.groups_new.split(',')[:-1],id)
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_user',access='create')
         session.flash = T('User successfully added.')
         redirect(URL('users'))    
 
@@ -148,15 +148,27 @@ def show_user():
     groups = db(db.auth_membership.user_id == user.id).select(db.auth_membership.id, db.auth_membership.group_id, distinct=True)
     groups.exclude(lambda row: row.group_id.role == 'Admin')
     
-    db.auth_user.email.readable=db.auth_user.email.writable=False
+    db.auth_user.email.writable=False
+    db.auth_user.password.writable=False
     form = SQLFORM.factory(db.auth_user, 
         Field('groups', label='Search Groups'),  
         hidden=dict(groups_new=None))
     form.element(_name='groups')['_autocomplete']='off' 
     
-    if form.accepts(request.vars, session):
+
+    if form.accepts(request.vars, session):        
+        last_name = request.vars.last_name
+        first_name = request.vars.first_name
+        
+        details = []
+        if last_name != user.last_name: details.append('last name changed from ' + user.last_name + ' to ' + last_name)
+        if first_name != user.first_name: details.append('first name changed from ' + user.first_name + ' to ' + first_name)
+        
+        details = ', '.join(details)        
+        
+        db.event.insert(details=details,user_id=auth.user.id,item_id=user.id,table_name='auth_user',access='update')
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
-        #db.event.insert(description='updated user %s' % (form.vars.email), user_id=auth.user.id)
+        
         session.flash = T('User successfully updated.')
         redirect(URL('users'))    
     
@@ -180,7 +192,6 @@ def events():
         
     return dict(events=events, evnts=evnts)
     
-
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def groups():
     groups = db(db.auth_group.role != 'Admin').select(orderby=~db.auth_group.id)
@@ -216,8 +227,8 @@ def update_group():
         group = db.auth_group[id]
         
         details = []
-        if role != group.role: details.append('role from ' + group.role + ' changed to ' + role)
-        if description != group.description: details.append('description from ' + group.description + ' changed to ' + description)
+        if role != group.role: details.append('role changed from ' + group.role + ' to ' + role)
+        if description != group.description: details.append('description changed from ' + group.description + ' to ' + description)
         
         details = ', '.join(details)        
         
@@ -259,8 +270,8 @@ def update_tag():
         tag = db.tag[id]
         
         details = []
-        if name != tag.name: details.append('name from ' + tag.name + ' changed to ' + name)
-        if description != tag.description: details.append('description from ' + tag.description + ' changed to ' + description)
+        if name != tag.name: details.append('name changed from ' + tag.name + ' to ' + name)
+        if description != tag.description: details.append('description changed from ' + tag.description + ' to ' + description)
         
         details = ', '.join(details)        
         
@@ -295,8 +306,9 @@ def users():
 
 @auth.requires_membership('Admin')
 def del_user():
-    email = db.auth_user[request.vars.id].email
-    #db.event.insert(description='deleted user %s' % (email), user_id=auth.user.id)
+    id = request.vars.id
+    email = db.auth_user[id].email
+    db.event.insert(details=email,user_id=auth.user.id,item_id=id,table_name='auth_user',access='delete')
     del db.auth_user[request.vars.id]
     return ''
 

@@ -49,9 +49,10 @@ function click_once_group(){
 {{=json}}
 {{=form.custom.begin}}
 <table>
+
+{{=TR(TD(LABEL('Username:')), TD(form.custom.widget.email))}}
 {{=TR(TD(LABEL('First Name:')), TD(form.custom.widget.first_name))}}
 {{=TR(TD(LABEL('Last Name:')), TD(form.custom.widget.last_name))}}
-{{=TR(TD(LABEL('Password:')), TD(form.custom.widget.password))}}
 <tr>{{=TD(LABEL('Groups:'))}}
     <td id="tr-groups-new">
         <table>
