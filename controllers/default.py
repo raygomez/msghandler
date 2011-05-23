@@ -84,7 +84,10 @@ def insert_ajax():
     
     if request.vars.table == 'user_group': db.auth_membership.insert(user_id = id, group_id = second_id)
     elif request.vars.table == 'msg_group': db.msg_group.insert(msg_id = id, group_id = second_id, assigned_by=auth.user.id)
-    elif request.vars.table =='msg_tag': db.msg_tag.insert(msg_id = id, tag_id = second_id)
+    elif request.vars.table =='msg_tag': 
+        id = db.msg_tag.insert(msg_id = id, tag_id = second_id)
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create')
+
 
     
 @auth.requires_login()
@@ -155,7 +158,6 @@ def show_user():
         hidden=dict(groups_new=None))
     form.element(_name='groups')['_autocomplete']='off' 
     
-
     if form.accepts(request.vars, session):        
         last_name = request.vars.last_name
         first_name = request.vars.first_name
@@ -414,12 +416,15 @@ def create_message():
         if request.vars.tags_new:
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
-                db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag[4:]))             
+                id = db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag[4:]))
+                db.event.insert(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create')
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
                 db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]), assigned_by=auth.user.id)        
-        #db.event.insert(description='created a new message %s' % (form.vars.subject), user_id=auth.user.id)
+
+        db.event.insert(user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
+                
         session.flash = T('Message successfully created.')
         redirect(URL('index'))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))

@@ -13,8 +13,10 @@ Things to Do
 <li><del>CUD Tag</del></li>
 <li><del>CUD Group</del></li>
 <li><del>CUD Contact</del></li>
-<li>CUD Message</li>
+<li><del>C Message</del></li>
 <li><del>CUD User</del></li>
+<li>CD msg_tag</li>
+<li>CD msg_group</li>
 <li></li>
 </ol>
 Sample events
@@ -67,6 +69,18 @@ Sample events
     {{elif evnt['access'] == 'delete':}}
         <tr><td>{{=evnt['user']}} deleted the user {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
     {{pass}}
+
+{{elif evnt['table'] == 'msg':}}
+    {{if evnt['access'] == 'create':}}
+        <tr><td>{{=evnt['user']}} added a new message {{=A(evnt['item'].subject, _href=URL('read_message', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+    {{pass}}
+
+{{elif evnt['table'] == 'msg_tag':}}
+    {{if evnt['access'] == 'create':}}
+        <tr><td>{{=evnt['user']}} tagged the message {{=A(evnt['item'].msg_id.subject, _href=URL('read_message', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}} as {{=A(evnt['item'].tag_id.name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}} . <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+    {{pass}}
+    
+    
 {{pass}}
 {{pass}}
 </table>
