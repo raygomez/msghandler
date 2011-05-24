@@ -82,23 +82,48 @@ def insert_ajax():
     id = int(request.vars.id)
     second_id = int(request.vars.group[1:])
     
-    if request.vars.table == 'user_group': db.auth_membership.insert(user_id = id, group_id = second_id)
-    elif request.vars.table == 'msg_group': db.msg_group.insert(msg_id = id, group_id = second_id, assigned_by=auth.user.id)
+    if request.vars.table == 'user_group': 
+        id = db.auth_membership.insert(user_id = id, group_id = second_id)
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_membership',access='create')
+    elif request.vars.table == 'msg_group': 
+        msg_group_id = db.msg_group.insert(msg_id = id, group_id = second_id, assigned_by=auth.user.id)
+        subject = db.msg[id].subject
+        group = db.auth_group[second_id].role
+        db.event.insert(user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='create',
+                        details=','.join([subject,group,`id`]))
     elif request.vars.table =='msg_tag': 
-        id = db.msg_tag.insert(msg_id = id, tag_id = second_id)
-        db.event.insert(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create')
+        msg_tag_id = db.msg_tag.insert(msg_id = id, tag_id = second_id)
+        subject = db.msg[id].subject
+        tag = db.tag[second_id].name
+        db.event.insert(user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='create', 
+                        details=','.join([subject,tag,`id`]))
 
-
-    
 @auth.requires_login()
 def delete_ajax():
     id = int(request.vars.id)
     second_id = int(request.vars.group)
     
-    if request.vars.table == 'user_group': db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).delete()
-    elif request.vars.table =='msg_group': db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).delete()
-    elif request.vars.table =='msg_tag': db((db.msg_tag.tag_id == second_id) & (db.msg_tag.msg_id == id)).delete()
+    if request.vars.table == 'user_group': 
+        db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).delete()
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_membership',access='delete')
+    elif request.vars.table =='msg_group':
+        msg_group_id = db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).select().first().id    
+        subject = db.msg[id].subject
+        group = db.auth_group[second_id].role
+            
+        db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).delete()
+        db.event.insert(user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='delete', \
+                            details=','.join([subject,group,`id`]))        
         
+    elif request.vars.table =='msg_tag':
+        msg_tag_id = db((db.msg_tag.tag_id == second_id) & (db.msg_tag.msg_id == id)).select().first().id
+        subject = db.msg[id].subject
+        tag = db.tag[second_id].name
+
+        db((db.msg_tag.tag_id == second_id) & (db.msg_tag.msg_id == id)).delete()
+        db.event.insert(user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='delete', \
+                            details=','.join([subject,tag,`id`]))        
+                
 @auth.requires_login()
 def delete_ajax_id():    
     tablename,id = request.vars.id.split('-')
@@ -205,7 +230,7 @@ def add_group():
     
     if len(groups) == 0:
         id = db.auth_group.insert(**request.vars)
-        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_group',access='create')
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_group',access='create',details=request.vars.role)
         return `id`
     else: return '0'
     
@@ -249,7 +274,7 @@ def add_tag():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
-        db.event.insert(user_id=auth.user.id,item_id=id,table_name='tag',access='create')
+        db.event.insert(user_id=auth.user.id,item_id=id,table_name='tag',access='create',details=request.vars.name)
         return `id`
     else: return '0'
     
@@ -417,7 +442,9 @@ def create_message():
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
                 id = db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag[4:]))
-                db.event.insert(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create')
+                subject = db.msg[msg_id].subject
+                tag = db.tag[tag_id].name
+                db.event.insert(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create', details=','.join(subject,tag))
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
