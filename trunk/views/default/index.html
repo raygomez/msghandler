@@ -64,6 +64,22 @@ $(function(){
 .menu { border: 1px solid black}
 tr.messages:hover{background: lightgray;}
 input[name^=s_]{width:150px}
+
+//http://www.blakems.com/archives/000077.html
+table {
+    table-layout:fixed;
+}
+
+#list {
+    table-layout:fixed;
+}
+#list td {
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+} 
+
+span.content{color:gray;}
 </style>
 Things to Do
 <ol>
@@ -74,8 +90,9 @@ Things to Do
 <li><del>Change background during hover in messages.</del></li>
 <li><del>Added Search using javascript</del></li>
 <li><del>Fixed Timestamps</del></li>
-<li>Add first N characters of body to _subject_. Convert newlines to spaces.</li>
-<li>On created by field, add icon on mode of message (email, sms, etc)</li>
+<li><del>Add first N characters of body to _subject_. Convert newlines to spaces.</del></li>
+<li>On created by field, add icon on mode of message (email, sms, etc), I think not necessary.</li>
+<li>Add clip if there is attachment</li>
 <li></li>
 </ol>
 
@@ -83,13 +100,19 @@ Things to Do
     <tr>
         <td width="15%">Logo</td>
         
-        <td>{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_user', _placeholder='search by author'),INPUT(_name='s_subject', _placeholder='search by subject'),INPUT(_name='s_tag', _placeholder='search by tag'),TD(TAG.BUTTON('Clear search fields',_onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='20%'),_width='100%'))}}
+        <td>{{=TABLE(TR(LABEL('Search: '),
+                        INPUT(_name='s_user', _placeholder='search by author'),
+                        INPUT(_name='s_subject', _placeholder='search by subject'),
+                        INPUT(_name='s_tag', _placeholder='search by tag'),
+                        TD(TAG.BUTTON('Clear search fields',_onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"),                 
+                                width='20%'),_width='100%'))}}
 </td>
     </tr>
     <tr>
         <td width="15%" class='menu'>
             <table class='menu_table' width='100%'>
-                <tr><td><input type="button" width='100%' value='    Compose    ' onclick='window.open("/msghandler/default/create_message");'></input></td></tr>
+                <tr><td><input type="button" width='100%' value='    Compose    ' onclick='window.location = "/msghandler/default/create_message";'>    
+                        </input></td></tr>
                 <tr><td>Late</td></tr>
                 <tr><td>Inbox</td></tr>
                 <tr><td>Drafts</td></tr>
@@ -113,17 +136,19 @@ Things to Do
         <td class='menu'>
             <table width='100%' id='list'>
                 <tr style="font-weight:bold;" id='message-hdr'>
-                    <td>Created by</td>
+                    <td width='150px'>Created by</td>
                     <td>Subject</td>
-                    <td>Timestamp</td>
+                    <td width='150px'>Timestamp</td>
                 </tr>
                 {{if len(msgs):}}
                     {{for message in msgs:}}
                         <tr class='messages'>
                             <td style='display: none;'>{{=message['id']}}</td>
-                            <td width='20%'>{{=message['by']}}</td>
-                            <td>{{=message['tags'] + message['subject']}}</td>
-                            <td width='20%' class="timestamp" title={{=message['time'].isoformat()}}></td>
+                            <td>{{=message['by']}}</td>
+                            <td>{{=SPAN(message['tags'])}}
+                                {{=SPAN(message['subject'])}}
+                                {{=SPAN(' - ',message['content'][:80],_class='content')}}</td>
+                            <td class="timestamp" title={{=message['time'].isoformat()}}></td>
                         </tr>
                     {{pass}}
                 {{pass}}            

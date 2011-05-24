@@ -55,6 +55,7 @@ def index():
         msg['subject'] = message.subject
         msg['by'] = message.created_by.name
         msg['time'] = message.create_time
+        msg['content'] = message.content
         tags = db(db.msg_tag.msg_id == message.id).select()
         tg = ''
         for tag in tags:
