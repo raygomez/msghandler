@@ -15,8 +15,9 @@ Things to Do
 <li><del>CUD Contact</del></li>
 <li><del>C Message</del></li>
 <li><del>CUD User</del></li>
-<li>CD msg_tag</li>
-<li>CD msg_group</li>
+<li><del>CD msg_tag</del></li>
+<li><del>CD msg_group<del></li>
+<li>CD auth_membership</li>
 <li></li>
 </ol>
 Sample events
@@ -36,7 +37,7 @@ Sample events
 
 {{if evnt['table'] == 'tag':}}
     {{if evnt['access'] == 'create':}}
-        <tr><td>{{=evnt['user']}} added a new tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        <tr><td>{{=evnt['user']}} added a new tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else evnt['details'] + ' ' + '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
     {{elif evnt['access'] == 'update':}}
         <tr><td>{{=evnt['user']}} updated the tag {{=A(evnt['item'].name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
         {{elif evnt['access'] == 'delete':}}
@@ -45,7 +46,7 @@ Sample events
 
 {{elif evnt['table'] == 'auth_group':}}
     {{if evnt['access'] == 'create':}}
-        <tr><td>{{=evnt['user']}} added a new group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        <tr><td>{{=evnt['user']}} added a new group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else evnt['details'] + ' ' + '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
     {{elif evnt['access'] == 'update':}}
         <tr><td>{{=evnt['user']}} updated the group {{=A(evnt['item'].role, _href=URL('groups')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td></tr>
     {{elif evnt['access'] == 'delete':}}
@@ -77,9 +78,35 @@ Sample events
 
 {{elif evnt['table'] == 'msg_tag':}}
     {{if evnt['access'] == 'create':}}
-        <tr><td>{{=evnt['user']}} tagged the message {{=A(evnt['item'].msg_id.subject, _href=URL('read_message', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}} as {{=A(evnt['item'].tag_id.name, _href=URL('tags')) if evnt['item'] else '[was deleted]'}} . <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
-    {{pass}}
-    
+        {{if evnt['item']:}}
+            <tr><td>{{=evnt['user']}} tagged the message {{=A(evnt['item'].msg_id.subject, _href=URL('read_message', args=evnt['item'].id))}} as {{=A(evnt['item'].tag_id.name, _href=URL('tags'))}} . <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{else:}}
+            {{tag = evnt['details'].split(',')[1]}}
+            {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+            <tr><td>{{=evnt['user']}} tagged the message {{=A(subject,_href=URL('read_message', args=msg_id))}} as {{=A(tag, _href=URL('tags'))}} [Already removed]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{pass}}
+    {{elif evnt['access'] == 'delete':}}
+        {{tag = evnt['details'].split(',')[1]}}
+        {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+        <tr><td>{{=evnt['user']}} removed the tag {{=A(tag, _href=URL('tags'))}} in the message {{=A(subject,_href=URL('read_message', args=msg_id))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        
+    {{pass}}    
+
+{{elif evnt['table'] == 'msg_group':}}
+    {{if evnt['access'] == 'create':}}
+        {{if evnt['item']:}}
+            <tr><td>{{=evnt['user']}} grouped the message {{=A(evnt['item'].msg_id.subject, _href=URL('read_message', args=evnt['item'].id))}} to {{=A(evnt['item'].group_id.role, _href=URL('groups'))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{else:}}
+            {{group = evnt['details'].split(',')[1]}}
+            {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+            <tr><td>{{=evnt['user']}} grouped the message {{=A(subject,_href=URL('read_message', args=msg_id))}} to {{=A(group, _href=URL('groups'))}} [Already removed]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{pass}}
+    {{elif evnt['access'] == 'delete':}}
+        {{group = evnt['details'].split(',')[1]}}
+        {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+        <tr><td>{{=evnt['user']}} removed the message {{=A(subject,_href=URL('read_message', args=msg_id))}} from the {{=A(group, _href='groups')}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        
+    {{pass}}    
     
 {{pass}}
 {{pass}}
