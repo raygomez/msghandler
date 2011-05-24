@@ -153,7 +153,7 @@ db.define_table('event',
     Field('user_id', db.auth_user),
     Field('item_id', 'integer'),
     Field('details'),
-    Field('table_name', requires=IS_IN_SET(('msg','auth_user','auth_group','tag','contact', 'auth_membership', 'msg_tag', 'msg_group'))),
+    Field('table_name', requires=IS_IN_SET(('msg','auth_user','auth_group','tag','contact', 'auth_membership', 'msg_attachment','msg_tag', 'msg_group'))),
     Field('access', requires=IS_IN_SET(('create','read','update','delete'))),    
     format='%(description)s')
 
