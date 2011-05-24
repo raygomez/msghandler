@@ -7,10 +7,7 @@ vertical-align: text-bottom;
 </style> 
 
 <script>
-$(function(){
-    $('.timestamp').timeago()             
-        
-    $('input[type=checkbox]').click(function(){
+function filter(){
         $('#events tr').hide()
         $('.access:checked').each(function(){
             name1 = $(this).attr('name')                
@@ -18,12 +15,22 @@ $(function(){
                 name2 = $(this).attr('name')
                 $('#events tr').each(function(){
                     if ($(this).is(name1+name2)){
-                        $(this).show()
+                        var text = $('input[name=keyword]').val().toLowerCase().replace(/[^a-zA-Z 0-9]+/g,'');
+                        if (text != '') var pattern = new RegExp('^.*' + text + '.*$', 'ig');
+                        else var pattern1 = new RegExp('.*', 'ig');
+                        
+                        if($.trim($(this).text()).match(pattern))
+                            $(this).show()
                     }
                 })                    
             })                  
         })
-    })
+}
+$(function(){
+    $('.timestamp').timeago()             
+    
+    $('input[name=keyword]').keyup(function(){ filter()})
+    $('input[type=checkbox]').click(function(){ filter()})
 })    
 </script>
 Things to Do
@@ -43,7 +50,7 @@ Things to Do
 <li><del>C Attachments</del></li>
 <li><del>filter by access</del></li>
 <li><del>filter by table</del></li>
-<li>filter by keywords</li>
+<li><del>filter by keywords</del></li>
 <li></li>
 </ol>
 Sample events
@@ -57,7 +64,7 @@ Sample events
 <li><a href="#">You</a> deleted tag <a href="#">Admin</a>. <abbr href="#" class="timestamp" title="2008-07-17T09:24:17Z" /></li>
 <li></li>
 </ol>
-
+<table>{{=TR(TD(LABEL('Filter by keywords:')),TD(INPUT(_name='keyword',_placeholder='Enter a keyword')))}}</table>
 <table>
 <tr>
 {{=TD(LABEL('Filter by access:'))}}
@@ -71,11 +78,19 @@ Sample events
 {{=TD(LABEL('Filter by type:'))}}
 {{=TD(INPUT(_type="checkbox",_name=".msg",_class='table',value=True),'messages')}}
 {{=TD(INPUT(_type="checkbox",_name=".auth_user",_class='table',value=True),'users')}}
-{{=TD(INPUT(_type="checkbox",_name=".auth_group",_class='table',value=True),'groups')}}
-{{=TD(INPUT(_type="checkbox",_name=".tag",_class='table',value=True),'tags')}}
+{{=TD(INPUT(_type="checkbox",_name=".msg_tag",_class='table',value=True),'tagging')}}
+{{=TD(INPUT(_type="checkbox",_name=".auth_membership",_class='table',value=True),'memberships')}}
 {{=TD(INPUT(_type="checkbox",_name=".contact",_class='table',value=True),'contacts')}}
 </tr>
+<tr>
+<td></td>
+{{=TD(INPUT(_type="checkbox",_name=".auth_group",_class='table',value=True),'groups')}}
+{{=TD(INPUT(_type="checkbox",_name=".tag",_class='table',value=True),'tags')}}
+{{=TD(INPUT(_type="checkbox",_name=".msg_group",_class='table',value=True),'groupings')}}
+{{=TD(INPUT(_type="checkbox",_name=".msg_attachment",_class='table',value=True),'attachments')}}
+</tr>
 </table>
+
 <br/>
 <table id='events'>
 {{for evnt in evnts:}}
