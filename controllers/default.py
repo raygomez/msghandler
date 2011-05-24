@@ -227,7 +227,9 @@ def events():
         evnt = {}
         evnt['timestamp'] = event.timestamp
         if auth.user.id != event.user_id.id:
-            evnt['user'] = A(event.user_id.first_name + ' ' + event.user_id.last_name, _href=URL('show_user', args=event.user_id.id)) 
+            if auth.has_membership('Admin') or auth.has_membership('Telehealth'):        
+                evnt['user'] = A(event.user_id.first_name + ' ' + event.user_id.last_name, _href=URL('show_user', args=event.user_id.id)) 
+            else : evnt['user'] = event.user_id.first_name + ' ' + event.user_id.last_name
         else: evnt['user'] = 'You'
         evnt['item'] = db[event.table_name][event.item_id]
         evnt['details'] = event.details
@@ -515,7 +517,6 @@ def create_attachment():
         msg_attachment_id = db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
         subject = db.msg[msg_id].subject
         filename = request.vars.attachment.filename
-        #print filename
         db.event.insert(user_id=auth.user.id,item_id=msg_attachment_id,table_name='msg_attachment',access='create',
                         details=','.join([subject,filename,`msg_id`]))        
         redirect(URL('read_message', args=msg_id))
