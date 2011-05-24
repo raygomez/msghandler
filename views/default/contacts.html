@@ -21,8 +21,6 @@ $(function() {
         var text1 = $('input[name=s_name]').val().toLowerCase();
         if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
         else var pattern1 = new RegExp('.*', 'ig');
-        
-        console.log(pattern1)
 
         text2 =  $('select[name=s_user_id]').val()
         text3 =  $('select[name=s_contact_type]').val()
