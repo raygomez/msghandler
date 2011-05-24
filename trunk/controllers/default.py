@@ -212,7 +212,7 @@ def show_user():
 
 @auth.requires_login()
 def events():
-    if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
+    if auth.has_membership('Admin') or auth.has_membership('Telehealth') or True:
         events = db(db.event.id > 0).select(orderby=~db.event.timestamp)
         evnts = []
         for event in events:
@@ -487,7 +487,8 @@ def read_message():
         form.vars.parent_msg = message.id   
         form.vars.subject = 'Re:'   
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
-        #db.event.insert(description='commented on the message %s' % (message.subject), user_id=auth.user.id)
+        db.event.insert(user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
+
         response.flash = T('Comment successfully created.')
 
     replies = db(db.msg.parent_msg == message.id).select(orderby=db.msg.create_time)
@@ -497,8 +498,18 @@ def read_message():
     
 @auth.requires_login()
 def create_attachment():
-    db.msg_attachment.msg_id.default = request.args(0)
-    form = crud.create(db.msg_attachment, next=URL('read_message', args=request.args(0)))
+    msg_id = request.args(0)
+    form = SQLFORM(db.msg_attachment)
+
+    db.msg_attachment.msg_id.default = msg_id    
+    if form.accepts(request.vars, session, dbio=False):
+        msg_attachment_id = db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
+        subject = db.msg[msg_id].subject
+        filename = request.vars.attachment.filename
+        #print filename
+        db.event.insert(user_id=auth.user.id,item_id=msg_attachment_id,table_name='msg_attachment',access='create',
+                        details=','.join([subject,filename,`msg_id`]))        
+        redirect(URL('read_message', args=msg_id))
     return dict(form = form)
    
 @auth.requires_login()    

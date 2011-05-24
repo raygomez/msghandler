@@ -18,8 +18,11 @@ Things to Do
 <li><del>CD msg_tag</del></li>
 <li><del>CD msg_group<del></li>
 <li><del>CD auth_membership<del></li>
-<li>Replies</li>
-<li>Attachments</li>
+<li><del>C Replies</del></li>
+<li><del>C Attachments</del></li>
+<li><li>
+<li>filter by access</li>
+<li>filter by table</li>
 </ol>
 Sample events
 <ol>
@@ -74,7 +77,11 @@ Sample events
 
 {{elif evnt['table'] == 'msg':}}
     {{if evnt['access'] == 'create':}}
-        <tr><td>{{=evnt['user']}} added a new message {{=A(evnt['item'].subject, _href=URL('read_message', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{if evnt['item'].parent_msg == 0:}}
+            <tr><td>{{=evnt['user']}} added a new message {{=A(evnt['item'].subject, _href=URL('read_message', args=evnt['item'].id))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{else:}}    
+            <tr><td>{{=evnt['user']}} replied to the message {{=A(evnt['item'].parent_msg.subject, _href=URL('read_message', args=evnt['item'].parent_msg.id))}} by {{=evnt['item'].parent_msg.created_by.name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>        
+        {{pass}}
     {{pass}}
 
 {{elif evnt['table'] == 'msg_tag':}}
@@ -122,10 +129,18 @@ Sample events
     {{elif evnt['access'] == 'delete':}}
         {{group = evnt['details'].split(',')[1]}}
         {{email,user_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
-        <tr><td>{{=evnt['user']}} removed the user {{=A(email, _href=URL('show_user', args=user_id))}} from the {{=A(group, _href='groups')}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
-        
+        <tr><td>{{=evnt['user']}} removed the user {{=A(email, _href=URL('show_user', args=user_id))}} from the {{=A(group, _href='groups')}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>        
     {{pass}}    
-    
+
+{{elif evnt['table'] == 'msg_attachment':}}
+    {{filename = evnt['details'].split(',')[1]}}
+    {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+
+    {{if evnt['access'] == 'create':}}
+        {{if evnt['item']:}}
+            <tr><td>{{=evnt['user']}} attach the file {{=A(filename, _href=URL('download', args=evnt['item'].attachment))}} to the message  {{=A(evnt['item'].msg_id.subject, _href=URL('read_message', args=msg_id))}} by {{=evnt['item'].msg_id.created_by.name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+            {{pass}}
+    {{pass}}    
 {{pass}}
 {{pass}}
 </table>
