@@ -212,21 +212,30 @@ def show_user():
 
 @auth.requires_login()
 def events():
-    if auth.has_membership('Admin') or auth.has_membership('Telehealth') or True:
+    if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
         events = db(db.event.id > 0).select(orderby=~db.event.timestamp)
-        evnts = []
-        for event in events:
-            evnt = {}
-            evnt['timestamp'] = event.timestamp
-            evnt['user'] = A(event.user_id.first_name + ' ' + event.user_id.last_name, _href=URL('show_user', args=event.user_id.id)) if auth.user.id != event.user_id.id else 'You'
-            evnt['item'] = db[event.table_name][event.item_id]
-            evnt['details'] = event.details
-            evnt['table'] = event.table_name
-            evnt['access'] = event.access
-            evnts.append(evnt)
-    else: events = db(db.event.user_id == auth.user.id).select(orderby=~db.event.timestamp)
+    else: 
+        groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
+        msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
+        messages = db(db.msg.id.belongs(msg_query))._select(db.msg.id)
+    
+        events = db((db.event.user_id == auth.user.id) | ((db.event.table_name=='msg') & 
+                    (db.event.item_id.belongs(messages)))).select(orderby=~db.event.timestamp)
+
+    evnts = []
+    for event in events:
+        evnt = {}
+        evnt['timestamp'] = event.timestamp
+        if auth.user.id != event.user_id.id:
+            evnt['user'] = A(event.user_id.first_name + ' ' + event.user_id.last_name, _href=URL('show_user', args=event.user_id.id)) 
+        else: evnt['user'] = 'You'
+        evnt['item'] = db[event.table_name][event.item_id]
+        evnt['details'] = event.details
+        evnt['table'] = event.table_name
+        evnt['access'] = event.access
+        evnts.append(evnt)
         
-    return dict(events=events, evnts=evnts)
+    return dict(evnts=evnts)
     
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def groups():
