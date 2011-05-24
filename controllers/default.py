@@ -83,8 +83,11 @@ def insert_ajax():
     second_id = int(request.vars.group[1:])
     
     if request.vars.table == 'user_group': 
-        id = db.auth_membership.insert(user_id = id, group_id = second_id)
-        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_membership',access='create')
+        membership_id = db.auth_membership.insert(user_id = id, group_id = second_id)
+        user = db.auth_user[id].email
+        group = db.auth_group[second_id].role
+        db.event.insert(user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='create',
+                        details=','.join([user,group,`id`]))
     elif request.vars.table == 'msg_group': 
         msg_group_id = db.msg_group.insert(msg_id = id, group_id = second_id, assigned_by=auth.user.id)
         subject = db.msg[id].subject
@@ -103,9 +106,15 @@ def delete_ajax():
     id = int(request.vars.id)
     second_id = int(request.vars.group)
     
-    if request.vars.table == 'user_group': 
+    if request.vars.table == 'user_group':
+        membership_id = db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).select().first().id    
+        user = db.auth_user[id].email
+        group = db.auth_group[second_id].role
+
         db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).delete()
-        db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_membership',access='delete')
+        db.event.insert(user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='delete',
+                        details=','.join([user,group,`id`]))
+
     elif request.vars.table =='msg_group':
         msg_group_id = db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).select().first().id    
         subject = db.msg[id].subject
