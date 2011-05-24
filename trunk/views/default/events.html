@@ -17,8 +17,9 @@ Things to Do
 <li><del>CUD User</del></li>
 <li><del>CD msg_tag</del></li>
 <li><del>CD msg_group<del></li>
-<li>CD auth_membership</li>
-<li></li>
+<li><del>CD auth_membership<del></li>
+<li>Replies</li>
+<li>Attachments</li>
 </ol>
 Sample events
 <ol>
@@ -105,6 +106,23 @@ Sample events
         {{group = evnt['details'].split(',')[1]}}
         {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
         <tr><td>{{=evnt['user']}} removed the message {{=A(subject,_href=URL('read_message', args=msg_id))}} from the {{=A(group, _href='groups')}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        
+    {{pass}}    
+
+{{elif evnt['table'] == 'auth_membership':}}
+    {{group = evnt['details'].split(',')[1]}}
+    {{email,user_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+
+    {{if evnt['access'] == 'create':}}
+        {{if evnt['item']:}}
+            <tr><td>{{=evnt['user']}} added the user {{=A(evnt['item'].user_id.email, _href=URL('show_user', args=evnt['item'].user_id.id))}} to {{=A(evnt['item'].group_id.role, _href=URL('groups'))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{else:}}
+            <tr><td>{{=evnt['user']}} added the user {{=A(email, _href=URL('show_user', args=user_id))}} to {{=A(group, _href=URL('groups'))}} [Already removed]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
+        {{pass}}
+    {{elif evnt['access'] == 'delete':}}
+        {{group = evnt['details'].split(',')[1]}}
+        {{email,user_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+        <tr><td>{{=evnt['user']}} removed the user {{=A(email, _href=URL('show_user', args=user_id))}} from the {{=A(group, _href='groups')}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span></td></tr>
         
     {{pass}}    
     
