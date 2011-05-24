@@ -68,8 +68,9 @@ Things to Do
 <li><del>Add search using javascript</del></li>
 <li>Fix password bug</li>
 <li><del>Allow doctors to view groupmates.</del></li>
+<li><del>Hide edit users to doctors</del></li>
+<li><del>Hide add users to doctors</del></li>
 <li></li>
-
 </ol>
 {{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),
         INPUT(_name='s_email', _placeholder='search by email'),
@@ -78,7 +79,9 @@ Things to Do
 <table id='list'>
 
 {{=TR(TH('User Management', _colspan=5))}}
+{{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}    
 {{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=5), _align='center', _id='add-row')}}
+{{pass}}
 {{for usr in usrs:}}
 <tr class='user'>
 {{=TD('Name:')}}
@@ -87,8 +90,9 @@ Things to Do
 {{=TD(usr['email'])}}
 {{if auth.has_membership('Admin'):}}    
 {{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%', _rowspan=2)}}
-{{else:}}
+{{elif auth.has_membership('Telehealth'):}}
 {{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), _width='15%', _rowspan=2)}}
+
 {{pass}}
 </tr>
 {{=TR(TD('Groups:'), TD(usr['groups'], _colspan=3))}}
