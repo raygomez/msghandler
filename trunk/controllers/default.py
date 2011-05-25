@@ -56,6 +56,7 @@ def index():
         msg['by'] = message.created_by.name
         msg['time'] = message.create_time
         msg['content'] = message.content
+        msg['attachment'] = 1 if db(db.msg_attachment.msg_id==message.id).count() else 0
         tags = db(db.msg_tag.msg_id == message.id).select()
         tg = ''
         for tag in tags:
