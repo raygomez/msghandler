@@ -1,12 +1,8 @@
 {{extend 'layout.html'}}
-<script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.core.js"></script> 
-<script type="text/javascript" src="/{{=request.application}}/static/js/date.format.js"></script> 
-<script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.widget.js"></script> 
-<script type="text/javascript" src="/{{=request.application}}/static/js/ui/jquery.ui.tabs.js"></script> 
 <script type="text/javascript" src="/{{=request.application}}/static/js/jquery.timeago.js"></script>
-<link rel="stylesheet" href="/{{=request.application}}/static/js/themes/base/jquery.ui.all.css"> 
+<script type="text/javascript" src="/{{=request.application}}/static/js/jquery-ui-1.8.13.custom.min.js"></script>
+<link rel="stylesheet" href="/{{=request.application}}/static/css/custom-theme/jquery-ui-1.8.13.custom.css">
 <script>
-
 function filter_group(message){
        in_group = false;
        
@@ -21,6 +17,36 @@ function filter_group(message){
 }
 
 $(function(){
+
+        var availableTags = [
+            "ActionScript",
+            "AppleScript",
+            "Asp",
+            "BASIC",
+            "C",
+            "C++",
+            "Clojure",
+            "COBOL",
+            "ColdFusion",
+            "Erlang",
+            "Fortran",
+            "Groovy",
+            "Haskell",
+            "Java",
+            "JavaScript",
+            "Lisp",
+            "Perl",
+            "PHP",
+            "Python",
+            "Ruby",
+            "Scala",
+            "Scheme"
+        ];
+        $( "#search_groups" ).autocomplete({
+            source: availableTags
+        });
+        
+
 
    $('input[type=checkbox]').click(function(){
        $('input[name^=s_]').keyup()
@@ -80,6 +106,7 @@ $(function(){
 .menu { border: 1px solid black}
 tr.messages:hover{background: lightgray;}
 input[name^=s_]{width:150px}
+input[type=text]{width:100px}
 td img {
 vertical-align: bottom;
 }
@@ -101,23 +128,23 @@ span.content{color:gray;}
 </style>
 Things to Do
 <ol>
-<li>icon indicator if a message has comments.</li>
+<li><del>icon indicator if a message has comments.</del></li>
 <li><del>On created by field, add icon on mode of message (email, sms, etc), I think not necessary.</del>. ok. there might be some reason, but i can't think of any right now</li>
 <li><del>Search by groups</del></li>
 <li><del>Search by ownership</del></li>
+<li>Admin search</li>
 </ol>
 
-<table width='100%'>
+<table width='99%'>
     <tr>
-        <td width="15%">Logo</td>
-        
+        <td width="15%">Logo</td>        
         <td>{{=TABLE(TR(LABEL('Search: '),
                         INPUT(_name='s_user', _placeholder='search by author'),
                         INPUT(_name='s_subject', _placeholder='search by subject'),
                         INPUT(_name='s_tag', _placeholder='search by tag'),
                         TD(TAG.BUTTON('Clear search fields',_onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"),                 
                                 width='20%'),_width='100%'))}}
-</td>
+        </td>
     </tr>
     <tr>
         <td width="15%" class='menu'>
@@ -138,6 +165,8 @@ Things to Do
                     </tr>
                     {{pass}}                
                 {{pass}}
+                {{=TR(TD(LABEL('Search groups:')))}}
+                <tr><td>{{=INPUT(_id='search_groups')}}</td></tr>
             </table>        
         </td>
         <td class='menu'>
