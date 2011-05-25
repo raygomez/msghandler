@@ -7,6 +7,21 @@
 <link rel="stylesheet" href="/{{=request.application}}/static/js/themes/base/jquery.ui.all.css"> 
 <script>
 $(function(){
+
+   $('input[type=checkbox]').click(function(){
+        
+       $('.messages').hide()
+       
+       $('input[type=checkbox]:checked').each(function(){
+           name = $(this).attr('name');
+           $('.messages').each(function(){
+               if($(this).is(name)){
+                   $(this).show()
+               }
+            })
+       })
+   })
+
     $('td.timestamp').timeago()
     $('input[name^=s_]').keyup(function() {
         list = $('.messages');
@@ -76,13 +91,18 @@ table {
     white-space:nowrap;
 } 
 
+input[type="checkbox"] {
+    vertical-align: middle;
+}
+
 span.content{color:gray;}
 </style>
 Things to Do
 <ol>
 <li>icon indicator if a message has comments.</li>
 <li><del>On created by field, add icon on mode of message (email, sms, etc), I think not necessary.</del>. ok. there might be some reason, but i can't think of any right now</li>
-<li></li>
+<li><del>Search by groups</del></li>
+<li><del>Search by ownership</del></li>
 </ol>
 
 <table width='100%'>
@@ -108,15 +128,11 @@ Things to Do
                 <tr><td>Sent</td></tr>
                 <tr><td>Trash</td></tr>
                 <tr><td><hr/></td></tr>
-                <tr><td>Groups</td></tr>
+                <tr>{{=TD(INPUT(_type='checkbox', value=True, _name='.owner'),'Owner')}}</tr>
                 {{if len(my_roles):}}
-                    {{groups_dict = dict()}}
                     {{for role in my_roles:}}
                     <tr>
-                        <td>
-                            {{=LI(role.group_id.role)}}
-                            {{groups_dict[role.group_id.role] = []}}
-                        </td>
+                        {{=TD(INPUT(_type='checkbox', value=True, _name='.' + role.group_id.role.replace(' ','_')),role.group_id.role)}}
                     </tr>
                     {{pass}}                
                 {{pass}}
@@ -132,7 +148,7 @@ Things to Do
                 </tr>
                 {{if len(msgs):}}
                     {{for message in msgs:}}
-                        <tr class='messages'>
+                        <tr class='messages {{=message['groups']}}{{='owner' if message['is_owner'] else ''}}'>
                             <td style='display: none;'>{{=message['id']}}</td>
                             <td>{{=message['by']}}</td>
                             <td><span>{{=IMG(_src=URL('static','images/reply.png')) if message['replied'] else ''}}</span>
