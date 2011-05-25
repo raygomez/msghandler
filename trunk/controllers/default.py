@@ -389,10 +389,10 @@ def update_contact():
     contact_info = request.vars.contact_info        
 
     contact = db.contact[id]
-
+    contact_name = contact.user_id.first_name + ' ' + contact.user_id.last_name
     details = []
     if name != contact.name: details.append('name changed from ' + contact.name + ' to ' + name)
-    if user_id != contact.user_id: details.append('user changed from ' + contact.user_id + ' to ' + user_id)
+    if user_id != contact_name: details.append('user changed from ' + contact_name + ' to ' + user_id)
     if contact_type != contact.contact_type: details.append('contact type changed from ' + contact.contact_type + ' to ' + contact.contact_type)
     if contact_info != contact.contact_info: details.append('contact info changed from ' + contact.contact_info + ' to ' + contact.contact_info)
     details = ', '.join(details)        
