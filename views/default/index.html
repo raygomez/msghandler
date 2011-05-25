@@ -119,7 +119,7 @@ Things to Do
 <li><del>On created by field, add icon on mode of message (email, sms, etc), I think not necessary.</del>. ok. there might be some reason, but i can't think of any right now</li>
 <li><del>Search by groups</del></li>
 <li><del>Search by ownership</del></li>
-<li>Admin search</li>
+<li><del>Admin search by groups</del></li>
 </ol>
 
 <table width='99%'>
@@ -147,13 +147,13 @@ Things to Do
                 <tr>{{=TD(INPUT(_type='checkbox', value=True, _name='.owner'),'Owner')}}</tr>
                 {{if len(my_roles):}}
                     {{for role in my_roles:}}
-                    <tr>
-                        {{=TD(INPUT(_type='checkbox', value=True, _name='.' + role.group_id.role.replace(' ','_')),role.group_id.role)}}
-                    </tr>
+                        {{=TR(TD(INPUT(_type='checkbox', value=True, _name='.' + role.group_id.role.replace(' ','_')),role.group_id.role))}}
                     {{pass}}                
                 {{pass}}
+                {{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}
                 {{=TR(TD(LABEL('Search by group:')))}}
-                <tr><td>{{=INPUT(_id='search_groups', _placeholder='enter the group')}}</td></tr>
+                {{=TR(TD(INPUT(_id='search_groups', _placeholder='enter the group')))}}
+                {{pass}}
             </table>        
         </td>
         <td class='menu'>
