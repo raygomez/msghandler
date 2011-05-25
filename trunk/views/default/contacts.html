@@ -184,10 +184,11 @@ Things to Do
 {{options.insert(0, OPTION('None', _value=''))}}
 {{for contact in contacts:}}
 <tr>
-{{=TD(INPUT(_value=contact.name))}}
 {{if contact.user_id:}}
+    {{=TD(INPUT(_value=contact.name, _disabled='disabled'))}}
     {{=TD(SELECT(options, value=contact.user_id.id, _name='user_id'))}}
 {{else:}}
+    {{=TD(INPUT(_value=contact.name))}}
     {{=TD(SELECT(options, value='', _name='user_id'))}}
 {{pass}}
 {{=TD(SELECT('mobile','landline','email', value=contact.contact_type, _name='contact_type'))}}
