@@ -19,6 +19,8 @@ def index():
     msg_group = db(db.msg_group.id > 0).select()
     
     msgs = []
+
+    contact = get_contact(auth.user)
     
     isAdmin = False
     isTelehealth = False
@@ -40,13 +42,12 @@ def index():
         users = []
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
-        messages = db((db.msg.parent_msg == 0) & db.msg.id.belongs(msg_query)).select()
+        messages = db((db.msg.parent_msg == 0) & (db.msg.id.belongs(msg_query) | (db.msg.created_by==contact.id) )).select()
         
         users_query = db(db.auth_membership.group_id.belongs(groups_query) & (db.auth_membership.user_id != auth.user.id))._select(db.auth_membership.user_id)
         users = db(db.auth_user.id.belongs(users_query)).select(db.auth_user.id, db.auth_user.first_name, 
                 db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
     
-    contact = get_contact(auth.user)
     msgs = []
     for message in messages:
         comment = db((db.msg.parent_msg == message.id)).select(orderby=~db.msg.create_time)
