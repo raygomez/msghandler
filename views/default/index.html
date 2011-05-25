@@ -136,9 +136,10 @@ Things to Do
         <td class='menu'>
             <table width='100%' id='list'>
                 <tr style="font-weight:bold;" id='message-hdr'>
-                    <td width='150px'>Created by</td>
+                    <td width='20%'>Created by</td>
                     <td>Subject</td>
-                    <td width='150px'>Timestamp</td>
+                    <td width='5%'></td>
+                    <td width='20%'>Timestamp</td>
                 </tr>
                 {{if len(msgs):}}
                     {{for message in msgs:}}
@@ -148,6 +149,9 @@ Things to Do
                             <td>{{=SPAN(message['tags'])}}
                                 {{=SPAN(message['subject'])}}
                                 {{=SPAN(' - ',message['content'][:80],_class='content')}}</td>
+                            <td>{{if message['attachment']:}}
+                                {{=IMG(_src=URL('static','images/attachment.png'))}}
+                            </td>{{pass}}    
                             <td class="timestamp" title={{=message['time'].isoformat()}}></td>
                         </tr>
                     {{pass}}
