@@ -29,7 +29,6 @@ def index():
     elif auth.has_membership('Telehealth'):     
         isTelehealth = True
         nurse_record = db(db.contact.user_id == auth.user.id).select().first()
-                
         msg_query_group = db(db.msg_group.id > 0)._select(db.msg_group.msg_id)
         msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id)._select(db.msg_group.msg_id)
         messages = db((db.msg.parent_msg == 0) & ((db.msg.created_by == nurse_record.id) |\
@@ -160,6 +159,7 @@ def create_user():
     
     if form.accepts(request.vars, session):
         id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
+        db.contact.insert(name=form.vars.first_name + ' ' + form.vars.last_name, user_id=id, contact_type='email', contact_info=form.vars.email)
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1],id)
         db.event.insert(user_id=auth.user.id,item_id=id,table_name='auth_user',access='create')
