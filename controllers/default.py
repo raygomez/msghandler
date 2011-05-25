@@ -50,12 +50,13 @@ def index():
     contact = get_contact(auth.user)
     msgs = []
     for message in messages:
+        comment = db((db.msg.parent_msg == message.id)).select(orderby=~db.msg.create_time).first()
         msg = {}
         msg['id'] = message.id
         msg['subject'] = message.subject
         msg['by'] = message.created_by.name
-        msg['time'] = message.create_time
-        msg['content'] = message.content
+        msg['time'] = comment.create_time if comment else message.create_time
+        msg['content'] = comment.content if comment else message.content
         msg['attachment'] = 1 if db(db.msg_attachment.msg_id==message.id).count() else 0
         tags = db(db.msg_tag.msg_id == message.id).select()
         #tg = ''
