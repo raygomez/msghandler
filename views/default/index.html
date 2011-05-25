@@ -6,20 +6,24 @@
 <script type="text/javascript" src="/{{=request.application}}/static/js/jquery.timeago.js"></script>
 <link rel="stylesheet" href="/{{=request.application}}/static/js/themes/base/jquery.ui.all.css"> 
 <script>
-$(function(){
 
-   $('input[type=checkbox]').click(function(){
-        
-       $('.messages').hide()
+function filter_group(message){
+       in_group = false;
        
        $('input[type=checkbox]:checked').each(function(){
            name = $(this).attr('name');
-           $('.messages').each(function(){
-               if($(this).is(name)){
-                   $(this).show()
-               }
-            })
+           if($(message).is(name)){
+               in_group = true
+               return false
+           }
        })
+       return in_group
+}
+
+$(function(){
+
+   $('input[type=checkbox]').click(function(){
+       $('input[name^=s_]').keyup()
    })
 
     $('td.timestamp').timeago()
@@ -37,14 +41,16 @@ $(function(){
         var text3 = $('input[name=s_tag]').val().toLowerCase();
         if (text3 != '') var pattern3 = new RegExp('^.*' + text3 + '.*$', 'ig');
         else var pattern3 = new RegExp('.*', 'ig');
-        
+
+        $(list).hide()
+                
         $.each(list, function(index,value){
             message = $(this).children().eq(2).children().eq(2).text()
             tags = $(this).children().eq(2).children().eq(1).text()
-            
-            if ($(this).children().eq(1).text().match(pattern1) && message.match(pattern2) && tags.match(pattern3))
+             
+            if ($(this).children().eq(1).text().match(pattern1) && message.match(pattern2) && tags.match(pattern3) && filter_group(this)){
                 $(this).show() 
-            else $(this).hide()        
+            }
         })
     })
 
@@ -82,20 +88,16 @@ table {
     table-layout:fixed;
 }
 
-#list {
-    table-layout:fixed;
-}
+#list { table-layout:fixed; }
 #list td {
     text-overflow:ellipsis;
     overflow:hidden;
     white-space:nowrap;
 } 
 
-input[type="checkbox"] {
-    vertical-align: middle;
-}
-
+input[type="checkbox"] { vertical-align: middle; }
 span.content{color:gray;}
+
 </style>
 Things to Do
 <ol>
@@ -148,7 +150,7 @@ Things to Do
                 </tr>
                 {{if len(msgs):}}
                     {{for message in msgs:}}
-                        <tr class='messages {{=message['groups']}}{{='owner' if message['is_owner'] else ''}}'>
+                        <tr class='messages {{=message['groups']}} {{='owner' if message['is_owner'] else ''}}'>
                             <td style='display: none;'>{{=message['id']}}</td>
                             <td>{{=message['by']}}</td>
                             <td><span>{{=IMG(_src=URL('static','images/reply.png')) if message['replied'] else ''}}</span>
