@@ -448,7 +448,7 @@ def create_message():
     form[0].insert(9, TR(TD(),TD(DIV(_id='new-groups'))))
     form.element('#tr-groups-new').append(TABLE(TR()))
     
-    tags = db().select(db.tag.id, db.tag.name).json()
+    tags = db(db.tag.name != 'Late').select(db.tag.id, db.tag.name).json()
     groups = db().select(db.auth_group.id, db.auth_group.role).json()
     
     if form.accepts(request.vars, session):
