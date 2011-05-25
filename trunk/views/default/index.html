@@ -2,6 +2,7 @@
 <script type="text/javascript" src="/{{=request.application}}/static/js/jquery.timeago.js"></script>
 <script type="text/javascript" src="/{{=request.application}}/static/js/jquery-ui-1.8.13.custom.min.js"></script>
 <link rel="stylesheet" href="/{{=request.application}}/static/css/custom-theme/jquery-ui-1.8.13.custom.css">
+{{=json}}
 <script>
 function filter_group(message){
        in_group = false;
@@ -17,37 +18,23 @@ function filter_group(message){
 }
 
 $(function(){
-
-        var availableTags = [
-            "ActionScript",
-            "AppleScript",
-            "Asp",
-            "BASIC",
-            "C",
-            "C++",
-            "Clojure",
-            "COBOL",
-            "ColdFusion",
-            "Erlang",
-            "Fortran",
-            "Groovy",
-            "Haskell",
-            "Java",
-            "JavaScript",
-            "Lisp",
-            "Perl",
-            "PHP",
-            "Python",
-            "Ruby",
-            "Scala",
-            "Scheme"
-        ];
-        $( "#search_groups" ).autocomplete({
-            source: availableTags
-        });
-        
-
-
+    $( "#search_groups" ).autocomplete({
+        source: groups,
+        select : function(event, ui){
+            name = '.' + this.value.replace(' ','_')
+            list = $('.messages');
+            list.hide()
+            list.each(function(){
+                if($(this).is(name)){
+                    $(this).show()
+                }
+            })
+        }
+    });    
+    $( "#search_groups" ).focus(function(){
+        $(this).val('')    
+    })
+       
    $('input[type=checkbox]').click(function(){
        $('input[name^=s_]').keyup()
    })
@@ -68,9 +55,9 @@ $(function(){
         if (text3 != '') var pattern3 = new RegExp('^.*' + text3 + '.*$', 'ig');
         else var pattern3 = new RegExp('.*', 'ig');
 
-        $(list).hide()
+        list.hide()
                 
-        $.each(list, function(index,value){
+        $.each(list, function(){
             message = $(this).children().eq(2).children().eq(2).text()
             tags = $(this).children().eq(2).children().eq(1).text()
              
@@ -165,8 +152,8 @@ Things to Do
                     </tr>
                     {{pass}}                
                 {{pass}}
-                {{=TR(TD(LABEL('Search groups:')))}}
-                <tr><td>{{=INPUT(_id='search_groups')}}</td></tr>
+                {{=TR(TD(LABEL('Search by group:')))}}
+                <tr><td>{{=INPUT(_id='search_groups', _placeholder='enter the group')}}</td></tr>
             </table>        
         </td>
         <td class='menu'>

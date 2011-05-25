@@ -13,14 +13,10 @@
 def index():
     admin = db(db.auth_group.role == 'Admin').select().first()
     grps = db((db.auth_membership.user_id == auth.user_id) & (db.auth_membership.group_id!=admin.id)).select()
-    contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
-    tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
-    groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
-    users = db().select(db.auth_user.id, db.auth_user.first_name, db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
-    msg_group = db(db.msg_group.id > 0).select()
+    groups = db(db.auth_group.role != 'Admin').select(db.auth_group.role)
+    groups = [group.role for group in groups]
     
     msgs = []
-
     contact = get_contact(auth.user)
     
     if auth.has_membership('Admin'):
@@ -34,9 +30,6 @@ def index():
                      ~db.msg.id.belongs(msg_query_group)|\
                       db.msg.id.belongs(msg_query_assigned))).select()
     else:
-        contacts = []
-        groups = []
-        users = []
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
         messages = db((db.msg.parent_msg == 0) & (db.msg.id.belongs(msg_query) | (db.msg.created_by==contact.id) )).select()
@@ -68,8 +61,7 @@ def index():
         msg['groups'] = ' '.join([group.group_id.role.replace(' ','_') for group in db(db.msg_group.msg_id == message).select()])
         msgs.append(msg)
                 
-    return dict(my_roles=grps, messages=messages, contacts=contacts, contact_id=contact.id, msg_group=msg_group,
-                tags=tags, users=users, groups=groups, msgs=msgs)
+    return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,json=SCRIPT('var groups=%s' % groups))
 
 def get_groups ():
     groups = db(db.auth_membership.user_id == auth.user.id).select()
