@@ -11,7 +11,8 @@
 
 @auth.requires_login()
 def index():
-    grps = db(db.auth_membership.user_id == auth.user_id).select()
+    admin = db(db.auth_group.role == 'Admin').select().first()
+    grps = db((db.auth_membership.user_id == auth.user_id) & (db.auth_membership.group_id!=admin.id)).select()
     contacts = db().select(db.contact.id, db.contact.name, orderby=db.contact.name)
     tags = db().select(db.tag.id, db.tag.name, orderby=db.tag.name)
     groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role)
@@ -22,14 +23,10 @@ def index():
 
     contact = get_contact(auth.user)
     
-    isAdmin = False
-    isTelehealth = False
     if auth.has_membership('Admin'):
-        isAdmin = True
         messages = db(db.msg.parent_msg == 0).select(db.msg.ALL,orderby=~db.msg.create_time)    
         
     elif auth.has_membership('Telehealth'):     
-        isTelehealth = True
         nurse_record = db(db.contact.user_id == auth.user.id).select().first()
         msg_query_group = db(db.msg_group.id > 0)._select(db.msg_group.msg_id)
         msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id)._select(db.msg_group.msg_id)
@@ -61,16 +58,18 @@ def index():
         if message.created_by.name not in cname:
             cname.append(message.created_by.name)
         msg['by'] = ', '.join(cname)
+        msg['is_owner'] = True if message.created_by.id == contact.id else False
         msg['time'] = comment[0].create_time if comment else message.create_time
         msg['content'] = comment[0].content if comment else message.content
-        msg['attachment'] = 1 if db(db.msg_attachment.msg_id==message.id).count() else 0
-        msg['replied'] = 1 if db(db.msg.parent_msg == message.id).count() else 0
+        msg['attachment'] = True if db(db.msg_attachment.msg_id==message.id).count() else False
+        msg['replied'] = True if db(db.msg.parent_msg == message.id).count() else False
         tags = db(db.msg_tag.msg_id == message.id).select()
         msg['tags'] = ' '.join(['['+tag.tag_id.name+']' for tag in tags])
+        msg['groups'] = ' '.join([group.group_id.role.replace(' ','_') for group in db(db.msg_group.msg_id == message).select()])
         msgs.append(msg)
                 
     return dict(my_roles=grps, messages=messages, contacts=contacts, contact_id=contact.id, msg_group=msg_group,
-                tags=tags, users=users, groups=groups, isAdmin=isAdmin, isTelehealth=isTelehealth, msgs=msgs)
+                tags=tags, users=users, groups=groups, msgs=msgs)
 
 def get_groups ():
     groups = db(db.auth_membership.user_id == auth.user.id).select()
