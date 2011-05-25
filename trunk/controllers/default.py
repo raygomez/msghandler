@@ -59,9 +59,6 @@ def index():
         msg['content'] = comment.content if comment else message.content
         msg['attachment'] = 1 if db(db.msg_attachment.msg_id==message.id).count() else 0
         tags = db(db.msg_tag.msg_id == message.id).select()
-        #tg = ''
-        #for tag in tags:
-        #    tg = tg + '['+tag.tag_id.name+']'
         msg['tags'] = ' '.join(['['+tag.tag_id.name+']' for tag in tags])
         msgs.append(msg)
                 
@@ -465,9 +462,10 @@ def create_message():
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
                 id = db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag[4:]))
+                tag_id = int(tag[4:])
                 subject = db.msg[msg_id].subject
                 tag = db.tag[tag_id].name
-                db.event.insert(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create', details=','.join(subject,tag))
+                db.event.insert(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create', details=','.join([subject,tag]))
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
