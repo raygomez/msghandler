@@ -49,13 +49,19 @@ def index():
     contact = get_contact(auth.user)
     msgs = []
     for message in messages:
-        comment = db((db.msg.parent_msg == message.id)).select(orderby=~db.msg.create_time).first()
+        comment = db((db.msg.parent_msg == message.id)).select(orderby=~db.msg.create_time)
         msg = {}
         msg['id'] = message.id
         msg['subject'] = message.subject
-        msg['by'] = message.created_by.name
-        msg['time'] = comment.create_time if comment else message.create_time
-        msg['content'] = comment.content if comment else message.content
+        cname = []
+        for elem in comment:
+            if elem not in cname:
+                cname.append(elem.created_by.name)
+        if message.created_by.name not in cname:
+            cname.append(message.created_by.name)
+        msg['by'] = ', '.join(cname)
+        msg['time'] = comment[0].create_time if comment else message.create_time
+        msg['content'] = comment[0].content if comment else message.content
         msg['attachment'] = 1 if db(db.msg_attachment.msg_id==message.id).count() else 0
         msg['replied'] = 1 if db(db.msg.parent_msg == message.id).count() else 0
         tags = db(db.msg_tag.msg_id == message.id).select()
