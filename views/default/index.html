@@ -24,14 +24,9 @@ $(function(){
         else var pattern3 = new RegExp('.*', 'ig');
         
         $.each(list, function(index,value){
-            message = $(this).children().eq(2).text()
+            message = $(this).children().eq(2).children().eq(2).text()
+            tags = $(this).children().eq(2).children().eq(1).text()
             
-            tags = ''
-            if (message.lastIndexOf(']') != -1){
-                tags = message.substring(0,message.lastIndexOf(']'))
-                message = message.substring(message.lastIndexOf(']') + 1)
-            }
-                    
             if ($(this).children().eq(1).text().match(pattern1) && message.match(pattern2) && tags.match(pattern3))
                 $(this).show() 
             else $(this).hide()        
@@ -140,7 +135,7 @@ Things to Do
                         <tr class='messages'>
                             <td style='display: none;'>{{=message['id']}}</td>
                             <td>{{=message['by']}}</td>
-                            <td>{{=IMG(_src=URL('static','images/reply.png')) if message['replied'] else ''}}
+                            <td><span>{{=IMG(_src=URL('static','images/reply.png')) if message['replied'] else ''}}</span>
                                 {{=SPAN(message['tags'])}}
                                 {{=SPAN(message['subject'])}}
                                 {{=SPAN(' - ',message['content'][:80],_class='content')}}</td>
