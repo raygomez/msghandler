@@ -52,14 +52,6 @@ function click_once_group(){
 
 Things to Do
 <ol>
-<li><del>List attachments</del></li>
-<li><del>List groups</del></li>
-<li><del>List tags</del></li>
-<li><del>Add tags</del></li>
-<li><del>Delete tags</del></li>
-<li><del>Add Groups</del></li>
-<li><del>Delete Groups</del></li>
-<li><del>Add Attachment</del></li>
 <li>Reply Message, I think this is already done.</li>
 <li>Add attachment details (timestamp, creator, etc?)</li>
 <li>Attachment preview (or at least placeholder). by filetype, if possible.</li>
@@ -119,7 +111,7 @@ Attachments
 Replies:
 <table>
 {{for reply in replies:}}
-<tr><td>{{=IMG(_src=URL('static', 'images/reload.png'))}}From:</td>{{=TD(reply.created_by.name)}}</tr>
+<tr><td>{{=IMG(_src=URL('static', 'images/reply.png'))}}From:</td>{{=TD(reply.created_by.name)}}</tr>
 <tr><td>Created time:</td>{{=TD(reply.create_time)}}</tr>
 <tr><td colspan=2>{{=reply.content}}</td></tr>
 {{pass}}
