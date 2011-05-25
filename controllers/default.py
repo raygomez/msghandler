@@ -58,10 +58,10 @@ def index():
         msg['content'] = message.content
         msg['attachment'] = 1 if db(db.msg_attachment.msg_id==message.id).count() else 0
         tags = db(db.msg_tag.msg_id == message.id).select()
-        tg = ''
-        for tag in tags:
-            tg = tg + '['+tag.tag_id.name+']'
-        msg['tags'] = tg
+        #tg = ''
+        #for tag in tags:
+        #    tg = tg + '['+tag.tag_id.name+']'
+        msg['tags'] = ' '.join(['['+tag.tag_id.name+']' for tag in tags])
         msgs.append(msg)
                 
     return dict(my_roles=grps, messages=messages, contacts=contacts, contact_id=contact.id, msg_group=msg_group,
