@@ -245,8 +245,8 @@ def events():
         evnts.append(evnt)
         
     return dict(evnts=evnts)
-    
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+
+@auth.requires_login()    
 def groups():
     groups = db(db.auth_group.role != 'Admin').select(orderby=~db.auth_group.id)
     return dict(groups=groups)
