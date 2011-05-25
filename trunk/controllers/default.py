@@ -58,6 +58,7 @@ def index():
         msg['time'] = comment.create_time if comment else message.create_time
         msg['content'] = comment.content if comment else message.content
         msg['attachment'] = 1 if db(db.msg_attachment.msg_id==message.id).count() else 0
+        msg['replied'] = 1 if db(db.msg.parent_msg == message.id).count() else 0
         tags = db(db.msg_tag.msg_id == message.id).select()
         msg['tags'] = ' '.join(['['+tag.tag_id.name+']' for tag in tags])
         msgs.append(msg)

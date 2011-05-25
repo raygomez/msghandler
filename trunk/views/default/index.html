@@ -137,13 +137,11 @@ Things to Do
                     {{for message in msgs:}}
                         <tr class='messages'>
                             <td style='display: none;'>{{=message['id']}}</td>
-                            <td>{{=message['by']}}</td>
+                            <td>{{=message['by']}}{{=IMG(_src=URL('static','images/reply.png')) if message['replied'] else ''}}</td>
                             <td>{{=SPAN(message['tags'])}}
                                 {{=SPAN(message['subject'])}}
                                 {{=SPAN(' - ',message['content'][:80],_class='content')}}</td>
-                            <td>{{if message['attachment']:}}
-                                {{=IMG(_src=URL('static','images/attachment.png'))}}
-                            </td>{{pass}}    
+                            <td>{{=IMG(_src=URL('static','images/attachment.png')) if message['attachment'] else ''}}</td>
                             <td class="timestamp" title={{=message['time'].isoformat()}}></td>
                         </tr>
                     {{pass}}
