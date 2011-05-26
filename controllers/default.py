@@ -526,8 +526,9 @@ def read_message():
         response.flash = T('Comment successfully created.')
 
     replies = db(db.msg.parent_msg == message.id).select(orderby=db.msg.create_time)
+    update_time = replies.last().create_time if replies else 0
 
-    return dict(message=message, form=form, groups=groups, tags=tags, attachs=attachs,\
+    return dict(message=message, form=form, groups=groups, tags=tags, attachs=attachs,update_time=update_time,\
         json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)), id=message.id, replies=replies)
     
 @auth.requires_login()

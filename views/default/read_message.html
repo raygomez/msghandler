@@ -67,7 +67,10 @@ Things to Do
 <table>
 <tr><td>From:</td>{{=TD(message.created_by.name)}}</tr>
 <tr><td>Subject:</td>{{=TD(message.subject)}}<tr/>
-<tr><td>Created time:</td>{{=TD(message.create_time)}}</tr>
+<tr><td>Created time:</td>{{=TD(_title=message.create_time,_class='timestamp')}}</tr>
+{{if update_time:}}
+<tr><td>Last updated:</td>{{=TD(_title=update_time,_class='timestamp')}}</tr>
+{{pass}}
 <tr><td>Groups:</td>
     <td id='tr-groups-new'><table><tr>
 {{if len(groups):}}    
@@ -118,7 +121,7 @@ Replies:
 <table>
 {{for reply in replies:}}
 <tr><td>{{=IMG(_src=URL('static', 'images/reply.png'))}}From:</td>{{=TD(reply.created_by.name)}}</tr>
-<tr><td>Created time:</td>{{=TD(reply.create_time)}}</tr>
+<tr><td>Created time:</td>{{=TD(_title=reply.create_time,_class='timestamp')}}</tr>
 <tr><td colspan=2>{{=reply.content}}</td></tr>
 {{pass}}
 </table>
