@@ -11,9 +11,10 @@
 
 @auth.requires_login()
 def index():
-    admin = db(db.auth_group.role == 'Admin').select().first()
-    grps = db((db.auth_membership.user_id == auth.user_id) & (db.auth_membership.group_id!=admin.id)).select()
-    groups = db(db.auth_group.role != 'Admin').select(db.auth_group.role)
+    grps = db(db.auth_membership.user_id == auth.user_id).select()
+    grps.exclude(lambda row: row.group_id.role == 'Admin')
+    groups_query = db(db.msg_group.id > 0 )._select(db.msg_group.group_id,distinct=True)
+    groups = db((db.auth_group.role != 'Admin') & (db.auth_group.id.belongs(groups_query))).select(db.auth_group.role)
     groups = [group.role for group in groups]
     
     msgs = []
