@@ -52,6 +52,9 @@ function click_once_group(){
 }
 
 </script>
+<style>
+#attachments td {text-align:center;}
+</style>
 
 Things to Do
 <ol>
@@ -100,7 +103,7 @@ Things to Do
 </table>
 {{if len(attachments) > 0:}}
 Attachments
-<table>
+<table id='attachments'>
 <tr>
 {{for attachment in attachments:}}
 {{=TD(A(IMG(_src=URL('download',args=attachment.attachment), _alt="attachments"),
@@ -109,7 +112,12 @@ Attachments
 </tr>
 <tr>
 {{for attachment in attachments:}}
-{{=TD('added ', SPAN(_title=attachment.attach_time,_class='timestamp'))}}
+{{=TD('added by ', SPAN(attachment.attach_by.first_name + ' ' + attachment.attach_by.last_name))}}
+{{pass}}
+</tr>
+<tr>
+{{for attachment in attachments:}}
+{{=TD(SPAN(_title=attachment.attach_time,_class='timestamp'))}}
 {{pass}}
 </tr>
 

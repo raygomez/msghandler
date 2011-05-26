@@ -106,11 +106,13 @@ db.define_table('msg_attachment',
     Field('msg_id', db.msg, notnull=True),
     Field('attach_time', 'datetime', notnull=True, default=datetime.now()),
     Field('attachment_type', notnull=True),
+    Field('attach_by', db.auth_user, notnull=True),
     Field('attachment', 'upload', notnull=True),
     format='%(filename)s')
 db.msg_attachment.msg_id.requires = IS_IN_DB(db, 'msg.id')
 db.msg_attachment.msg_id.writable = db.msg_attachment.msg_id.readable = False
 db.msg_attachment.attach_time.writable = db.msg_attachment.attach_time.readable = False
+db.msg_attachment.attach_by.writable = db.msg_attachment.attach_by.readable = False
 
 
 db.define_table('msg_recipients',
