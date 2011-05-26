@@ -15,6 +15,10 @@ import datetime
 # local application/library specific imports
 
 # CODE STARTS HERE -----------------------------------------------------------
+log_event = __import__('applications.%s.modules.utils.dbutils'
+                       % (request.application),
+                       globals(), locals(), ['log_event',], -1)
+
 late_id = db(db.tag.name=='Late').select(db.tag.id).first().id
 
 cond_time = (db.msg.create_time <
@@ -50,7 +54,11 @@ for elem in qry3:
     if x in qry:
         qry.remove(x)
 
-[db.msg_tag.insert(msg_id=elem, tag_id=late_id) for elem in qry]
+for elem in qry:
+    db.msg_tag.insert(msg_id=elem, tag_id=late_id)
+    # log_event() is not recognized, only dbutils
+    log_event.log_event(db, user_id=1, item_id=elem, table_name='msg_tag',
+                        access='create', details='%s,%s,%s' % ('a','b','c'))
 
 # required, transaction will revert if not included
 db.commit()
