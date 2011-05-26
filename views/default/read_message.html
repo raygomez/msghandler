@@ -101,23 +101,23 @@ Things to Do
 
 <tr><td colspan=2>{{=message.content}}</td></tr>
 </table>
-{{if len(attachments) > 0:}}
+{{if len(attachs) > 0:}}
 Attachments
 <table id='attachments'>
 <tr>
-{{for attachment in attachments:}}
-{{=TD(A(IMG(_src=URL('download',args=attachment.attachment), _alt="attachments"),
-      _href=URL('download',args=attachment.attachment)))}}
+{{for attach in attachs:}}
+{{=TD(A(IMG(_src=attach['src'], _alt="attachments", _width='125px'),
+      _href=URL('download',args=attach['attachment'].attachment)))}}
 {{pass}}
 </tr>
 <tr>
-{{for attachment in attachments:}}
-{{=TD('added by ', SPAN(attachment.attach_by.first_name + ' ' + attachment.attach_by.last_name))}}
+{{for attach in attachs:}}
+{{=TD('added by ', SPAN(attach['attachment'].attach_by.first_name + ' ' + attach['attachment'].attach_by.last_name))}}
 {{pass}}
 </tr>
 <tr>
-{{for attachment in attachments:}}
-{{=TD(SPAN(_title=attachment.attach_time,_class='timestamp'))}}
+{{for attach in attachs:}}
+{{=TD(SPAN(_title=attach['attachment'].attach_time,_class='timestamp'))}}
 {{pass}}
 </tr>
 
