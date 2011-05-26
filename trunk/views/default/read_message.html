@@ -50,10 +50,9 @@ function click_once_group(){
         showgroups();                 
     });
 }
-
 </script>
 <style>
-#attachments td {text-align:center;}
+.td_img {text-align:center;}
 </style>
 
 Things to Do
@@ -104,23 +103,13 @@ Things to Do
 {{if len(attachs) > 0:}}
 Attachments
 <table id='attachments'>
-<tr>
 {{for attach in attachs:}}
-{{=TD(A(IMG(_src=attach['src'], _alt="attachments", _width='125px'),
-      _href=URL('download',args=attach['attachment'].attachment)))}}
-{{pass}}
-</tr>
 <tr>
-{{for attach in attachs:}}
-{{=TD('added by ', SPAN(attach['attachment'].attach_by.first_name + ' ' + attach['attachment'].attach_by.last_name))}}
-{{pass}}
+{{=TD(A(IMG(_src=attach['src'], _alt="attachments", _height='50px'),
+      _href=URL('download',args=attach['attachment'].attachment)), _class='td_img')}}
+{{=TD(attach['attachment'].filename,BR(),'added by ', SPAN(attach['attachment'].attach_by.name,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
 </tr>
-<tr>
-{{for attach in attachs:}}
-{{=TD(SPAN(_title=attach['attachment'].attach_time,_class='timestamp'))}}
 {{pass}}
-</tr>
-
 </table>
 <table>
 {{pass}}
