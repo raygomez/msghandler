@@ -1,5 +1,5 @@
 {{extend 'layout.html'}}
-
+<script type="text/javascript" src="/{{=request.application}}/static/js/jquery.timeago.js"></script>
 <script src="{{=URL('static','js/tagging_ajax.js')}}"></script>
 <script src="{{=URL('static','js/grouping_ajax.js')}}"></script>
 {{=json}}
@@ -7,6 +7,9 @@
 var msg_id = {{=id}};
 
 $(function(){
+    
+    $('.timestamp').timeago()
+
     click_once_tag();            
     click_once_group();            
 })
@@ -101,9 +104,15 @@ Attachments
 <tr>
 {{for attachment in attachments:}}
 {{=TD(A(IMG(_src=URL('download',args=attachment.attachment), _alt="attachments"),
-      _href=URL('download',args=attachment.attachment)))}}      
+      _href=URL('download',args=attachment.attachment)))}}
 {{pass}}
 </tr>
+<tr>
+{{for attachment in attachments:}}
+{{=TD('added ', SPAN(_title=attachment.attach_time,_class='timestamp'))}}
+{{pass}}
+</tr>
+
 </table>
 <table>
 {{pass}}
