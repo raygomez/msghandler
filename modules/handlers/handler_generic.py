@@ -19,8 +19,7 @@ class Message:
         if status == 'r':
             self._read(args[0])
         elif status == 's':
-            self._send(contact=args[0], headers=args[1],
-                       body=args[2], attachments=args[3])
+            self._send()
         else:
             raise Exception('Invalid status %s' % status)
     
@@ -28,11 +27,8 @@ class Message:
         """Parse message according to mode.
         * parse message
         * insert to database
-        * send response
+        * send response/s
         * update sending status
-        
-        Keyword argument:
-        text_string -- message to be parsed
         """
         self.msg = self.parse_message(text_string)
         msg_resp = self.process_message()
@@ -44,18 +40,25 @@ class Message:
             # update status in database
             # possibly give option for user to resend
     
-    def _send(self, contact, headers, body, attachments):
+    def _send(self, *args):
         """Send message according to mode.
-        * Reconstruct message
+        * construct message to be sent
         * insert to database
         * send message
         * update sending status
-        
-        Keyword argument:
-        text_string -- message to be parsed
         """
-        msg = self.construct_message(contact, headers, body, attachments)
-        self.update_send_status(self.send_message(msg))
+        if args:
+            msg = self.construct_message(*args)
+            self.insert_database()
+            self.update_send_status(self.send_message(msg))
+            return
+        
+        msgs = self.get_messages()
+        for elem in msgs:
+            msg = self.get_message(elem)
+            msg = self.construct_message(*msg)
+            self.insert_database()
+            self.update_send_status(self.send_message(msg))
     
     def parse_message(self):
         raise NotImplementedError()
