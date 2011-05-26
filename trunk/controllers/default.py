@@ -60,7 +60,9 @@ def index():
         msg['tags'] = ' '.join(['['+tag.tag_id.name+']' for tag in tags])
         msg['groups'] = ' '.join([group.group_id.role.replace(' ','_') for group in db(db.msg_group.msg_id == message).select()])
         msgs.append(msg)
-                
+
+    msgs = sorted(msgs, key=lambda msg : msg['time'], reverse=True)
+                   
     return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,json=SCRIPT('var groups=%s' % groups))
 
 def get_groups ():
