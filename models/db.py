@@ -106,7 +106,8 @@ db.define_table('msg_attachment',
     Field('msg_id', db.msg, notnull=True),
     Field('attach_time', 'datetime', notnull=True, default=datetime.now()),
     Field('attachment_type', notnull=True),
-    Field('attach_by', db.auth_user, notnull=True),
+    Field('attach_by', db.contact, notnull=True),
+    Field('filename'),
     Field('attachment', 'upload', notnull=True),
     format='%(filename)s')
 db.msg_attachment.msg_id.requires = IS_IN_DB(db, 'msg.id')
