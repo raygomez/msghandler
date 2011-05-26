@@ -214,11 +214,8 @@ def show_user():
 @auth.requires_login()
 def events():
 
-    if len(request.args): page=int(request.args[0])
-    else: page=0
-    
-    items_per_page=10
-    
+    page=int(request.args[0]) if len(request.args) else 0    
+    items_per_page=20
     limitby=(page*items_per_page,(page+1)*items_per_page+1)
 
     if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
