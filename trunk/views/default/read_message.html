@@ -64,13 +64,22 @@ Things to Do
 <li></li>
 </ol>
 
-<table>
-<tr><td>From:</td>{{=TD(message.created_by.name)}}</tr>
-<tr><td>Subject:</td>{{=TD(message.subject)}}<tr/>
-<tr><td>Created time:</td>{{=TD(_title=message.create_time,_class='timestamp')}}</tr>
+<style>
+tr.content,tr.attachment { 
+    border: 1px solid black;
+    width: 95%;
+}
+</style>
+
+
+<table width='95%'>
+<tr><td><h4>{{=message.subject}}</h4></td><tr/>
+<tr><td>From:{{=message.created_by.name}} ({{=SPAN(_title=message.create_time,_class='timestamp')}}) | {{=A('Remove referral', _href='#')}}</td></tr>
+
 {{if update_time:}}
-<tr><td>Last updated:</td>{{=TD(_title=update_time,_class='timestamp')}}</tr>
+<tr><td>Updated {{=SPAN(_title=update_time,_class='timestamp')}}</td></tr>
 {{pass}}
+<tr class='content'><td colspan=2>{{=message.content}}</td></tr>
 <tr><td>Groups:</td>
     <td id='tr-groups-new'><table><tr>
 {{if len(groups):}}    
@@ -86,6 +95,7 @@ Things to Do
 
 <tr><td>Search Group:</td><td><input name='groups' onkeyup='showgroups()' autocomplete='off' /></td>
 <tr><td></td><td><div id='new-groups'></div></td><tr>
+
 <tr><td>Tags:</td>
     <td id='tr-tags-new'><table><tr>
 {{if len(tags):}}    
@@ -100,32 +110,25 @@ Things to Do
 </tr>
 <tr><td>Search Tags:</td><td><input name='tags' onkeyup='showtags()' autocomplete='off' /></td>
 <tr><td></td><td><div id='new-tags'></div></td><tr>
-
-<tr><td colspan=2>{{=message.content}}</td></tr>
 </table>
+ATTACHMENTS | {{=A('Upload new attachments', _href=URL('create_attachment', args=id))}}<br />
 {{if len(attachs) > 0:}}
-Attachments
-<table id='attachments'>
+<table id='attachments' width=95%>
 {{for attach in attachs:}}
-<tr>
+
+<tr class='attachment'>
 {{=TD(A(IMG(_src=attach['src'], _alt="attachments", _height='50px'),
       _href=URL('download',args=attach['attachment'].attachment)), _class='td_img')}}
-{{=TD(attach['attachment'].filename,BR(),'added by ', SPAN(attach['attachment'].attach_by.name,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
+{{=TD(attach['attachment'].filename,' | ',A('Remove this attachment', _href='#'),BR(),'added by ', SPAN(attach['attachment'].attach_by.name,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
 </tr>
 {{pass}}
 </table>
-<table>
 {{pass}}
-[{{=A('Attach file', _href=URL('create_attachment', args=id))}}]<br />
-Replies:
-<table>
+
+<table width=95%>
 {{for reply in replies:}}
-<tr><td>{{=IMG(_src=URL('static', 'images/reply.png'))}}From:</td>{{=TD(reply.created_by.name)}}</tr>
-<tr><td>Created time:</td>{{=TD(_title=reply.create_time,_class='timestamp')}}</tr>
-<tr><td colspan=2>{{=reply.content}}</td></tr>
+<tr><td>From {{=reply.created_by.name}} {{=SPAN(_title=reply.create_time,_class='timestamp')}}</td></tr>
+<tr class='content'><td colspan=2>{{=reply.content}}</td></tr>
 {{pass}}
-</table>
-<a onclick="$('#courses').slideToggle()">[Reply]</a><br/>
-<div id='courses' class='hidden'>
 {{=form}}
-</div>
+</table>

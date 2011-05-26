@@ -13,6 +13,10 @@ log_event = __import__('applications.%s.modules.utils.dbutils'
                        % (request.application),
                        globals(), locals(), ['log_event',], -1)
 
+logging = local_import('utils.dbutils')
+#sample usage
+#logging.my_logging(db, user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
+
 @auth.requires_login()
 def index():
     grps = db(db.auth_membership.user_id == auth.user_id).select()
@@ -517,7 +521,7 @@ def read_message():
         attachs.append(attach)
         
     db.msg.subject.writable = db.msg.subject.readable = False
-    form = SQLFORM.factory(db.msg)
+    form = SQLFORM.factory(db.msg, submit_button='Post comment')
 
     if form.accepts(request.vars, session):
         contact = get_contact(auth.user)
@@ -525,7 +529,7 @@ def read_message():
         form.vars.parent_msg = message.id   
         form.vars.subject = 'Re:'   
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
-        log_event(user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
+        logging.my_logging(db, user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
 
         response.flash = T('Comment successfully created.')
 
@@ -538,17 +542,19 @@ def read_message():
 @auth.requires_login()
 def create_attachment():
     msg_id = request.args(0)
-    
+    contact = get_contact(auth.user)
     db.msg_attachment.msg_id.default = msg_id
-    db.msg_attachment.attach_by.default = auth.user.id
-    
+    db.msg_attachment.attach_by.default = contact.id
     form = SQLFORM(db.msg_attachment)
     if form.accepts(request.vars, session, dbio=False):
+        filename = request.vars.attachment.filename    
+        form.vars.filename = filename
+        form.vars.attachment_type = filename[filename.rindex('.') + 1:]
         msg_attachment_id = db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
         subject = db.msg[msg_id].subject
-        filename = request.vars.attachment.filename
-        log_event(user_id=auth.user.id,item_id=msg_attachment_id,table_name='msg_attachment',access='create',
-                        details=','.join([subject,filename,`msg_id`]))        
+    
+        #log_event(user_id=auth.user.id,item_id=msg_attachment_id,table_name='msg_attachment',access='create',
+        #                details=','.join([subject,filename,`msg_id`]))        
         redirect(URL('read_message', args=msg_id))
     return dict(form = form)
    
