@@ -476,10 +476,11 @@ def create_message():
         redirect(URL('index'))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))
 
+file_types = ['pdf']
+
 @auth.requires_login()
 def read_message():
     message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
-    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
     
     groups_query = db(db.msg_group.msg_id == message.id)._select(db.msg_group.group_id)
     not_groups = db(~db.auth_group.id.belongs(groups_query) & (db.auth_group.role != 'Admin')).select(db.auth_group.id, db.auth_group.role).json()
@@ -489,6 +490,20 @@ def read_message():
     not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
     tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
     
+    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
+    attachs = []
+    for attachment in attachments:
+        attach = {}
+        attach['attachment'] = attachment
+        file_type = attachment.attachment[attachment.attachment.rindex('.') + 1:] 
+        if file_type in file_types:
+            attach['src'] = URL('static','images/'+file_type+'.png')
+        elif file_type in ['png','jpg','jpg','gif','bmp']:
+            attach['src'] = URL('download',args=attachment.attachment)
+        else:
+            attach['src'] = URL('static','images/binary.png')
+        attachs.append(attach)
+        
     db.msg.subject.writable = db.msg.subject.readable = False
     form = SQLFORM.factory(db.msg)
 
@@ -504,7 +519,7 @@ def read_message():
 
     replies = db(db.msg.parent_msg == message.id).select(orderby=db.msg.create_time)
 
-    return dict(message=message, form=form, attachments=attachments, groups=groups, tags=tags, \
+    return dict(message=message, form=form, groups=groups, tags=tags, attachs=attachs,\
         json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)), id=message.id, replies=replies)
     
 @auth.requires_login()
