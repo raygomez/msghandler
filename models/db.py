@@ -114,6 +114,8 @@ db.msg_attachment.msg_id.requires = IS_IN_DB(db, 'msg.id')
 db.msg_attachment.msg_id.writable = db.msg_attachment.msg_id.readable = False
 db.msg_attachment.attach_time.writable = db.msg_attachment.attach_time.readable = False
 db.msg_attachment.attach_by.writable = db.msg_attachment.attach_by.readable = False
+db.msg_attachment.attachment_type.writable = db.msg_attachment.attachment_type.readable = False
+db.msg_attachment.filename.writable = db.msg_attachment.filename.readable = False
 
 
 db.define_table('msg_recipients',

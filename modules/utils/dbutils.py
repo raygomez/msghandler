@@ -11,6 +11,12 @@ from os import chmod
 # local application/library specific imports
 
 # CODE STARTS HERE -----------------------------------------------------------
+
+
+def my_logging(db,user_id, item_id, table_name,access,details=None):
+    db.event.insert(user_id=user_id, item_id=item_id, table_name=table_name, access=access,details=details)
+    db.commit()
+        
 def log_event(*args, **params):
     """Insert events into event table
     
