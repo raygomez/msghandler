@@ -510,9 +510,11 @@ def read_message():
 @auth.requires_login()
 def create_attachment():
     msg_id = request.args(0)
+    
+    db.msg_attachment.msg_id.default = msg_id
+    db.msg_attachment.attach_by.default = auth.user.id
+    
     form = SQLFORM(db.msg_attachment)
-
-    db.msg_attachment.msg_id.default = msg_id    
     if form.accepts(request.vars, session, dbio=False):
         msg_attachment_id = db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
         subject = db.msg[msg_id].subject
