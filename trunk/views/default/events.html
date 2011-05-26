@@ -40,16 +40,6 @@ Things to Do
 <li></li>
 </ol>
 
-{{if page:}}
-<a href="{{=URL(args=[page-1])}}">previous</a>
-{{pass}}
-
-{{if len(evnts)>items_per_page:}}
-<a href="{{=URL(args=[page+1])}}">next</a>
-{{pass}}
-
-
-
 <table>{{=TR(TD(LABEL('Filter by keywords:')),TD(INPUT(_name='keyword',_placeholder='Enter a keyword')))}}</table>
 <table>
 <tr>
@@ -76,8 +66,16 @@ Things to Do
 {{=TD(INPUT(_type="checkbox",_name=".msg_attachment",_class='table',value=True),'attachments')}}
 </tr>
 </table>
-
 <br/>
+{{if page:}}
+<a href="{{=URL(args=[page-1])}}">[previous {{=items_per_page}} events]</a>
+{{pass}}
+{{if len(evnts)>items_per_page:}}
+<a href="{{=URL(args=[page+1])}}">[next {{=items_per_page}} events]</a>
+{{pass}}
+<br/>
+<br/>
+
 <table id='events'>
 {{for evnt in evnts:}}
 <tr class="{{=evnt['table']}} {{=evnt['access']}}">
@@ -187,3 +185,12 @@ Things to Do
 </tr>
 {{pass}}
 </table>
+
+<br/>
+{{if page:}}
+<a href="{{=URL(args=[page-1])}}">[previous {{=items_per_page}} events]</a>
+{{pass}}
+{{if len(evnts)>items_per_page:}}
+<a href="{{=URL(args=[page+1])}}">[next {{=items_per_page}} events]</a>
+{{pass}}
+<br/>
