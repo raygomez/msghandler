@@ -36,8 +36,20 @@ $(function(){
 Things to Do
 <ol>
 <li>users can view events from a referral where they commented (or where they are creator)</li>
+<li>pagination</li>
 <li></li>
 </ol>
+
+{{if page:}}
+<a href="{{=URL(args=[page-1])}}">previous</a>
+{{pass}}
+
+{{if len(evnts)>items_per_page:}}
+<a href="{{=URL(args=[page+1])}}">next</a>
+{{pass}}
+
+
+
 <table>{{=TR(TD(LABEL('Filter by keywords:')),TD(INPUT(_name='keyword',_placeholder='Enter a keyword')))}}</table>
 <table>
 <tr>

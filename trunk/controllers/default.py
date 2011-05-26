@@ -213,15 +213,23 @@ def show_user():
 
 @auth.requires_login()
 def events():
+
+    if len(request.args): page=int(request.args[0])
+    else: page=0
+    
+    items_per_page=10
+    
+    limitby=(page*items_per_page,(page+1)*items_per_page+1)
+
     if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
-        events = db(db.event.id > 0).select(orderby=~db.event.timestamp)
+        events = db(db.event.id > 0).select(orderby=~db.event.timestamp,limitby=limitby)
     else: 
         groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
         messages = db(db.msg.id.belongs(msg_query))._select(db.msg.id)
     
         events = db((db.event.user_id == auth.user.id) | ((db.event.table_name=='msg') & 
-                    (db.event.item_id.belongs(messages)))).select(orderby=~db.event.timestamp)
+                    (db.event.item_id.belongs(messages)))).select(orderby=~db.event.timestamp,limitby=limitby)
 
     evnts = []
     for event in events:
@@ -238,7 +246,7 @@ def events():
         evnt['access'] = event.access
         evnts.append(evnt)
         
-    return dict(evnts=evnts)
+    return dict(evnts=evnts,page=page,items_per_page=items_per_page)
 
 @auth.requires_login()    
 def groups():
