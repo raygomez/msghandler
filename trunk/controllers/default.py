@@ -548,25 +548,27 @@ def get_contact(user):
 @auth.requires_login()
 def create_message():
     import os
- 
+    
     form = SQLFORM.factory(db.msg,
-      Field('attachment_type'),
-      Field('attachment', 'upload', uploadfolder=os.path.join(request.folder,'uploads')),
-      Field('tags', label='Search tags'),
-      Field('groups', label='Search groups'),
-      hidden=dict(tags_new=None,groups_new=None),
-      table_name='msg_attachment'
-    )
-    form.element(_name='tags')['_onkeyup']="showtags()" 
-    form.element(_name='tags')['_autocomplete']='off' 
-    form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'),TD(_id='tr-tags-new')))
-    form[0].insert(6, TR(TD(),TD(DIV(_id='new-tags'))))
+                Field('attachment_type'),
+                Field('attachment', 'upload',
+                      uploadfolder=os.path.join(request.folder,'uploads')),
+                Field('tags', label='Search tags'),
+                Field('groups', label='Search groups'),
+                hidden=dict(tags_new=None, groups_new=None),
+                table_name='msg_attachment')
+    form.element(_name='tags')['_onkeyup'] = "showtags()"
+    form.element(_name='tags')['_autocomplete'] = 'off'
+    form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'),
+                         TD(_id='tr-tags-new')))
+    form[0].insert(6, TR(TD(), TD(DIV(_id='new-tags'))))
     form.element('#tr-tags-new').append(TABLE(TR()))
-
-    form.element(_name='groups')['_onkeyup']="showgroups()" 
-    form.element(_name='groups')['_autocomplete']='off' 
-    form[0].insert(7, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(_id='tr-groups-new')))
-    form[0].insert(9, TR(TD(),TD(DIV(_id='new-groups'))))
+    
+    form.element(_name='groups')['_onkeyup'] = "showgroups()"
+    form.element(_name='groups')['_autocomplete'] = 'off'
+    form[0].insert(7, TR(TD(LABEL('Groups'), _class='w2p_fl'),
+                         TD(_id='tr-groups-new')))
+    form[0].insert(9, TR(TD(), TD(DIV(_id='new-groups'))))
     form.element('#tr-groups-new').append(TABLE(TR()))
     
     tags = db(db.tag.name != 'Late').select(db.tag.id, db.tag.name).json()
@@ -579,7 +581,8 @@ def create_message():
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
         form.vars.msg_id = msg_id
         if request.vars.attachment != '':
-           db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
+           db.msg_attachment.insert(
+                **db.msg_attachment._filter_fields(form.vars))
         if request.vars.tags_new:
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
@@ -587,65 +590,84 @@ def create_message():
                 tag_id = int(tag[4:])
                 subject = db.msg[msg_id].subject
                 tag = db.tag[tag_id].name
-                logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create', details=','.join([subject,tag]))
+                logging.my_logging(db, user_id=auth.user.id, item_id=id,
+                                   table_name='msg_tag', access='create',
+                                   details=','.join([subject,tag]))
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
-                db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]), assigned_by=auth.user.id)        
-
-        logging.my_logging(db,user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
-                
+                db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]),
+                                    assigned_by=auth.user.id)
+        
+        logging.my_logging(db, user_id=auth.user.id, item_id=msg_id,
+                           table_name='msg', access='create')
+        
         session.flash = T('Message successfully created.')
         redirect(URL('index'))
-    return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s' % (tags,groups)))
+    return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s'
+                                       % (tags,groups)))
 
 file_types = ['pdf']
 
 @auth.requires_login()
 def read_message():
-    message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
+    message = (db(db.msg.id == int(request.args(0))).select().first()
+               or redirect(URL('index')))
     
-    groups_query = db(db.msg_group.msg_id == message.id)._select(db.msg_group.group_id)
-    not_groups = db(~db.auth_group.id.belongs(groups_query) & (db.auth_group.role != 'Admin')).select(db.auth_group.id, db.auth_group.role).json()
-    groups = db(db.msg_group.msg_id == message.id).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
-
+    groups_query = db(db.msg_group.msg_id == message.id
+                      )._select(db.msg_group.group_id)
+    not_groups = db(~db.auth_group.id.belongs(groups_query)
+                    & (db.auth_group.role != 'Admin')
+                    ).select(db.auth_group.id, db.auth_group.role).json()
+    groups = db(db.msg_group.msg_id == message.id
+                ).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
+    
     tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
-    not_tags = db(~db.tag.id.belongs(tags_query)).select(db.tag.id, db.tag.name).json()
-    tags = db(db.msg_tag.msg_id == message.id).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
+    not_tags = db(~db.tag.id.belongs(tags_query)
+                  ).select(db.tag.id, db.tag.name).json()
+    tags = db(db.msg_tag.msg_id == message.id
+              ).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
     
-    attachments = db(db.msg_attachment.msg_id == message.id).select(orderby=db.msg_attachment.attach_time)
+    attachments = db(db.msg_attachment.msg_id == message.id
+                     ).select(orderby=db.msg_attachment.attach_time)
     attachs = []
     for attachment in attachments:
         attach = {}
         attach['attachment'] = attachment
-        file_type = attachment.attachment[attachment.attachment.rindex('.') + 1:] 
+        file_type = attachment.attachment[attachment.attachment.rindex('.')
+                                          + 1:]
         if file_type in file_types:
-            attach['src'] = URL('static','images/'+file_type+'.png')
+            attach['src'] = URL('static','images/' + file_type + '.png')
         elif file_type in ['png','jpg','jpg','gif','bmp']:
-            attach['src'] = URL('download',args=attachment.attachment)
+            attach['src'] = URL('download', args=attachment.attachment)
         else:
             attach['src'] = URL('static','images/binary.png')
         attachs.append(attach)
         
     db.msg.subject.writable = db.msg.subject.readable = False
     form = SQLFORM.factory(db.msg, submit_button='Post comment')
-
+    
     if form.accepts(request.vars, session):
         contact = get_contact(auth.user)
         form.vars.created_by = contact.id
-        form.vars.parent_msg = message.id   
-        form.vars.subject = 'Re:'   
+        form.vars.parent_msg = message.id
+        form.vars.subject = 'Re:'
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
-        logging.my_logging(db, user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
-
+        logging.my_logging(db, user_id=auth.user.id, item_id=msg_id,
+                           table_name='msg', access='create')
+        
         response.flash = T('Comment successfully created.')
-
-    replies = db(db.msg.parent_msg == message.id).select(orderby=db.msg.create_time)
-    update_time = replies.last().create_time if replies else 0
-
-    return dict(message=message, form=form, groups=groups, tags=tags, attachs=attachs,update_time=update_time,\
-        json=SCRIPT('var tags=%s; var groups=%s' % (not_tags,not_groups)), id=message.id, replies=replies)
     
+    replies = db(db.msg.parent_msg == message.id
+                 ).select(orderby=db.msg.create_time)
+    update_time = replies.last().create_time if replies else 0
+    
+    return dict(message=message, form=form, groups=groups, tags=tags,
+                attachs=attachs, update_time=update_time,
+                json=SCRIPT('var tags=%s; var groups=%s'
+                            % (not_tags,not_groups)),
+                id=message.id, replies=replies)
+
 @auth.requires_login()
 def create_attachment():
     msg_id = request.args(0)
