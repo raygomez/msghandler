@@ -676,18 +676,20 @@ def create_attachment():
     db.msg_attachment.attach_by.default = contact.id
     form = SQLFORM(db.msg_attachment)
     if form.accepts(request.vars, session, dbio=False):
-        filename = request.vars.attachment.filename    
+        filename = request.vars.attachment.filename
         form.vars.filename = filename
         form.vars.attachment_type = filename[filename.rindex('.') + 1:]
-        msg_attachment_id = db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
+        msg_attachment_id = db.msg_attachment.insert(
+                                **db.msg_attachment._filter_fields(form.vars))
         subject = db.msg[msg_id].subject
-    
-        #logging.my_logging(db,user_id=auth.user.id,item_id=msg_attachment_id,table_name='msg_attachment',access='create',
-        #                details=','.join([subject,filename,`msg_id`]))        
+        
+        #logging.my_logging(db, user_id=auth.user.id, item_id=msg_attachment_id,
+        #                   table_name='msg_attachment', access='create',
+        #                   details=','.join([subject,filename,`msg_id`]))
         redirect(URL('read_message', args=msg_id))
     return dict(form = form)
-   
-@auth.requires_login()    
+
+@auth.requires_login()
 def call():
     session.forget()
     return service()
