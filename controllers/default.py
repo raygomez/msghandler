@@ -318,16 +318,20 @@ def events():
 
 @auth.requires_login()
 def groups():
-    groups = db(db.auth_group.role != 'Admin').select(orderby=~db.auth_group.id)
+    groups = db(db.auth_group.role != 'Admin'
+                ).select(orderby=~db.auth_group.id)
     return dict(groups=groups)
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def add_group():
-    groups  = db(db.auth_group.role == request.vars.role).select()
+    groups = db(db.auth_group.role == request.vars.role).select()
     
     if len(groups) == 0:
         id = db.auth_group.insert(**request.vars)
-        logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='auth_group',access='create',details=request.vars.role)
+        logging.my_logging(db, user_id=auth.user.id, item_id=id,
+                           table_name='auth_group', access='create',
+                           details=request.vars.role)
         return `id`
     else: return '0'
     
@@ -337,27 +341,36 @@ def del_group():
     role = db.auth_group[id].role
     
     del db.auth_group[id]
-    logging.my_logging(db,details=role,user_id=auth.user.id,item_id=id,table_name='auth_group',access='delete')
+    logging.my_logging(db, details=role, user_id=auth.user.id, item_id=id,
+                       table_name='auth_group', access='delete')
     return ''
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def update_group():
     id = request.vars.id
     role = request.vars.role
     description = request.vars.description
     
-    others = db((db.auth_group.role == role) & (db.auth_group.id != id)).select()
+    others = db((db.auth_group.role == role)
+                & (db.auth_group.id != id)).select()
     if len(others) == 0:
         group = db.auth_group[id]
         
         details = []
-        if role != group.role: details.append('role changed from ' + group.role + ' to ' + role)
-        if description != group.description: details.append('description changed from ' + group.description + ' to ' + description)
+        if role != group.role:
+            details.append('role changed from ' + group.role + ' to ' + role)
+        if description != group.description:
+            details.append('description changed from ' + group.description
+                           + ' to ' + description)
         
-        details = ', '.join(details)        
+        details = ', '.join(details)
         
-        logging.my_logging(db,details=details,user_id=auth.user.id,item_id=id,table_name='auth_group',access='update')
-        db.auth_group[id] = dict(role=role,description=description, user_id=auth.user.id)
+        logging.my_logging(db, details=details, user_id=auth.user.id,
+                           item_id=id, table_name='auth_group',
+                           access='update')
+        db.auth_group[id] = dict(role=role, description=description,
+                                 user_id=auth.user.id)
         return '0'
     else: return db(db.auth_group.id == id).select().json()
 
