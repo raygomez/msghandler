@@ -9,47 +9,59 @@
 ## - call exposes all registered services (none by default)
 #########################################################################
 
-log_event = __import__('applications.%s.modules.utils.dbutils'
-                       % (request.application),
-                       globals(), locals(), ['log_event',], -1)
-
 logging = local_import('utils.dbutils')
 #sample usage
-#logging.my_logging(db, user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
+#logging.my_logging(db, user_id=auth.user.id, item_id=msg_id,
+#                   table_name='msg', access='create')
 
 @auth.requires_login()
 def index():
     grps = db(db.auth_membership.user_id == auth.user_id).select()
     grps.exclude(lambda row: row.group_id.role == 'Admin')
-    groups_query = db(db.msg_group.id > 0 )._select(db.msg_group.group_id,distinct=True)
-    groups = db((db.auth_group.role != 'Admin') & (db.auth_group.id.belongs(groups_query))).select(db.auth_group.role)
+    groups_query = db(db.msg_group.id > 0
+                      )._select(db.msg_group.group_id,distinct=True)
+    groups = db((db.auth_group.role != 'Admin')
+                & (db.auth_group.id.belongs(groups_query))
+                ).select(db.auth_group.role)
     groups = [group.role for group in groups]
     
     msgs = []
     contact = get_contact(auth.user)
     
     if auth.has_membership('Admin'):
-        messages = db(db.msg.parent_msg == 0).select(db.msg.ALL,orderby=~db.msg.create_time)    
-        
-    elif auth.has_membership('Telehealth'):     
+        messages = db(db.msg.parent_msg == 0
+                      ).select(db.msg.ALL, orderby=~db.msg.create_time)
+    
+    elif auth.has_membership('Telehealth'):
         nurse_record = db(db.contact.user_id == auth.user.id).select().first()
         msg_query_group = db(db.msg_group.id > 0)._select(db.msg_group.msg_id)
-        msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id)._select(db.msg_group.msg_id)
-        messages = db((db.msg.parent_msg == 0) & ((db.msg.created_by == nurse_record.id) |\
-                     ~db.msg.id.belongs(msg_query_group)|\
-                      db.msg.id.belongs(msg_query_assigned))).select()
+        msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id
+                                )._select(db.msg_group.msg_id)
+        messages = db((db.msg.parent_msg == 0)
+                      & ((db.msg.created_by == nurse_record.id)
+                         | ~db.msg.id.belongs(msg_query_group)
+                         | db.msg.id.belongs(msg_query_assigned))).select()
     else:
-        groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)
-        msg_query = db(db.msg_group.group_id.belongs(groups_query))._select(db.msg_group.msg_id)
-        messages = db((db.msg.parent_msg == 0) & (db.msg.id.belongs(msg_query) | (db.msg.created_by==contact.id) )).select()
+        groups_query = db(db.auth_membership.user_id == auth.user.id
+                          )._select(db.auth_membership.group_id)
+        msg_query = db(db.msg_group.group_id.belongs(groups_query)
+                       )._select(db.msg_group.msg_id)
+        messages = db((db.msg.parent_msg == 0)
+                      & (db.msg.id.belongs(msg_query)
+                         | (db.msg.created_by==contact.id))).select()
         
-        users_query = db(db.auth_membership.group_id.belongs(groups_query) & (db.auth_membership.user_id != auth.user.id))._select(db.auth_membership.user_id)
-        users = db(db.auth_user.id.belongs(users_query)).select(db.auth_user.id, db.auth_user.first_name, 
-                db.auth_user.last_name, db.auth_user.email, orderby=db.auth_user.last_name)
+        users_query = db(db.auth_membership.group_id.belongs(groups_query)
+                         & (db.auth_membership.user_id != auth.user.id)
+                         )._select(db.auth_membership.user_id)
+        users = db(db.auth_user.id.belongs(users_query)
+                   ).select(db.auth_user.id, db.auth_user.first_name,
+                            db.auth_user.last_name, db.auth_user.email,
+                            orderby=db.auth_user.last_name)
     
     msgs = []
     for message in messages:
-        comment = db((db.msg.parent_msg == message.id)).select(orderby=~db.msg.create_time)
+        comment = db(db.msg.parent_msg == message.id
+                     ).select(orderby=~db.msg.create_time)
         msg = {}
         msg['id'] = message.id
         msg['subject'] = message.subject
@@ -60,19 +72,27 @@ def index():
         if message.created_by.name not in cname:
             cname.append(message.created_by.name)
         msg['by'] = ', '.join(cname)
-        msg['is_owner'] = True if message.created_by.id == contact.id else False
-        msg['time'] = comment[0].create_time if comment else message.create_time
-        msg['content'] = comment[0].content if comment else message.content
-        msg['attachment'] = True if db(db.msg_attachment.msg_id==message.id).count() else False
-        msg['replied'] = True if db(db.msg.parent_msg == message.id).count() else False
+        msg['is_owner'] = (True if message.created_by.id==contact.id
+                           else False)
+        msg['time'] = (comment[0].create_time if comment
+                       else message.create_time)
+        msg['content'] = (comment[0].content if comment
+                          else message.content)
+        msg['attachment'] = (True if db(db.msg_attachment.msg_id == message.id
+                                        ).count() else False)
+        msg['replied'] = (True if db(db.msg.parent_msg == message.id
+                                     ).count() else False)
         tags = db(db.msg_tag.msg_id == message.id).select()
         msg['tags'] = ' '.join(['['+tag.tag_id.name+']' for tag in tags])
-        msg['groups'] = ' '.join([group.group_id.role.replace(' ','_') for group in db(db.msg_group.msg_id == message).select()])
+        msg['groups'] = ' '.join([group.group_id.role.replace(' ','_')
+                                  for group in db(db.msg_group.msg_id == message
+                                                  ).select()])
         msgs.append(msg)
-
+    
     msgs = sorted(msgs, key=lambda msg : msg['time'], reverse=True)
-                   
-    return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,json=SCRIPT('var groups=%s' % groups))
+    
+    return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,
+                json=SCRIPT('var groups=%s' % groups))
 
 def get_groups ():
     groups = db(db.auth_membership.user_id == auth.user.id).select()
