@@ -23,7 +23,7 @@ cfg = __import__('.'.join(cfg.split('/')), globals(), locals(), ['',], -1)
 class Message(handler_generic.Message):
     def parse_message(self, text_string):
         '''Parse message using RFC 2822.'''
-        msg = email.message_from_string(text_string)
+        self.msg = email.message_from_string(text_string)
         self.attachments = {}
         self.headers = self.get_headers(msg)
     
