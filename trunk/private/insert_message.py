@@ -32,10 +32,7 @@ try:
     with closing(open(args[1])) as f:
         text_string = f.read()
     
-    handler = __import__('applications.%s.modules.handlers.handler_%s'
-                         % (request.application, args[0]),
-                         globals(), locals(), ['Message',], -1)
-
+    handler = local_import('handlers.handler_%s' % args[0])
     x = handler.Message('r', text_string)
 except Exception, e:
     '''Print exception and traceback information.'''
