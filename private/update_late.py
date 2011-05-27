@@ -15,9 +15,7 @@ import datetime
 # local application/library specific imports
 
 # CODE STARTS HERE -----------------------------------------------------------
-log_event = __import__('applications.%s.modules.utils.dbutils'
-                       % (request.application),
-                       globals(), locals(), ['log_event',], -1)
+dbutils = local_import('utils.dbutils')
 
 late_id = db(db.tag.name=='Late').select(db.tag.id).first().id
 
@@ -56,9 +54,8 @@ for elem in qry3:
 
 for elem in qry:
     db.msg_tag.insert(msg_id=elem, tag_id=late_id)
-    # log_event() is not recognized, only dbutils
-    log_event.log_event(db, user_id=1, item_id=elem, table_name='msg_tag',
-                        access='create', details='%s,%s,%s' % ('a','b','c'))
+    dbutils.log_event(db, user_id=1, item_id=late_id, table_name='msg_tag',
+                      access='create', details='%s,%s,%s' % ('a','Late',elem))
 
 # required, transaction will revert if not included
 db.commit()
