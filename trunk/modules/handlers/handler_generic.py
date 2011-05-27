@@ -30,7 +30,7 @@ class Message:
         * send response/s
         * update sending status
         """
-        self.msg = self.parse_message(text_string)
+        self.parse_message(text_string)
         msg_resp = self.process_message()
         self.insert_database()
         for elem in msg_resp:
