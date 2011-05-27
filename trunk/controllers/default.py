@@ -186,72 +186,92 @@ def delete_ajax_id():
 
 @auth.requires_login()
 def create_user():
-    groups = db(db.auth_group.role != 'Admin').select(db.auth_group.id, db.auth_group.role, orderby=db.auth_group.role).json()
+    groups = db(db.auth_group.role != 'Admin'
+                ).select(db.auth_group.id, db.auth_group.role,
+                         orderby=db.auth_group.role).json()
     
-    form = SQLFORM.factory(db.auth_user, 
-        Field('password_again', 'password', requires=IS_EQUAL_TO(request.vars.password, error_message='Passwords do not match.')),
-        Field('groups', label='Search groups'),  
-        hidden=dict(groups_new=None),
-        table_name='user')
-
-    form.element(_name='groups')['_onkeyup']="showgroups()" 
-    form.element(_name='groups')['_autocomplete']='off' 
-    form[0].insert(5, TR(TD(LABEL('Groups'), _class='w2p_fl'),TD(TABLE(TR()), _id='tr-groups-new')))
+    form = SQLFORM.factory(db.auth_user,
+                Field('password_again', 'password',
+                      requires=IS_EQUAL_TO(request.vars.password,
+                            error_message='Passwords do not match.')),
+                Field('groups', label='Search groups'),
+                hidden=dict(groups_new=None),
+                table_name='user')
+    
+    form.element(_name='groups')['_onkeyup'] = "showgroups()"
+    form.element(_name='groups')['_autocomplete'] = 'off'
+    form[0].insert(5, TR(TD(LABEL('Groups'), _class='w2p_fl'),
+                         TD(TABLE(TR()), _id='tr-groups-new')))
     form[0].insert(7, TR(TD(),TD(DIV(_id='new-groups'))))
     
     if form.accepts(request.vars, session):
         id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
-        db.contact.insert(name=form.vars.first_name + ' ' + form.vars.last_name, user_id=id, contact_type='email', contact_info=form.vars.email)
+        db.contact.insert(user_id=id, contact_type='email',
+                          contact_info=form.vars.email,
+                name=form.vars.first_name + ' ' + form.vars.last_name)
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1],id)
-        logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='auth_user',access='create')
+        logging.my_logging(db, user_id=auth.user.id, item_id=id,
+                           table_name='auth_user', access='create')
         session.flash = T('User successfully added.')
-        redirect(URL('users'))    
-
-    return dict(form = form,json=SCRIPT('var groups=%s' % groups))
+        redirect(URL('users'))
+    
+    return dict(form=form, json=SCRIPT('var groups=%s' % groups))
 
 def insert_groups(selected, user_id):
-    for group in selected:     
+    for group in selected:
         db.auth_membership.insert(user_id=user_id, group_id=int(group[4:]))
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def show_user():
-    user = db.auth_user(request.args(0)) or redirect(URL('index'))    
+    user = db.auth_user(request.args(0)) or redirect(URL('index'))
     groups = db(db.auth_membership.user_id == user.id).select()
     
     for field in db.auth_user.fields:
         db.auth_user[field].default = user[field]
-
-    groups_query = db(db.auth_membership.user_id == user.id)._select(db.auth_membership.group_id)
-    not_groups = db(~db.auth_group.id.belongs(groups_query)).select(db.auth_group.id, db.auth_group.role).json()
-        
-    groups = db(db.auth_membership.user_id == user.id).select(db.auth_membership.id, db.auth_membership.group_id, distinct=True)
+    
+    groups_query = db(db.auth_membership.user_id == user.id
+                      )._select(db.auth_membership.group_id)
+    not_groups = db(~db.auth_group.id.belongs(groups_query)
+                    ).select(db.auth_group.id, db.auth_group.role).json()
+    
+    groups = db(db.auth_membership.user_id == user.id
+                ).select(db.auth_membership.id, db.auth_membership.group_id,
+                         distinct=True)
     groups.exclude(lambda row: row.group_id.role == 'Admin')
     
-    db.auth_user.email.writable=False
-    db.auth_user.password.writable=False
-    form = SQLFORM.factory(db.auth_user, 
-        Field('groups', label='Search Groups'),  
-        hidden=dict(groups_new=None))
-    form.element(_name='groups')['_autocomplete']='off' 
+    db.auth_user.email.writable = False
+    db.auth_user.password.writable = False
+    form = SQLFORM.factory(db.auth_user,
+                Field('groups', label='Search Groups'),
+                hidden=dict(groups_new=None))
+    form.element(_name='groups')['_autocomplete'] = 'off'
     
-    if form.accepts(request.vars, session):        
+    if form.accepts(request.vars, session):
         last_name = request.vars.last_name
         first_name = request.vars.first_name
         
         details = []
-        if last_name != user.last_name: details.append('last name changed from ' + user.last_name + ' to ' + last_name)
-        if first_name != user.first_name: details.append('first name changed from ' + user.first_name + ' to ' + first_name)
+        if last_name != user.last_name:
+            details.append('last name changed from ' + user.last_name
+                           + ' to ' + last_name)
+        if first_name != user.first_name:
+            details.append('first name changed from ' + user.first_name
+                           + ' to ' + first_name)
         
-        details = ', '.join(details)        
+        details = ', '.join(details)
         
-        logging.my_logging(db,details=details,user_id=auth.user.id,item_id=user.id,table_name='auth_user',access='update')
-        db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
+        logging.my_logging(db, details=details, user_id=auth.user.id,
+                           item_id=user.id, table_name='auth_user',
+                           access='update')
+        db(db.auth_user.id == user.id
+           ).update(**db.auth_user._filter_fields(form.vars))
         
         session.flash = T('User successfully updated.')
-        redirect(URL('users'))    
+        redirect(URL('users'))
     
-    return dict(form=form, groups=groups, id=user.id, json=SCRIPT('var groups=%s' % not_groups))
+    return dict(form=form, groups=groups, id=user.id,
+                json=SCRIPT('var groups=%s' % not_groups))
 
 @auth.requires_login()
 def events():
@@ -377,16 +397,19 @@ def update_tag():
 
 @auth.requires_login()
 def users():
-    if auth.has_membership('Admin') or auth.has_membership('Telehealth') :
-        users = db(db.auth_user.id != auth.user.id ).select()
+    if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
+        users = db(db.auth_user.id != auth.user.id).select()
     else:
-        groups_query = db(db.auth_membership.user_id == auth.user.id)._select(db.auth_membership.group_id)    
-        users_query = db(db.auth_membership.group_id.belongs(groups_query))._select(db.auth_membership.user_id)
-        users = db((db.auth_user.id != auth.user.id) & (db.auth_user.id.belongs(users_query))).select()
+        groups_query = db(db.auth_membership.user_id == auth.user.id
+                          )._select(db.auth_membership.group_id)
+        users_query = db(db.auth_membership.group_id.belongs(groups_query)
+                         )._select(db.auth_membership.user_id)
+        users = db((db.auth_user.id != auth.user.id)
+                   & (db.auth_user.id.belongs(users_query))).select()
     
     usrs = []
     for user in users:
-        usr = {};
+        usr = {}
         usr['id'] = user.id
         usr['name'] = user.first_name + ' ' + user.last_name
         usr['email'] = user.email
@@ -395,15 +418,16 @@ def users():
         for group in groups:
             if group.group_id.role != 'Admin':
                 grps = grps + ' ['+group.group_id.role+']'
-        usr['groups'] = grps    
+        usr['groups'] = grps
         usrs.append(usr)
-    return dict(users=users,usrs=usrs)
+    return dict(users=users, usrs=usrs)
 
 @auth.requires_membership('Admin')
 def del_user():
     id = request.vars.id
     email = db.auth_user[id].email
-    logging.my_logging(db,details=email,user_id=auth.user.id,item_id=id,table_name='auth_user',access='delete')
+    logging.my_logging(db, details=email, user_id=auth.user.id, item_id=id,
+                       table_name='auth_user', access='delete')
     del db.auth_user[request.vars.id]
     return ''
 
