@@ -222,7 +222,8 @@ def insert_groups(selected, user_id):
     for group in selected:
         db.auth_membership.insert(user_id=user_id, group_id=int(group[4:]))
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def show_user():
     user = db.auth_user(request.args(0)) or redirect(URL('index'))
     groups = db(db.auth_membership.user_id == user.id).select()
@@ -374,29 +375,35 @@ def update_group():
         return '0'
     else: return db(db.auth_group.id == id).select().json()
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def tags():
     tags = db(db.tag.id).select(orderby=~db.tag.id)
     return dict(tags=tags)
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def add_tag():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
-        logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='tag',access='create',details=request.vars.name)
+        logging.my_logging(db, user_id=auth.user.id, item_id=id,
+                           table_name='tag', access='create',
+                           details=request.vars.name)
         return `id`
     else: return '0'
-    
+
 @auth.requires_membership('Admin')
 def del_tag():
     id = request.vars.id
     name = db.tag[id].name
     del db.tag[id]
-    logging.my_logging(db,details=name,user_id=auth.user.id,item_id=id,table_name='tag',access='delete')
+    logging.my_logging(db, details=name, user_id=auth.user.id,
+                       item_id=id, table_name='tag', access='delete')
     return ''
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def update_tag():
     id = request.vars.id
     name = request.vars.name
@@ -407,13 +414,17 @@ def update_tag():
         tag = db.tag[id]
         
         details = []
-        if name != tag.name: details.append('name changed from ' + tag.name + ' to ' + name)
-        if description != tag.description: details.append('description changed from ' + tag.description + ' to ' + description)
+        if name != tag.name:
+            details.append('name changed from ' + tag.name + ' to ' + name)
+        if description != tag.description:
+            details.append('description changed from ' + tag.description
+                           + ' to ' + description)
         
-        details = ', '.join(details)        
+        details = ', '.join(details)
         
-        logging.my_logging(db,details=details,user_id=auth.user.id,item_id=id,table_name='tag',access='update')
-        db.tag[id] = dict(name=name,description=description)
+        logging.my_logging(db, details=details, user_id=auth.user.id,
+                           item_id=id, table_name='tag', access='update')
+        db.tag[id] = dict(name=name, description=description)
         return '0'
     else: return db(db.tag.id == id).select().json()
 
