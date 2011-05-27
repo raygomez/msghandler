@@ -464,46 +464,61 @@ def del_user():
     del db.auth_user[request.vars.id]
     return ''
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def contacts():
     users = db(db.auth_user.id > 0).select(orderby=~db.auth_user.id)
     contacts = db(db.contact.id > 0).select(orderby=~db.contact.id)
-    return dict(contacts=contacts,users=users)
+    return dict(contacts=contacts, users=users)
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def add_contact():
     id = db.contact.insert(**request.vars)
-    logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='contact',access='create')    
+    logging.my_logging(db, user_id=auth.user.id, item_id=id,
+                       table_name='contact', access='create')
     return `id`
 
 @auth.requires_membership('Admin')
 def del_contact():
     name = db.contact[request.vars.id].name
-    logging.my_logging(db,details=name,user_id=auth.user.id,item_id=request.vars.id,table_name='contact',access='delete')
+    logging.my_logging(db, details=name, user_id=auth.user.id,
+                       item_id=request.vars.id, table_name='contact',
+                       access='delete')
     del db.contact[request.vars.id]
     return ''
 
-@auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def update_contact():
     id = request.vars.id
     name = request.vars.name
     user_id = request.vars.user_id if request.vars.user_id != '' else None
-    contact_type= request.vars.contact_type
-    contact_info = request.vars.contact_info        
-
+    contact_type = request.vars.contact_type
+    contact_info = request.vars.contact_info
+    
     contact = db.contact[id]
-    contact_name = contact.user_id.first_name + ' ' + contact.user_id.last_name
+    contact_name = (contact.user_id.first_name + ' '
+                    + contact.user_id.last_name)
     details = []
-    if name != contact.name: details.append('name changed from ' + contact.name + ' to ' + name)
-    if user_id != contact_name: details.append('user changed from ' + contact_name + ' to ' + user_id)
-    if contact_type != contact.contact_type: details.append('contact type changed from ' + contact.contact_type + ' to ' + contact.contact_type)
-    if contact_info != contact.contact_info: details.append('contact info changed from ' + contact.contact_info + ' to ' + contact.contact_info)
-    details = ', '.join(details)        
-        
-    logging.my_logging(db,details=details,user_id=auth.user.id,item_id=id,table_name='contact',access='update')
-    db.contact[id] = dict(name=name,user_id=user_id, contact_type=contact_type,contact_info=contact_info)
+    if name != contact.name:
+        details.append('name changed from ' + contact.name + ' to ' + name)
+    if user_id != contact_name:
+        details.append('user changed from ' + contact_name + ' to ' + user_id)
+    if contact_type != contact.contact_type:
+        details.append('contact type changed from ' + contact.contact_type
+                       + ' to ' + contact.contact_type)
+    if contact_info != contact.contact_info:
+        details.append('contact info changed from ' + contact.contact_info
+                       + ' to ' + contact.contact_info)
+    details = ', '.join(details)
+    
+    logging.my_logging(db, details=details, user_id=auth.user.id, item_id=id,
+                       table_name='contact', access='update')
+    db.contact[id] = dict(name=name, user_id=user_id,
+                          contact_type=contact_type, contact_info=contact_info)
     return ''
-        
+
 @auth.requires_login()
 def data():
     return dict(form=crud())
@@ -524,8 +539,10 @@ def download():
 def get_contact(user):
     contact =  db(db.contact.user_id==user.id).select().first()
     if not contact:
-        contact= db.contact.insert(name='%s %s' % (user.first_name, user.last_name), user_id=user.id, 
-            contact_type='email', contact_info=user.email)
+        contact = db.contact.insert(name='%s %s'
+                                        % (user.first_name, user.last_name),
+                                    user_id=user.id, contact_type='email',
+                                    contact_info=user.email)
     return contact
 
 @auth.requires_login()
