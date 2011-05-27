@@ -95,19 +95,19 @@ def insert_ajax():
         membership_id = db.auth_membership.insert(user_id = id, group_id = second_id)
         user = db.auth_user[id].email
         group = db.auth_group[second_id].role
-        log_event(user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='create',
+        logging.my_logging(db,user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='create',
                         details=','.join([user,group,`id`]))
     elif request.vars.table == 'msg_group': 
         msg_group_id = db.msg_group.insert(msg_id = id, group_id = second_id, assigned_by=auth.user.id)
         subject = db.msg[id].subject
         group = db.auth_group[second_id].role
-        log_event(user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='create',
+        logging.my_logging(db,user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='create',
                         details=','.join([subject,group,`id`]))
     elif request.vars.table =='msg_tag': 
         msg_tag_id = db.msg_tag.insert(msg_id = id, tag_id = second_id)
         subject = db.msg[id].subject
         tag = db.tag[second_id].name
-        log_event(user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='create', 
+        logging.my_logging(db,user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='create', 
                         details=','.join([subject,tag,`id`]))
 
 @auth.requires_login()
@@ -121,7 +121,7 @@ def delete_ajax():
         group = db.auth_group[second_id].role
 
         db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).delete()
-        log_event(user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='delete',
+        logging.my_logging(db,user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='delete',
                         details=','.join([user,group,`id`]))
 
     elif request.vars.table =='msg_group':
@@ -130,7 +130,7 @@ def delete_ajax():
         group = db.auth_group[second_id].role
             
         db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).delete()
-        log_event(user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='delete', \
+        logging.my_logging(db,user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='delete', \
                             details=','.join([subject,group,`id`]))        
         
     elif request.vars.table =='msg_tag':
@@ -139,7 +139,7 @@ def delete_ajax():
         tag = db.tag[second_id].name
 
         db((db.msg_tag.tag_id == second_id) & (db.msg_tag.msg_id == id)).delete()
-        log_event(user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='delete', \
+        logging.my_logging(db,user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='delete', \
                             details=','.join([subject,tag,`id`]))        
                 
 @auth.requires_login()
@@ -171,7 +171,7 @@ def create_user():
         db.contact.insert(name=form.vars.first_name + ' ' + form.vars.last_name, user_id=id, contact_type='email', contact_info=form.vars.email)
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1],id)
-        log_event(user_id=auth.user.id,item_id=id,table_name='auth_user',access='create')
+        logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='auth_user',access='create')
         session.flash = T('User successfully added.')
         redirect(URL('users'))    
 
@@ -212,7 +212,7 @@ def show_user():
         
         details = ', '.join(details)        
         
-        log_event(details=details,user_id=auth.user.id,item_id=user.id,table_name='auth_user',access='update')
+        logging.my_logging(db,details=details,user_id=auth.user.id,item_id=user.id,table_name='auth_user',access='update')
         db(db.auth_user.id == user.id).update(**db.auth_user._filter_fields(form.vars))
         
         session.flash = T('User successfully updated.')
@@ -265,7 +265,7 @@ def add_group():
     
     if len(groups) == 0:
         id = db.auth_group.insert(**request.vars)
-        log_event(user_id=auth.user.id,item_id=id,table_name='auth_group',access='create',details=request.vars.role)
+        logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='auth_group',access='create',details=request.vars.role)
         return `id`
     else: return '0'
     
@@ -275,7 +275,7 @@ def del_group():
     role = db.auth_group[id].role
     
     del db.auth_group[id]
-    log_event(details=role,user_id=auth.user.id,item_id=id,table_name='auth_group',access='delete')
+    logging.my_logging(db,details=role,user_id=auth.user.id,item_id=id,table_name='auth_group',access='delete')
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
@@ -294,7 +294,7 @@ def update_group():
         
         details = ', '.join(details)        
         
-        log_event(details=details,user_id=auth.user.id,item_id=id,table_name='auth_group',access='update')
+        logging.my_logging(db,details=details,user_id=auth.user.id,item_id=id,table_name='auth_group',access='update')
         db.auth_group[id] = dict(role=role,description=description, user_id=auth.user.id)
         return '0'
     else: return db(db.auth_group.id == id).select().json()
@@ -309,7 +309,7 @@ def add_tag():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
-        log_event(user_id=auth.user.id,item_id=id,table_name='tag',access='create',details=request.vars.name)
+        logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='tag',access='create',details=request.vars.name)
         return `id`
     else: return '0'
     
@@ -318,7 +318,7 @@ def del_tag():
     id = request.vars.id
     name = db.tag[id].name
     del db.tag[id]
-    log_event(details=name,user_id=auth.user.id,item_id=id,table_name='tag',access='delete')
+    logging.my_logging(db,details=name,user_id=auth.user.id,item_id=id,table_name='tag',access='delete')
     return ''
 
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
@@ -337,7 +337,7 @@ def update_tag():
         
         details = ', '.join(details)        
         
-        log_event(details=details,user_id=auth.user.id,item_id=id,table_name='tag',access='update')
+        logging.my_logging(db,details=details,user_id=auth.user.id,item_id=id,table_name='tag',access='update')
         db.tag[id] = dict(name=name,description=description)
         return '0'
     else: return db(db.tag.id == id).select().json()
@@ -370,7 +370,7 @@ def users():
 def del_user():
     id = request.vars.id
     email = db.auth_user[id].email
-    log_event(details=email,user_id=auth.user.id,item_id=id,table_name='auth_user',access='delete')
+    logging.my_logging(db,details=email,user_id=auth.user.id,item_id=id,table_name='auth_user',access='delete')
     del db.auth_user[request.vars.id]
     return ''
 
@@ -383,13 +383,13 @@ def contacts():
 @auth.requires(auth.has_membership('Admin') or auth.has_membership('Telehealth'))
 def add_contact():
     id = db.contact.insert(**request.vars)
-    log_event(user_id=auth.user.id,item_id=id,table_name='contact',access='create')    
+    logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='contact',access='create')    
     return `id`
 
 @auth.requires_membership('Admin')
 def del_contact():
     name = db.contact[request.vars.id].name
-    log_event(details=name,user_id=auth.user.id,item_id=request.vars.id,table_name='contact',access='delete')
+    logging.my_logging(db,details=name,user_id=auth.user.id,item_id=request.vars.id,table_name='contact',access='delete')
     del db.contact[request.vars.id]
     return ''
 
@@ -410,7 +410,7 @@ def update_contact():
     if contact_info != contact.contact_info: details.append('contact info changed from ' + contact.contact_info + ' to ' + contact.contact_info)
     details = ', '.join(details)        
         
-    log_event(details=details,user_id=auth.user.id,item_id=id,table_name='contact',access='update')
+    logging.my_logging(db,details=details,user_id=auth.user.id,item_id=id,table_name='contact',access='update')
     db.contact[id] = dict(name=name,user_id=user_id, contact_type=contact_type,contact_info=contact_info)
     return ''
         
@@ -480,13 +480,13 @@ def create_message():
                 tag_id = int(tag[4:])
                 subject = db.msg[msg_id].subject
                 tag = db.tag[tag_id].name
-                log_event(user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create', details=','.join([subject,tag]))
+                logging.my_logging(db,user_id=auth.user.id,item_id=id,table_name='msg_tag',access='create', details=','.join([subject,tag]))
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
                 db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]), assigned_by=auth.user.id)        
 
-        log_event(user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
+        logging.my_logging(db,user_id=auth.user.id,item_id=msg_id,table_name='msg',access='create')
                 
         session.flash = T('Message successfully created.')
         redirect(URL('index'))
@@ -553,7 +553,7 @@ def create_attachment():
         msg_attachment_id = db.msg_attachment.insert(**db.msg_attachment._filter_fields(form.vars))
         subject = db.msg[msg_id].subject
     
-        #log_event(user_id=auth.user.id,item_id=msg_attachment_id,table_name='msg_attachment',access='create',
+        #logging.my_logging(db,user_id=auth.user.id,item_id=msg_attachment_id,table_name='msg_attachment',access='create',
         #                details=','.join([subject,filename,`msg_id`]))        
         redirect(URL('read_message', args=msg_id))
     return dict(form = form)
