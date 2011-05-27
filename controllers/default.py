@@ -94,11 +94,11 @@ def index():
     return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,
                 json=SCRIPT('var groups=%s' % groups))
 
-def get_groups ():
+def get_groups():
     groups = db(db.auth_membership.user_id == auth.user.id).select()
     roles = []
     for group in groups:
-        roles.append(group.group_id.id)    
+        roles.append(group.group_id.id)
     return roles
 
 def get_message():
@@ -111,24 +111,29 @@ def insert_ajax():
     id = int(request.vars.id)
     second_id = int(request.vars.group[1:])
     
-    if request.vars.table == 'user_group': 
-        membership_id = db.auth_membership.insert(user_id = id, group_id = second_id)
+    if request.vars.table == 'user_group':
+        membership_id = db.auth_membership.insert(user_id=id,
+                                                  group_id=second_id)
         user = db.auth_user[id].email
         group = db.auth_group[second_id].role
-        logging.my_logging(db,user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='create',
-                        details=','.join([user,group,`id`]))
+        logging.my_logging(db, user_id=auth.user.id, item_id=membership_id,
+                           table_name='auth_membership', access='create',
+                           details=','.join([user,group,`id`]))
     elif request.vars.table == 'msg_group': 
-        msg_group_id = db.msg_group.insert(msg_id = id, group_id = second_id, assigned_by=auth.user.id)
+        msg_group_id = db.msg_group.insert(msg_id=id, group_id=second_id,
+                                           assigned_by=auth.user.id)
         subject = db.msg[id].subject
         group = db.auth_group[second_id].role
-        logging.my_logging(db,user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='create',
-                        details=','.join([subject,group,`id`]))
-    elif request.vars.table =='msg_tag': 
-        msg_tag_id = db.msg_tag.insert(msg_id = id, tag_id = second_id)
+        logging.my_logging(db, user_id=auth.user.id, item_id=msg_group_id,
+                           table_name='msg_group', access='create',
+                           details=','.join([subject,group,`id`]))
+    elif request.vars.table =='msg_tag':
+        msg_tag_id = db.msg_tag.insert(msg_id=id, tag_id=second_id)
         subject = db.msg[id].subject
         tag = db.tag[second_id].name
-        logging.my_logging(db,user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='create', 
-                        details=','.join([subject,tag,`id`]))
+        logging.my_logging(db, user_id=auth.user.id, item_id=msg_tag_id,
+                           table_name='msg_tag', access='create',
+                           details=','.join([subject,tag,`id`]))
 
 @auth.requires_login()
 def delete_ajax():
@@ -136,32 +141,40 @@ def delete_ajax():
     second_id = int(request.vars.group)
     
     if request.vars.table == 'user_group':
-        membership_id = db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).select().first().id    
+        membership_id = db((db.auth_membership.group_id == second_id)
+                           & (db.auth_membership.user_id == id)
+                           ).select().first().id
         user = db.auth_user[id].email
         group = db.auth_group[second_id].role
-
-        db((db.auth_membership.group_id == second_id) & (db.auth_membership.user_id == id)).delete()
-        logging.my_logging(db,user_id=auth.user.id,item_id=membership_id,table_name='auth_membership',access='delete',
-                        details=','.join([user,group,`id`]))
-
+        
+        db((db.auth_membership.group_id == second_id)
+           & (db.auth_membership.user_id == id)).delete()
+        logging.my_logging(db, user_id=auth.user.id, item_id=membership_id,
+                           table_name='auth_membership', access='delete',
+                           details=','.join([user,group,`id`]))
     elif request.vars.table =='msg_group':
-        msg_group_id = db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).select().first().id    
+        msg_group_id = db((db.msg_group.group_id == second_id)
+                          & (db.msg_group.msg_id == id)).select().first().id
         subject = db.msg[id].subject
         group = db.auth_group[second_id].role
-            
-        db((db.msg_group.group_id == second_id) & (db.msg_group.msg_id == id)).delete()
-        logging.my_logging(db,user_id=auth.user.id,item_id=msg_group_id,table_name='msg_group',access='delete', \
-                            details=','.join([subject,group,`id`]))        
         
+        db((db.msg_group.group_id == second_id)
+           & (db.msg_group.msg_id == id)).delete()
+        logging.my_logging(db, user_id=auth.user.id, item_id=msg_group_id,
+                           table_name='msg_group', access='delete',
+                           details=','.join([subject,group,`id`]))
     elif request.vars.table =='msg_tag':
-        msg_tag_id = db((db.msg_tag.tag_id == second_id) & (db.msg_tag.msg_id == id)).select().first().id
+        msg_tag_id = db((db.msg_tag.tag_id == second_id)
+                        & (db.msg_tag.msg_id == id)).select().first().id
         subject = db.msg[id].subject
         tag = db.tag[second_id].name
+        
+        db((db.msg_tag.tag_id == second_id)
+           & (db.msg_tag.msg_id == id)).delete()
+        logging.my_logging(db, user_id=auth.user.id, item_id=msg_tag_id,
+                           table_name='msg_tag', access='delete',
+                           details=','.join([subject,tag,`id`]))        
 
-        db((db.msg_tag.tag_id == second_id) & (db.msg_tag.msg_id == id)).delete()
-        logging.my_logging(db,user_id=auth.user.id,item_id=msg_tag_id,table_name='msg_tag',access='delete', \
-                            details=','.join([subject,tag,`id`]))        
-                
 @auth.requires_login()
 def delete_ajax_id():    
     tablename,id = request.vars.id.split('-')
