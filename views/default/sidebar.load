@@ -1,7 +1,7 @@
 <tr><td><input type="button" width='100%' value='    Compose    ' onclick='window.location = "/msghandler/default/create_message";'></input></td></tr>
 
 {{if late_count:}}
-<tr><td>{{=A('Late (',`late_count`,')',_href=URL('index', args='late'))}}</td></tr>
+<tr><td>{{=A('Late (',late_count,')',_href=URL('index', args='late'))}}</td></tr>
 {{else:}}
 <tr><td>{{=A('Late',_href=URL('index', args='late'))}}</td></tr>
 {{pass}}

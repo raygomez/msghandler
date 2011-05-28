@@ -95,6 +95,8 @@ db.define_table('msg',
     Field('created_by', db.contact, notnull=True),
     Field('parent_msg', 'reference msg', notnull=True, default=0),    
     Field('create_time', 'datetime', notnull=True, default=datetime.now()),
+    Field('is_hidden', 'boolean', default=False),
+    Field('is_closed', 'boolean', default=False),
     format='%(subject)s')
 db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
 db.msg.created_by.writable = db.msg.created_by.readable = False
