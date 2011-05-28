@@ -71,16 +71,20 @@ tr.content,tr.attachment {
 }
 </style>
 
-
+REFERRAL
 <table width='95%'>
 <tr><td><h4>{{=message.subject}}</h4></td><tr/>
-<tr><td>From:{{=message.created_by.name}} ({{=SPAN(_title=message.create_time,_class='timestamp')}}) | {{=A('Remove referral', _href='#')}}</td></tr>
-
+<tr>
+    <td>From:{{=message.created_by.name}} ({{=SPAN(_title=message.create_time,_class='timestamp')}}) | {{=A('Remove referral', _href='#')}}</td></tr>
 {{if update_time:}}
 <tr><td>Updated {{=SPAN(_title=update_time,_class='timestamp')}}</td></tr>
 {{pass}}
-<tr class='content'><td colspan=2>{{=message.content}}</td></tr>
-<tr><td>Groups:</td>
+<tr class='content'><td>{{=message.content}}</td></tr>
+<tr><td><br/></td></td>
+<tr>
+<table>
+<tr><td width='15%'>Groups:</td>
+    <td>{{=INPUT(_placeholder='search groups',_name='groups', _onkeyup='showgroups()', _autocomplete='off' )}}</td>
     <td id='tr-groups-new'><table><tr>
 {{if len(groups):}}    
     {{for group in groups:}}
@@ -92,11 +96,10 @@ tr.content,tr.attachment {
 {{pass}}    
     </tr></table></td>
 </tr>    
-
-<tr><td>Search Group:</td><td><input name='groups' onkeyup='showgroups()' autocomplete='off' /></td>
 <tr><td></td><td><div id='new-groups'></div></td><tr>
 
 <tr><td>Tags:</td>
+    <td>{{=INPUT(_placeholder='search tags', _name='tags', _onkeyup='showtags()', _autocomplete='off')}}</td>
     <td id='tr-tags-new'><table><tr>
 {{if len(tags):}}    
     {{for tag in tags:}}
@@ -108,8 +111,10 @@ tr.content,tr.attachment {
 {{pass}}    
     </tr></table></td>
 </tr>
-<tr><td>Search Tags:</td><td><input name='tags' onkeyup='showtags()' autocomplete='off' /></td>
 <tr><td></td><td><div id='new-tags'></div></td><tr>
+</tr>
+</table>
+<br/>
 </table>
 ATTACHMENTS | {{=A('Upload new attachments', _href=URL('create_attachment', args=id))}}<br />
 {{if len(attachs) > 0:}}
@@ -124,10 +129,11 @@ ATTACHMENTS | {{=A('Upload new attachments', _href=URL('create_attachment', args
 {{pass}}
 </table>
 {{pass}}
-
+<br/>
+REPLIES
 <table width=95%>
 {{for reply in replies:}}
-<tr><td>From {{=reply.created_by.name}} {{=SPAN(_title=reply.create_time,_class='timestamp')}}</td></tr>
+<tr><td>From {{=reply.created_by.name}} {{=SPAN(_title=reply.create_time,_class='timestamp')}} | {{=A('Remove reply', _href='#')}}</td></tr>
 <tr class='content'><td colspan=2>{{=reply.content}}</td></tr>
 {{pass}}
 {{=form}}

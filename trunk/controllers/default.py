@@ -13,8 +13,7 @@ dbutils = local_import('utils.dbutils')
 
 @auth.requires_login()
 def sidebar():
-    late = db(db.tag.name == 'Late').select().first()
-    late_count = db(db.msg_tag.tag_id == late.id).count()
+    late_count = request.vars.late_count
     return dict(late_count=late_count)
 
 @auth.requires_login()
@@ -640,7 +639,7 @@ def read_message():
                 ).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
     
     tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
-    not_tags = db(~db.tag.id.belongs(tags_query)
+    not_tags = db(~db.tag.id.belongs(tags_query) & (db.tag.name!='Late')
                   ).select(db.tag.id, db.tag.name).json()
     tags = db(db.msg_tag.msg_id == message.id
               ).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
