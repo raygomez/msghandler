@@ -107,7 +107,23 @@ Things to Do
 <ol>
 <li><del>Read only access for Doctors.</del></li>
 </ol>
-{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_role', _placeholder='search by role'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"))))}}<br/>
+
+
+<table>
+<tr>
+<td>Logo</td>
+<td>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_role', _placeholder='search by role'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"))))}}
+</td>
+</tr>
+
+<tr>
+<td width="15%" class='menu'>
+    <table class='menu_table' width='100%'>
+    {{=LOAD('default','sidebar.load')}}
+    </table>        
+</td>
+<td>
 <table id='list'>
 {{=TR(TH('Role'), TH('Description', _colspan=2))}}
 {{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}    
@@ -130,4 +146,7 @@ Things to Do
 {{pass}}
 </tr>
 {{pass}}
+</table>
+
+</td></tr>
 </table>
