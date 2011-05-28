@@ -70,13 +70,26 @@ Things to Do
 <li>add event log on own user changes. when user changes his own details, events are NOT generated.</li>
 <li></li>
 </ol>
+<table>
+<tr>
+<td>Logo</td>
+<td>
 {{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),
         INPUT(_name='s_email', _placeholder='search by email'),
         INPUT(_name='s_groups', _placeholder='search by groups'),
-        TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='16%')))}}<br/>
+        TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='16%')))}}
+</td>
+</tr>
+<tr>
+<td width="15%" class='menu'>
+    <table class='menu_table' width='100%'>
+    {{=LOAD('default','sidebar.load')}}
+    </table>        
+</td>
+<td>
 <table id='list'>
 
-{{=TR(TH('User Management', _colspan=5))}}
+{{#=TR(TH('User Management', _colspan=5))}}
 {{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}    
 {{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=5), _align='center', _id='add-row')}}
 {{pass}}
@@ -90,7 +103,6 @@ Things to Do
 {{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%', _rowspan=2)}}
 {{elif auth.has_membership('Telehealth'):}}
 {{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), _width='15%', _rowspan=2)}}
-
 {{pass}}
 </tr>
 {{=TR(TD('Groups:'), TD(usr['groups'], _colspan=3))}}
@@ -98,3 +110,4 @@ Things to Do
 {{pass}}
 
 </table>
+</td></tr></table>

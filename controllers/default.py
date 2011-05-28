@@ -10,9 +10,12 @@
 #########################################################################
 
 dbutils = local_import('utils.dbutils')
-#sample usage
-#dbutils.log_event(db, user_id=auth.user.id, item_id=msg_id,
-#                  table_name='msg', access='create')
+
+@auth.requires_login()
+def sidebar():
+    late = db(db.tag.name == 'Late').select().first()
+    late_count = db(db.msg_tag.tag_id == late.id).count()
+    return dict(late_count=late_count)
 
 @auth.requires_login()
 def index():
@@ -28,7 +31,14 @@ def index():
     msgs = []
     contact = get_contact(auth.user)
     
+    late_tag = db(db.tag.name == 'Late').select().first()    
+    late_query = db(db.msg_tag.tag_id == late_tag.id)._select(db.msg_tag.msg_id)
+    late_select = db.msg.id.belongs(late_query) if request.args(0) == 'late' else db.msg.id > 0
+        
     if auth.has_membership('Admin'):
+        messages = db((db.msg.parent_msg == 0) & late_select).select(db.msg.ALL,orderby=db.msg.create_time)            
+       
+    elif auth.has_membership('Telehealth'):     
         messages = db(db.msg.parent_msg == 0
                       ).select(db.msg.ALL, orderby=~db.msg.create_time)
     
@@ -59,6 +69,7 @@ def index():
                             orderby=db.auth_user.last_name)
     
     msgs = []
+    late_msgs = []
     for message in messages:
         comment = db(db.msg.parent_msg == message.id
                      ).select(orderby=~db.msg.create_time)
@@ -87,11 +98,17 @@ def index():
         msg['groups'] = ' '.join([group.group_id.role.replace(' ','_')
                                   for group in db(db.msg_group.msg_id == message
                                                   ).select()])
-        msgs.append(msg)
+        
+        if db((db.msg_tag.msg_id == message.id) & (db.msg_tag.tag_id == late_tag.id )).count() != 0:
+            late_msgs.append(msg)
+        else: msgs.append(msg)
     
-    msgs = sorted(msgs, key=lambda msg : msg['time'], reverse=True)
-    
-    return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,
+    if request.args(0) == 'late':
+        msgs = []
+    else:        
+        msgs = sorted(msgs, key=lambda msg : msg['time'], reverse=True)
+                   
+    return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,late_msgs=late_msgs,
                 json=SCRIPT('var groups=%s' % groups))
 
 def get_groups():

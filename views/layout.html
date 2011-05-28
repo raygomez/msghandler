@@ -106,9 +106,6 @@
 
       <!-- content -->
       <div id="content" {{=XML(style_content)}} >
-        {{if auth.has_membership('Admin'):}}
-            <h2>You are admin.</h2><br/>
-        {{pass}}
         {{include}} 
       </div>
       <!-- content -->
