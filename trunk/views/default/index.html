@@ -139,7 +139,7 @@ Things to Do
     <tr>
         <td width="15%" class='menu'>
             <table class='menu_table' width='100%'>
-                {{=LOAD('default','sidebar.load', vars=dict(late_count=1), ajax=True )}}
+                {{=LOAD('default','sidebar.load')}}
                 <tr><td><hr/></td></tr>
                 <tr>{{=TD(INPUT(_type='checkbox', value=True, _name='.owner'),'Owner')}}</tr>
                 {{if len(my_roles):}}

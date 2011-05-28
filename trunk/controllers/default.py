@@ -13,7 +13,8 @@ dbutils = local_import('utils.dbutils')
 
 @auth.requires_login()
 def sidebar():
-    late_count = request.vars.late_count
+    late = db(db.tag.name == 'Late').select().first()
+    late_count = db(db.msg_tag.tag_id == late.id).count()
     return dict(late_count=late_count)
 
 @auth.requires_login()
