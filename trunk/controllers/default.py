@@ -484,15 +484,18 @@ def contacts():
 def add_contact():
     id = db.contact.insert(**request.vars)
     dbutils.log_event(db, user_id=auth.user.id, item_id=id,
-                      table_name='contact', access='create')
+                      table_name='contact', access='create', details=','.join([request.vars.contact_type,request.vars.contact_info]))
     return `id`
 
 @auth.requires_membership('Admin')
 def del_contact():
-    name = db.contact[request.vars.id].name
-    dbutils.log_event(db, details=name, user_id=auth.user.id,
+    contact = db.contact[request.vars.id]
+    name = contact.name
+    contact_type = contact.contact_type
+    contact_info = contact.contact_info
+    dbutils.log_event(db, user_id=auth.user.id,
                       item_id=request.vars.id, table_name='contact',
-                      access='delete')
+                      access='delete', details=','.join([name,contact_type,contact_info]))
     del db.contact[request.vars.id]
     return ''
 
