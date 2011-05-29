@@ -128,7 +128,7 @@ Things to Do
 {{elif evnt['table'] == 'msg_tag':}}
     {{if evnt['access'] == 'create':}}
         {{if evnt['item']:}}
-            {{=evnt['user']}} tagged the message {{=A(evnt['item'].msg_id.subject, _href=URL('read_message', args=evnt['item'].id))}} as {{=A(evnt['item'].tag_id.name, _href=URL('tags'))}} . <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+            {{=evnt['user']}} tagged the message {{=A(evnt['item'].msg_id.subject, _href=URL('read_message', args=evnt['item'].id))}} as {{=A(evnt['item'].tag_id.name, _href=URL('tags'))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
         {{else:}}
             {{tag = evnt['details'].split(',')[1]}}
             {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
