@@ -613,8 +613,11 @@ def create_message():
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
-                db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]),
+                id = db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]),
                                     assigned_by=auth.user.id)
+                dbutils.log_event(db, user_id=auth.user.id, item_id=id,
+                                  table_name='msg_group', access='create',
+                                  details=','.join([subject,group]))
         
         dbutils.log_event(db, user_id=auth.user.id, item_id=msg_id,
                           table_name='msg', access='create')
