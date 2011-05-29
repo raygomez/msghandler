@@ -193,15 +193,6 @@ def delete_ajax():
                           details=','.join([subject,tag,`id`]))        
 
 @auth.requires_login()
-def delete_ajax_id():    
-    tablename,id = request.vars.id.split('-')
-    del db[tablename][id]
-    
-    if 'auth_' in tablename:
-        tablename = tablename.replace('auth_','')
-    return 'You deleted a %s' % tablename
-
-@auth.requires_login()
 def create_user():
     groups = db(db.auth_group.role != 'Admin'
                 ).select(db.auth_group.id, db.auth_group.role,
@@ -597,6 +588,7 @@ def create_message():
         
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
         form.vars.msg_id = msg_id
+        subject = form.vars.subject
         if request.vars.attachment != '':
            db.msg_attachment.insert(
                 **db.msg_attachment._filter_fields(form.vars))
@@ -605,7 +597,6 @@ def create_message():
             for tag in select_tags:
                 id = db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag[4:]))
                 tag_id = int(tag[4:])
-                subject = db.msg[msg_id].subject
                 tag = db.tag[tag_id].name
                 dbutils.log_event(db, user_id=auth.user.id, item_id=id,
                                   table_name='msg_tag', access='create',
