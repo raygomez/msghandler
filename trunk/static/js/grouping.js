@@ -12,8 +12,6 @@ function addgroups(widget){
     $('#tr-groups-new table tr').append($('<td class="top-td">').append($('<span>'+ widget.target.name +'</span>'),td1));
     
     $('.groups-add').one('click', function(){
-                console.log($(this))
-    
                 $(this).parent().fadeOut( function() { $(this).remove(); updategroups();});
                 id = parseInt(this.id.split('imgt')[1]);
                 tag = {id:id, role:this.name};
