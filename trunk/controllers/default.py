@@ -673,6 +673,8 @@ def read_message():
         form.vars.parent_msg = message.id
         form.vars.subject = 'Re:'
         msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
+        late = db(db.tag.name == 'Late').select().first()
+        db((db.msg_tag.msg_id == message.id) & (db.msg_tag.tag_id == late.id)).delete()
         dbutils.log_event(db, user_id=auth.user.id, item_id=msg_id,
                           table_name='msg', access='create')
         
