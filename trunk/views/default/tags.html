@@ -104,7 +104,20 @@ Things to Do
 <li>css color problems for default values</li>
 <li></li>
 </ol>
-{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='20%')))}}<br/>
+<table>
+<tr>
+<td>logo</td>
+<td>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_name', _placeholder='search by name'),INPUT(_name='s_description', _placeholder='search by description'),TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='20%')))}}
+</td>
+</tr>
+<tr>
+<td width="15%" class='menu'>
+    <table class='menu_table' width='100%'>
+    {{=LOAD('default','sidebar.load')}}
+    </table>        
+</td>
+<td>
 <table id='list'>
 {{=TR(TH('Name'), TH('Description', _colspan=2))}}
 {{=TR(TD(INPUT(_name='name', _placeholder='Input tag name here')),TD(INPUT(_name='description', _placeholder='Input tag description here')), TD(A('Add', _id='add-tag')), _id='add-row')}}
@@ -119,4 +132,7 @@ Things to Do
 {{pass}}
 </tr>
 {{pass}}
+</table>
+</td>
+</tr>
 </table>

@@ -102,7 +102,8 @@ db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
 db.msg.created_by.writable = db.msg.created_by.readable = False
 db.msg.create_time.writable = db.msg.create_time.readable = False
 db.msg.parent_msg.writable = db.msg.parent_msg.readable = False
-
+db.msg.is_hidden.writable = db.msg.is_hidden.readable = False
+db.msg.is_closed.writable = db.msg.is_closed.readable = False
 
 db.define_table('msg_attachment',
     Field('msg_id', db.msg, notnull=True),
@@ -163,5 +164,4 @@ db.define_table('event',
     Field('table_name', requires=IS_IN_SET(('msg','auth_user','auth_group','tag','contact', 'auth_membership', 'msg_attachment','msg_tag', 'msg_group'))),
     Field('access', requires=IS_IN_SET(('create','read','update','delete'))),    
     format='%(description)s')
-
 db.event.user_id.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')
