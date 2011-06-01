@@ -225,7 +225,14 @@ def create_user():
 
 def insert_groups(selected, user_id):
     for group in selected:
-        db.auth_membership.insert(user_id=user_id, group_id=int(group[4:]))
+        user = db.auth_user[user_id].email
+        role = db.auth_group[int(group[4:])].role
+    
+        membership_id = db.auth_membership.insert(user_id=user_id, group_id=int(group[4:]))
+        dbutils.log_event(db, user_id=auth.user.id, item_id=membership_id,
+                          table_name='auth_membership', access='create',
+                          details=','.join([user,role,`user_id`]))
+
 
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
