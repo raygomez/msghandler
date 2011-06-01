@@ -1,4 +1,10 @@
 {{extend 'layout.html'}}
+<script>
+    $(function(){
+        $('.top-td').live('mouseenter', function(){$(this).children(':hidden').show();})
+        $('.top-td').live('mouseleave', function(){$(this).children('img').hide();});
+    })
+</script>
 
 {{=form.custom.begin}}
 <table>
