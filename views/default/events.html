@@ -27,8 +27,7 @@ function filter(){
         })
 }
 $(function(){
-    $('.timestamp').timeago()             
-    
+    $('.timestamp').timeago()                 
     $('input[name=keyword]').keyup(function(){ filter()})
     $('input[type=checkbox]').click(function(){ filter()})
 })    
@@ -40,6 +39,15 @@ Things to Do
 <li></li>
 </ol>
 
+<table>
+<tr><td>Logo</td></tr>
+<tr>
+        <td width="15%" class='menu'>
+            <table class='menu_table' width='100%'>
+                {{=LOAD('default','sidebar.load')}}
+            </table>        
+        </td>
+<td>
 <table>{{=TR(TD(LABEL('Filter by keywords:')),TD(INPUT(_name='keyword',_placeholder='Enter a keyword')))}}</table>
 <table>
 <tr>
@@ -68,10 +76,14 @@ Things to Do
 </table>
 <br/>
 {{if page:}}
+<div style="float: left;">
 <a href="{{=URL(args=[page-1])}}">[previous {{=items_per_page}} events]</a>
+</div>
 {{pass}}
 {{if len(evnts)>items_per_page:}}
+<div style="float: right; width: 100px;">
 <a href="{{=URL(args=[page+1])}}">[next {{=items_per_page}} events]</a>
+</div>
 {{pass}}
 <br/>
 <br/>
@@ -187,12 +199,17 @@ Things to Do
 </tr>
 {{pass}}
 </table>
-
 <br/>
 {{if page:}}
+<div style="float: left;">
 <a href="{{=URL(args=[page-1])}}">[previous {{=items_per_page}} events]</a>
+</div>
 {{pass}}
 {{if len(evnts)>items_per_page:}}
+<div style="float: right; width: 100px;">
 <a href="{{=URL(args=[page+1])}}">[next {{=items_per_page}} events]</a>
+</div>
 {{pass}}
-<br/>
+
+</td></tr>
+</table>
