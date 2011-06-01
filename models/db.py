@@ -108,7 +108,7 @@ db.msg.is_closed.writable = db.msg.is_closed.readable = False
 db.define_table('msg_attachment',
     Field('msg_id', db.msg, notnull=True),
     Field('attach_time', 'datetime', notnull=True, default=datetime.now()),
-    Field('attachment_type', notnull=True),
+    Field('attachment_type', notnull=True, default='image'),
     Field('attach_by', db.contact, notnull=True),
     Field('filename'),
     Field('attachment', 'upload', notnull=True),
@@ -119,7 +119,6 @@ db.msg_attachment.attach_time.writable = db.msg_attachment.attach_time.readable 
 db.msg_attachment.attach_by.writable = db.msg_attachment.attach_by.readable = False
 db.msg_attachment.attachment_type.writable = db.msg_attachment.attachment_type.readable = False
 db.msg_attachment.filename.writable = db.msg_attachment.filename.readable = False
-
 
 db.define_table('msg_recipients',
     Field('msg_id', db.msg),

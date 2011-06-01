@@ -1,13 +1,30 @@
 {{extend 'layout.html'}}
-{{=form}}
+{{#=form}}
+
+{{=form.custom.begin}}
+<table>
+{{=TR(TD(LABEL('Subject:')), TD(form.custom.widget.subject))}}
+{{=TR(TD(LABEL('Content:')), TD(form.custom.widget.content))}}
+{{=TR(TD(LABEL('Attachment:')), TD(form.custom.widget.attachment))}}
+{{=TR(TD(LABEL('Tags')),TD(TABLE(TR()),_id='tr-tags-new'))}}
+{{=TR(TD(LABEL('Search tags:')), TD(form.custom.widget.tags))}}
+{{=TR(TD(), TD(DIV(_id='new-tags')))}}
+{{=TR(TD(LABEL('Groups:')), TD(TABLE(TR()), _id='tr-groups-new'))}}
+{{=TR(TD(LABEL('Search groups:'), TD(form.custom.widget.groups)))}}
+{{=TR(TD(),TD(DIV(_id='new-groups')))}}
+{{=TR(TD(), TD(form.custom.submit))}}
+</table>
+{{=form.custom.end}}
+
+
 {{=json}}
 <script src="{{=URL('static','js/tagging.js')}}"></script>
 <script src="{{=URL('static','js/grouping.js')}}"></script>
 <script>
 $(
     function(){
-        $('.top-td').live('mouseenter', function(){$($(this).children()[1]).show();})
-        $('.top-td').live('mouseleave', function(){$($(this).children()[1]).hide();});
+        $('.top-td').live('mouseenter', function(){$(this).children(':hidden').show();})
+        $('.top-td').live('mouseleave', function(){$(this).children('img').hide();});
     }
 )
 </script>

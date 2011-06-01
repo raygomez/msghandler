@@ -567,7 +567,6 @@ def create_message():
     import os
     
     form = SQLFORM.factory(db.msg,
-                Field('attachment_type'),
                 Field('attachment', 'upload',
                       uploadfolder=os.path.join(request.folder,'uploads')),
                 Field('tags', label='Search tags'),
@@ -575,18 +574,9 @@ def create_message():
                 hidden=dict(tags_new=None, groups_new=None),
                 table_name='msg_attachment')
     form.element(_name='tags')['_onkeyup'] = "showtags()"
-    form.element(_name='tags')['_autocomplete'] = 'off'
-    form[0].insert(4, TR(TD(LABEL('Tags'), _class='w2p_fl'),
-                         TD(_id='tr-tags-new')))
-    form[0].insert(6, TR(TD(), TD(DIV(_id='new-tags'))))
-    form.element('#tr-tags-new').append(TABLE(TR()))
-    
+    form.element(_name='tags')['_autocomplete'] = 'off'    
     form.element(_name='groups')['_onkeyup'] = "showgroups()"
     form.element(_name='groups')['_autocomplete'] = 'off'
-    form[0].insert(7, TR(TD(LABEL('Groups'), _class='w2p_fl'),
-                         TD(_id='tr-groups-new')))
-    form[0].insert(9, TR(TD(), TD(DIV(_id='new-groups'))))
-    form.element('#tr-groups-new').append(TABLE(TR()))
     
     tags = db(db.tag.name != 'Late').select(db.tag.id, db.tag.name).json()
     groups = db().select(db.auth_group.id, db.auth_group.role).json()
@@ -599,8 +589,13 @@ def create_message():
         form.vars.msg_id = msg_id
         subject = form.vars.subject
         if request.vars.attachment != '':
-           db.msg_attachment.insert(
-                **db.msg_attachment._filter_fields(form.vars))
+            db.msg_attachment.msg_id.default = msg_id
+            db.msg_attachment.attach_by.default = contact.id
+            filename = request.vars.attachment.filename
+            form.vars.filename = filename
+            form.vars.attachment_type = filename[filename.rindex('.') + 1:]            
+            msg_attachment_id = db.msg_attachment.insert(
+                                **db.msg_attachment._filter_fields(form.vars))
         if request.vars.tags_new:
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
@@ -631,7 +626,7 @@ file_types = ['pdf']
 
 @auth.requires_login()
 def read_message():
-    if len(request.args) == 0 or request.args(0) is not int:
+    if len(request.args) == 0 or not request.args(0).isdigit():
         redirect(URL('index'))
     message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
     
