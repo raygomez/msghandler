@@ -1,4 +1,17 @@
 {{extend 'layout.html'}}
-{{=form}}
+
+{{=form.custom.begin}}
+<table>
+{{=TR(TD(LABEL('First Name:')), TD(form.custom.widget.first_name))}}
+{{=TR(TD(LABEL('Last Name:')), TD(form.custom.widget.last_name))}}
+{{=TR(TD(LABEL('Email:')), TD(form.custom.widget.email))}}
+{{=TR(TD(LABEL('Password:')), TD(form.custom.widget.password))}}
+{{=TR(TD(LABEL('Password Again:')), TD(form.custom.widget.password_again))}}
+{{=TR(TD(LABEL('Groups:')), TD(TABLE(TR()), _id='tr-groups-new'))}}
+{{=TR(TD(LABEL('Search groups:'), TD(form.custom.widget.groups)))}}
+{{=TR(TD(),TD(DIV(_id='new-groups')))}}
+{{=TR(TD(), TD(form.custom.submit))}}
+</table>
+{{=form.custom.end}}
 {{=json}}
 <script src="{{=URL('static','js/grouping.js')}}"></script>

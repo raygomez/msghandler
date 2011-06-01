@@ -208,9 +208,6 @@ def create_user():
     
     form.element(_name='groups')['_onkeyup'] = "showgroups()"
     form.element(_name='groups')['_autocomplete'] = 'off'
-    form[0].insert(5, TR(TD(LABEL('Groups'), _class='w2p_fl'),
-                         TD(TABLE(TR()), _id='tr-groups-new')))
-    form[0].insert(7, TR(TD(),TD(DIV(_id='new-groups'))))
     
     if form.accepts(request.vars, session):
         id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
