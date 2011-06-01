@@ -14,10 +14,10 @@ $(function() {
 
         list = $('#list').find('tr.user');
     
-        var text1 = $('input[name=s_name]').val().toLowerCase();
+        var text1 = $('input[name=s_fname]').val().toLowerCase();
         if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
         else var pattern1 = new RegExp('.*', 'ig');
-        var text2 = $('input[name=s_email]').val().toLowerCase();
+        var text2 = $('input[name=s_lname]').val().toLowerCase();
         if (text2 != '') var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
         else var pattern2 = new RegExp('.*', 'ig');
         var text3 = $('input[name=s_groups]').val().toLowerCase();
@@ -25,14 +25,13 @@ $(function() {
         else var pattern3 = new RegExp('.*', 'ig');
 
         $.each(list, function(index,value){
-            if ($(this).children('td').eq(1).text().match(pattern1) && $(this).children('td').eq(3).text().match(pattern2) &&
-                $(this).next().children('td').eq(1).text().match(pattern3)){
+            if ($(this).children('td').eq(0).text().match(pattern1) && $(this).children('td').eq(1).text().match(pattern2) &&
+                $(this).children('td').eq(2).text().match(pattern3)){
                 $(this).show() 
                 $(this).next().show()
             } else {    
                 $(this).hide()
                 $(this).next().hide() 
-                console.log($(this).next())                
             }
         })
     })
@@ -47,7 +46,6 @@ $(function() {
                 context: this,
                 success: function(data){
                     msg = 'The user has been successfully deleted.'
-                    $(this).parent().parent().next().fadeOut(1000, function(){ $(this).remove()})
                     $(this).parent().parent().fadeOut(1000, function(){ $(this).remove()})
                     $('.flash').html(msg).slideDown(function(){ $('.flash').delay(500).fadeOut(function(){$('.flash').html('')});});
                 }                
