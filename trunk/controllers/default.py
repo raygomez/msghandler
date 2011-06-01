@@ -596,6 +596,10 @@ def create_message():
             form.vars.attachment_type = filename[filename.rindex('.') + 1:]            
             msg_attachment_id = db.msg_attachment.insert(
                                 **db.msg_attachment._filter_fields(form.vars))
+            dbutils.log_event(db, user_id=auth.user.id, item_id=msg_attachment_id,
+                          table_name='msg_attachment', access='create',
+                          details=','.join([subject,filename,`msg_id`]))
+                                
         if request.vars.tags_new:
             select_tags = request.vars.tags_new.split(',')[:-1]
             for tag in select_tags:
