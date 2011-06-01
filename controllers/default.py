@@ -452,7 +452,8 @@ def users():
     for user in users:
         usr = {}
         usr['id'] = user.id
-        usr['name'] = user.first_name + ' ' + user.last_name
+        usr['fname'] = user.first_name
+        usr['lname'] = user.last_name        
         usr['email'] = user.email
         groups = db(db.auth_membership.user_id == user.id).select()
         grps = ''
