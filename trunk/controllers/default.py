@@ -627,8 +627,9 @@ file_types = ['pdf']
 
 @auth.requires_login()
 def read_message():
-    message = (db(db.msg.id == int(request.args(0))).select().first()
-               or redirect(URL('index')))
+    if len(request.args) == 0 or request.args(0) is not int:
+        redirect(URL('index'))
+    message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
     
     groups_query = db(db.msg_group.msg_id == message.id
                       )._select(db.msg_group.group_id)
