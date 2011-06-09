@@ -389,12 +389,6 @@ def update_group():
 
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
-def tags():
-    tags = db(db.tag.id).select(orderby=~db.tag.id)
-    return dict(tags=tags)
-
-@auth.requires(auth.has_membership('Admin')
-               or auth.has_membership('Telehealth'))
 def add_tag():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
