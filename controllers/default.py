@@ -387,18 +387,6 @@ def update_group():
         return '0'
     else: return db(db.auth_group.id == id).select().json()
 
-@auth.requires(auth.has_membership('Admin')
-               or auth.has_membership('Telehealth'))
-def add_tag():
-    tags = db(db.tag.name == request.vars.name).select()
-    if len(tags) == 0:
-        id = db.tag.insert(**request.vars)
-        dbutils.log_event(db, user_id=auth.user.id, item_id=id,
-                          table_name='tag', access='create',
-                          details=request.vars.name)
-        return `id`
-    else: return '0'
-
 @auth.requires_membership('Admin')
 def del_tag():
     id = request.vars.id
