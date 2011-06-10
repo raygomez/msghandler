@@ -1,0 +1,109 @@
+{{extend 'layout.html'}}
+
+<style type="text/css">
+table{width: 100%;}
+td[rowspan='2'] {text-align: center;vertical-align: middle;}
+input[type=text]{width: 98%;}
+button {vertical-align:middle}
+.menu, .menu + td { border: 1px solid black}
+</style>
+<script>
+$(function() {
+    $('input[name^=s_]').keyup(function() {
+
+        list = $('#list').find('tr.user');
+    
+        var text1 = $('input[name=s_fname]').val().toLowerCase();
+        if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        else var pattern1 = new RegExp('.*', 'ig');
+        var text2 = $('input[name=s_lname]').val().toLowerCase();
+        if (text2 != '') var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
+        else var pattern2 = new RegExp('.*', 'ig');
+        var text3 = $('input[name=s_groups]').val().toLowerCase();
+        if (text3 != '') var pattern3 = new RegExp('^.*' + text3 + '.*$', 'ig');
+        else var pattern3 = new RegExp('.*', 'ig');
+
+        $.each(list, function(index,value){
+            if ($(this).children('td').eq(0).text().match(pattern1) && $(this).children('td').eq(1).text().match(pattern2) &&
+                $(this).children('td').eq(2).text().match(pattern3)){
+                $(this).show() 
+                $(this).next().show()
+            } else {    
+                $(this).hide()
+                $(this).next().hide() 
+            }
+        })
+    })
+
+{{if auth.has_membership('Admin'):}}    
+    $('.del-row').live('click', function(){
+        var answer = confirm('Are you sure you want to delete this?')
+        if (answer){
+            $.ajax({
+                url: '{{=URL('del_user')}}',
+                data: 'id=' + this.name,
+                context: this,
+                success: function(data){
+                    msg = 'The user has been successfully deleted.'
+                    $(this).parent().parent().fadeOut(1000, function(){ $(this).remove()})
+                    $('.flash').html(msg).slideDown(function(){ $('.flash').delay(500).fadeOut(function(){$('.flash').html('')});});
+                }                
+            })        
+        }     
+    })
+{{pass}}    
+});
+</script>
+
+Things to Do
+<ol>
+<li>Fix password bug - hide password for now</li>
+<li>display own account. own user should be able to update his/her account. but not remove</li>
+<li>shift from email login to username</li>
+<li>create custom user form</li>
+<li>add prc id field</li>
+<li>add profession type field (numbering not yet known)</li>
+<li>add active field</li>
+<li>add event log on own user changes. when user changes his own details, events are NOT generated.</li>
+<li></li>
+</ol>
+<table>
+<tr>
+<td>Logo</td>
+<td>
+{{=TABLE(TR(LABEL('Search: '),INPUT(_name='s_fname', _placeholder='search by first name'),
+        INPUT(_name='s_lname', _placeholder='search by last name'),
+        INPUT(_name='s_groups', _placeholder='search by groups'),
+        TD(TAG.BUTTON('Clear search fields', _onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"), _width='16%')))}}
+</td>
+</tr>
+<tr>
+<td width="15%" class='menu'>
+    <table class='menu_table' width='100%'>
+    {{=LOAD('default','sidebar.load')}}
+    </table>        
+</td>
+<td>
+<table id='list'>
+
+{{#=TR(TH('User Management', _colspan=4))}}
+{{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}    
+{{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=4), _align='center', _id='add-row')}}
+{{pass}}
+
+
+{{=TR(TH('First Name'), TH('Last Name'), TH('Groups', _colspan=2))}}
+{{for usr in usrs:}}
+<tr class='user'>
+{{=TD(usr['fname'])}}
+{{=TD(usr['lname'])}}
+{{=TD(usr['groups'])}}
+{{if auth.has_membership('Admin'):}}    
+{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%')}}
+{{elif auth.has_membership('Telehealth'):}}
+{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), _width='15%')}}
+{{pass}}
+</tr>
+{{pass}}
+</table>
+</td></tr></table>
