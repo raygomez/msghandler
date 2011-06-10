@@ -192,36 +192,6 @@ def delete_ajax():
                           table_name='msg_tag', access='delete',
                           details=','.join([subject,tag,`id`]))        
 
-@auth.requires_login()
-def create_user():
-    groups = db(db.auth_group.role != 'Admin'
-                ).select(db.auth_group.id, db.auth_group.role,
-                         orderby=db.auth_group.role).json()
-    
-    form = SQLFORM.factory(db.auth_user,
-                Field('password_again', 'password',
-                      requires=IS_EQUAL_TO(request.vars.password,
-                            error_message='Passwords do not match.')),
-                Field('groups', label='Search groups'),
-                hidden=dict(groups_new=None),
-                table_name='user')
-    
-    form.element(_name='groups')['_onkeyup'] = "showgroups()"
-    form.element(_name='groups')['_autocomplete'] = 'off'
-    
-    if form.accepts(request.vars, session):
-        id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
-        db.contact.insert(user_id=id, contact_type='email',
-                          contact_info=form.vars.email,
-                name=form.vars.first_name + ' ' + form.vars.last_name)
-        if request.vars.groups_new:
-            insert_groups(request.vars.groups_new.split(',')[:-1],id)
-        dbutils.log_event(db, user_id=auth.user.id, item_id=id,
-                          table_name='auth_user', access='create')
-        session.flash = T('User successfully added.')
-        redirect(URL('users'))
-    
-    return dict(form=form, json=SCRIPT('var groups=%s' % groups))
 
 def insert_groups(selected, user_id):
     for group in selected:
