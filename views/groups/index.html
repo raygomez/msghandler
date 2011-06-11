@@ -89,7 +89,7 @@ $(function() {
         var answer = confirm('Are you sure you want to delete this?')
         if (answer){
             $.ajax({
-                url: '{{=URL('del_group')}}',
+                url: '{{=URL('delete')}}',
                 data: 'id=' + this.name,
                 context: this,
                 success: function(data){
