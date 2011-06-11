@@ -420,15 +420,6 @@ def users():
         usrs.append(usr)
     return dict(users=users, usrs=usrs)
 
-@auth.requires_membership('Admin')
-def del_user():
-    id = request.vars.id
-    email = db.auth_user[id].email
-    dbutils.log_event(db, details=email, user_id=auth.user.id, item_id=id,
-                      table_name='auth_user', access='delete')
-    del db.auth_user[request.vars.id]
-    return ''
-
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def contacts():
