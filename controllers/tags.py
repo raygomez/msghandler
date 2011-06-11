@@ -26,3 +26,30 @@ def delete():
     dbutils.log_event(db, details=name, user_id=auth.user.id,
                       item_id=id, table_name='tag', access='delete')
     return ''
+
+
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
+def update():
+    id = request.vars.id
+    name = request.vars.name
+    description = request.vars.description
+    
+    others = db((db.tag.name == name) & (db.tag.id != id)).select()
+    if len(others) == 0:
+        tag = db.tag[id]
+        
+        details = []
+        if name != tag.name:
+            details.append('name changed from ' + tag.name + ' to ' + name)
+        if description != tag.description:
+            details.append('description changed from ' + tag.description
+                           + ' to ' + description)
+        
+        details = ', '.join(details)
+        
+        dbutils.log_event(db, details=details, user_id=auth.user.id,
+                          item_id=id, table_name='tag', access='update')
+        db.tag[id] = dict(name=name, description=description)
+        return '0'
+    else: return db(db.tag.id == id).select().json()
