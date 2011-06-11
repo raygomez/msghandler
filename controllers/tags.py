@@ -8,7 +8,7 @@ def index():
 
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
-def add_tag():
+def create():
     tags = db(db.tag.name == request.vars.name).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)

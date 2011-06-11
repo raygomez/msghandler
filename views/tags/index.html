@@ -34,7 +34,7 @@ $(function() {
         if(description==''){alert('Description should not be blank.'); return }
 
         $.ajax({
-            url: '{{=URL('add_tag')}}',
+            url: '{{=URL('create')}}',
             data: 'name=' + name + '&' + 'description=' + description,
             success: function(data){
                 if(data != 0) {
