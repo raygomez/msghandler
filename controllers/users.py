@@ -113,7 +113,7 @@ def create():
     return dict(form=form, json=SCRIPT('var groups=%s' % groups))
 
 @auth.requires_membership('Admin')
-def del_user():
+def delete():
     id = request.vars.id
     email = db.auth_user[id].email
     dbutils.log_event(db, details=email, user_id=auth.user.id, item_id=id,
