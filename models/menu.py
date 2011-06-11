@@ -37,7 +37,7 @@ response.menu = [
 
 if auth.is_logged_in(): 
     response.menu+= [(T('Messages'), False, URL(request.application,'default','index'), []),
-                    (T('Users'), False, URL(request.application,'user','index'), []),
+                    (T('Users'), False, URL(request.application,'users','index'), []),
                     (T('Groups'), False, URL(request.application,'default','groups'), []),            
                     (T('Events'), False, URL(request.application,'default','events'), []),]
     

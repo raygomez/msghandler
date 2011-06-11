@@ -28,7 +28,6 @@ def index():
         usrs.append(usr)
     return dict(users=users, usrs=usrs)
 
-
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def read():
@@ -82,11 +81,12 @@ def read():
                 json=SCRIPT('var groups=%s' % not_groups))
 
 @auth.requires_login()
-def create_user():
+def create():
+
     groups = db(db.auth_group.role != 'Admin'
                 ).select(db.auth_group.id, db.auth_group.role,
                          orderby=db.auth_group.role).json()
-    
+        
     form = SQLFORM.factory(db.auth_user,
                 Field('password_again', 'password',
                       requires=IS_EQUAL_TO(request.vars.password,
@@ -97,7 +97,7 @@ def create_user():
     
     form.element(_name='groups')['_onkeyup'] = "showgroups()"
     form.element(_name='groups')['_autocomplete'] = 'off'
-    
+
     if form.accepts(request.vars, session):
         id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         db.contact.insert(user_id=id, contact_type='email',
@@ -108,6 +108,15 @@ def create_user():
         dbutils.log_event(db, user_id=auth.user.id, item_id=id,
                           table_name='auth_user', access='create')
         session.flash = T('User successfully added.')
-        redirect(URL('users'))
-    
+        redirect(URL('index'))
+        
     return dict(form=form, json=SCRIPT('var groups=%s' % groups))
+
+@auth.requires_membership('Admin')
+def del_user():
+    id = request.vars.id
+    email = db.auth_user[id].email
+    dbutils.log_event(db, details=email, user_id=auth.user.id, item_id=id,
+                      table_name='auth_user', access='delete')
+    del db.auth_user[request.vars.id]
+    return ''
