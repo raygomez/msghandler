@@ -191,16 +191,6 @@ def insert_groups(selected, user_id):
                           table_name='auth_membership', access='create',
                           details=','.join([user,role,`user_id`]))
 
-@auth.requires_membership('Admin')
-def del_group():
-    id = request.vars.id
-    role = db.auth_group[id].role
-    
-    del db.auth_group[id]
-    dbutils.log_event(db, details=role, user_id=auth.user.id, item_id=id,
-                      table_name='auth_group', access='delete')
-    return ''
-
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def update_group():

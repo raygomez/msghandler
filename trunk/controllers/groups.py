@@ -19,3 +19,13 @@ def create():
                           details=request.vars.role)
         return `id`
     else: return '0'
+    
+@auth.requires_membership('Admin')
+def delete():
+    id = request.vars.id
+    role = db.auth_group[id].role
+    
+    del db.auth_group[id]
+    dbutils.log_event(db, details=role, user_id=auth.user.id, item_id=id,
+                      table_name='auth_group', access='delete')
+    return ''
