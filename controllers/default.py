@@ -392,34 +392,6 @@ def update_tag():
         return '0'
     else: return db(db.tag.id == id).select().json()
 
-@auth.requires_login()
-def users():
-    if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
-        users = db(db.auth_user.id != auth.user.id).select()
-    else:
-        groups_query = db(db.auth_membership.user_id == auth.user.id
-                          )._select(db.auth_membership.group_id)
-        users_query = db(db.auth_membership.group_id.belongs(groups_query)
-                         )._select(db.auth_membership.user_id)
-        users = db((db.auth_user.id != auth.user.id)
-                   & (db.auth_user.id.belongs(users_query))).select()
-    
-    usrs = []
-    for user in users:
-        usr = {}
-        usr['id'] = user.id
-        usr['fname'] = user.first_name
-        usr['lname'] = user.last_name        
-        usr['email'] = user.email
-        groups = db(db.auth_membership.user_id == user.id).select()
-        grps = ''
-        for group in groups:
-            if group.group_id.role != 'Admin':
-                grps = grps + ' ['+group.group_id.role+']'
-        usr['groups'] = grps
-        usrs.append(usr)
-    return dict(users=users, usrs=usrs)
-
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def contacts():
