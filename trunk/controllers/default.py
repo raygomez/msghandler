@@ -191,40 +191,6 @@ def insert_groups(selected, user_id):
                           table_name='auth_membership', access='create',
                           details=','.join([user,role,`user_id`]))
 
-@auth.requires_membership('Admin')
-def del_tag():
-    id = request.vars.id
-    name = db.tag[id].name
-    del db.tag[id]
-    dbutils.log_event(db, details=name, user_id=auth.user.id,
-                      item_id=id, table_name='tag', access='delete')
-    return ''
-
-@auth.requires(auth.has_membership('Admin')
-               or auth.has_membership('Telehealth'))
-def update_tag():
-    id = request.vars.id
-    name = request.vars.name
-    description = request.vars.description
-    
-    others = db((db.tag.name == name) & (db.tag.id != id)).select()
-    if len(others) == 0:
-        tag = db.tag[id]
-        
-        details = []
-        if name != tag.name:
-            details.append('name changed from ' + tag.name + ' to ' + name)
-        if description != tag.description:
-            details.append('description changed from ' + tag.description
-                           + ' to ' + description)
-        
-        details = ', '.join(details)
-        
-        dbutils.log_event(db, details=details, user_id=auth.user.id,
-                          item_id=id, table_name='tag', access='update')
-        db.tag[id] = dict(name=name, description=description)
-        return '0'
-    else: return db(db.tag.id == id).select().json()
 
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
