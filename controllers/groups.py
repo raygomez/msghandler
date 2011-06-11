@@ -28,4 +28,33 @@ def delete():
     del db.auth_group[id]
     dbutils.log_event(db, details=role, user_id=auth.user.id, item_id=id,
                       table_name='auth_group', access='delete')
-    return ''
+    return ''    
+    
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
+def update():
+    id = request.vars.id
+    role = request.vars.role
+    description = request.vars.description
+    
+    others = db((db.auth_group.role == role)
+                & (db.auth_group.id != id)).select()
+    if len(others) == 0:
+        group = db.auth_group[id]
+        
+        details = []
+        if role != group.role:
+            details.append('role changed from ' + group.role + ' to ' + role)
+        if description != group.description:
+            details.append('description changed from ' + group.description
+                           + ' to ' + description)
+        
+        details = ', '.join(details)
+        
+        dbutils.log_event(db, details=details, user_id=auth.user.id,
+                          item_id=id, table_name='auth_group',
+                          access='update')
+        db.auth_group[id] = dict(role=role, description=description,
+                                 user_id=auth.user.id)
+        return '0'
+    else: return db(db.auth_group.id == id).select().json()
