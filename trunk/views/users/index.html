@@ -88,7 +88,7 @@ Things to Do
 
 {{#=TR(TH('User Management', _colspan=4))}}
 {{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}    
-{{=TR(TD(A('Add a user', _href=URL('create_user')), _colspan=4), _align='center', _id='add-row')}}
+{{=TR(TD(A('Add a user', _href=URL('create')), _colspan=4), _align='center', _id='add-row')}}
 {{pass}}
 
 
