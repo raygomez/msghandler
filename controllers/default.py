@@ -203,59 +203,6 @@ def insert_groups(selected, user_id):
                           table_name='auth_membership', access='create',
                           details=','.join([user,role,`user_id`]))
 
-
-@auth.requires(auth.has_membership('Admin')
-               or auth.has_membership('Telehealth'))
-def show_user():
-    user = db.auth_user(request.args(0)) or redirect(URL('index'))
-    groups = db(db.auth_membership.user_id == user.id).select()
-    
-    for field in db.auth_user.fields:
-        db.auth_user[field].default = user[field]
-    
-    groups_query = db(db.auth_membership.user_id == user.id
-                      )._select(db.auth_membership.group_id)
-    not_groups = db(~db.auth_group.id.belongs(groups_query)
-                    ).select(db.auth_group.id, db.auth_group.role).json()
-    
-    groups = db(db.auth_membership.user_id == user.id
-                ).select(db.auth_membership.id, db.auth_membership.group_id,
-                         distinct=True)
-    groups.exclude(lambda row: row.group_id.role == 'Admin')
-    
-    db.auth_user.email.writable = False
-    db.auth_user.password.writable = False
-    form = SQLFORM.factory(db.auth_user,
-                Field('groups', label='Search Groups'),
-                hidden=dict(groups_new=None))
-    form.element(_name='groups')['_autocomplete'] = 'off'
-    
-    if form.accepts(request.vars, session):
-        last_name = request.vars.last_name
-        first_name = request.vars.first_name
-        
-        details = []
-        if last_name != user.last_name:
-            details.append('last name changed from ' + user.last_name
-                           + ' to ' + last_name)
-        if first_name != user.first_name:
-            details.append('first name changed from ' + user.first_name
-                           + ' to ' + first_name)
-        
-        details = ', '.join(details)
-        
-        dbutils.log_event(db, details=details, user_id=auth.user.id,
-                          item_id=user.id, table_name='auth_user',
-                          access='update')
-        db(db.auth_user.id == user.id
-           ).update(**db.auth_user._filter_fields(form.vars))
-        
-        session.flash = T('User successfully updated.')
-        redirect(URL('users'))
-    
-    return dict(form=form, groups=groups, id=user.id,
-                json=SCRIPT('var groups=%s' % not_groups))
-
 @auth.requires_login()
 def events():
     page = int(request.args[0]) if len(request.args) else 0
