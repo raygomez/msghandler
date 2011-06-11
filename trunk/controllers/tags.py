@@ -17,3 +17,12 @@ def create():
                           details=request.vars.name)
         return `id`
     else: return '0'
+
+@auth.requires_membership('Admin')
+def delete():
+    id = request.vars.id
+    name = db.tag[id].name
+    del db.tag[id]
+    dbutils.log_event(db, details=name, user_id=auth.user.id,
+                      item_id=id, table_name='tag', access='delete')
+    return ''
