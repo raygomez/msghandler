@@ -191,13 +191,6 @@ def insert_groups(selected, user_id):
                           table_name='auth_membership', access='create',
                           details=','.join([user,role,`user_id`]))
 
-
-@auth.requires_login()
-def groups():
-    groups = db(db.auth_group.role != 'Admin'
-                ).select(orderby=~db.auth_group.id)
-    return dict(groups=groups)
-
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def add_group():
