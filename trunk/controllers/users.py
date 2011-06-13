@@ -3,7 +3,7 @@ dbutils = local_import('utils.dbutils')
 @auth.requires_login()
 def index():
     if auth.has_membership('Admin') or auth.has_membership('Telehealth'):
-        users = db(db.auth_user.id != auth.user.id).select()
+        users = db(db.auth_user.id > 0).select()
     else:
         groups_query = db(db.auth_membership.user_id == auth.user.id
                           )._select(db.auth_membership.group_id)
