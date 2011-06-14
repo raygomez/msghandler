@@ -33,6 +33,7 @@ def index():
 def read():
     user = db.auth_user(request.args(0)) or redirect(URL('index'))
     groups = db(db.auth_membership.user_id == user.id).select()
+    contacts = db(db.contact.user_id == user.id).select()
     
     for field in db.auth_user.fields:
         db.auth_user[field].default = user[field]
@@ -48,6 +49,7 @@ def read():
     groups.exclude(lambda row: row.group_id.role == 'Admin')
     
     db.auth_user.email.writable = False
+    db.auth_user.username.writable = False
     db.auth_user.password.writable = False
     form = SQLFORM.factory(db.auth_user,
                 Field('groups', label='Search Groups'),
@@ -77,7 +79,7 @@ def read():
         session.flash = T('User successfully updated.')
         redirect(URL('users'))
     
-    return dict(form=form, groups=groups, id=user.id,
+    return dict(form=form, groups=groups, id=user.id, contacts=contacts,
                 json=SCRIPT('var groups=%s' % not_groups))
 
 @auth.requires_login()
