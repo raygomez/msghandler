@@ -99,7 +99,7 @@ Things to Do
 {{=TD(usr['lname'])}}
 {{=TD(usr['groups'])}}
 {{if auth.has_membership('Admin'):}}    
-{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%')}}
+{{=TD(A('Edit', _href=URL('read', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%')}}
 {{elif auth.has_membership('Telehealth'):}}
 {{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), _width='15%')}}
 {{pass}}
