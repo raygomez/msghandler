@@ -47,7 +47,6 @@ function click_once_group(){
 }
 </script>
 {{=json}}
-{{=contacts}}
 {{=form.custom.begin}}
 <table>
 
@@ -69,7 +68,15 @@ function click_once_group(){
 </tr>
 {{=TR(TD(LABEL('Search Groups:')), TD(form.custom.widget.groups))}}
 {{=TR(TD(), TD(DIV(_id='new-groups')))}}
-{{=TR(TD(LABEL('Contacts:')), TD())}}
+{{=TR(TD(LABEL('Contact Information')), TD())}}
+<tr><td>
+<table>
+{{=TR(TH(), TH('Type'),TH('Details'))}}
+{{for contact in contacts:}}
+    {{=TR(TD(),TD(contact.contact_type), TD(contact.contact_info))}}
+{{pass}}
+</table>
+</td></tr>
 {{=TR(TD(), TD(form.custom.submit))}}
 </table>
 {{=form.custom.end}}
