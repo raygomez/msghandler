@@ -46,14 +46,29 @@ function click_once_group(){
     });
 }
 </script>
+<style>
+.info {
+    text-align : center;
+    font-size : smaller;
+    font-style : italic;
+}
+</style>
 {{=json}}
 {{=form.custom.begin}}
 <table>
 
-{{=TR(TD(LABEL('Username:')), TD(form.custom.widget.username))}}
-{{=TR(TD(LABEL('First Name:')), TD(form.custom.widget.first_name))}}
-{{=TR(TD(LABEL('Last Name:')), TD(form.custom.widget.last_name))}}
-<tr>{{=TD(LABEL('Groups:'))}}
+{{=TR(TD(TABLE(
+    TR(TD(form.custom.widget.first_name),TD(form.custom.widget.last_name)),
+    TR(TD('First Name'),TD('Last Name'), _class='info'),
+    TR(TD(form.custom.widget.username)),
+    TR(TD('Username'), _class='info'),)))}}
+{{=TR(TD(HR()))}}
+<tr>
+    <td>
+        <table>
+            <tr>
+    {{=TD(LABEL('Groups:'))}}
+    {{=TD(form.custom.widget.groups)}}
     <td id="tr-groups-new">
         <table>
             <tr>
@@ -64,16 +79,19 @@ function click_once_group(){
                 {{pass}}
             </tr>
         </table>
+    </td>    
+            </tr>
+    {{=TR(TD(), TD(DIV(_id='new-groups')))}}        
+        </table>
     </td>
 </tr>
-{{=TR(TD(LABEL('Search Groups:')), TD(form.custom.widget.groups))}}
-{{=TR(TD(), TD(DIV(_id='new-groups')))}}
+{{=TR(TD(HR()))}}
 {{=TR(TD(LABEL('Contact Information')), TD())}}
 <tr><td>
-<table>
+<table width='100%'>
 {{=TR(TH(), TH('Type'),TH('Details'))}}
 {{for contact in contacts:}}
-    {{=TR(TD(),TD(contact.contact_type), TD(contact.contact_info))}}
+    {{=TR(TD(),TD(contact.contact_type), TD(contact.contact_info), TD(A('Delete')), TD(A('Update')) )}}
 {{pass}}
 </table>
 </td></tr>
