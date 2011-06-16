@@ -76,8 +76,7 @@ def read():
         db(db.auth_user.id == user.id
            ).update(**db.auth_user._filter_fields(form.vars))
         
-        session.flash = T('User successfully updated.')
-        redirect(URL('users'))
+        request.flash = T('User successfully updated.')
     
     return dict(form=form, groups=groups, id=user.id, contacts=contacts,
                 json=SCRIPT('var groups=%s' % not_groups))
