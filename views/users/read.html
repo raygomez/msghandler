@@ -32,6 +32,26 @@ function addgroups(widget){
     click_once_group();
 }
 
+{{if auth.has_membership('Admin'):}}    
+    $('.del-row').live('click', function(){
+        var answer = confirm('Are you sure you want to delete this?')
+        if (answer){
+            $.ajax({
+                url: '{{=URL('contacts','delete')}}',
+                data: 'id=' + this.name,
+                context: this,
+                success: function(data){
+                    msg = 'The contact has been successfully deleted.'
+                    $(this).parent().parent().fadeOut(1000, function(){ $(this).remove()})
+                    $('.flash').html(msg).slideDown(function(){ $('.flash').delay(500).fadeOut(function(){$('.flash').html('')});});
+                }                
+            })        
+        }     
+    })
+{{pass}}    
+
+
+
 function click_once_group(){
     $('.groups-add').one('click', function(){
                 $(this).parent().fadeOut( function() { $(this).remove();});
@@ -91,7 +111,7 @@ function click_once_group(){
 <table width='100%'>
 {{=TR(TH(), TH('Type'),TH('Details'))}}
 {{for contact in contacts:}}
-    {{=TR(TD(),TD(contact.contact_type), TD(contact.contact_info), TD(A('Delete')), TD(A('Update')) )}}
+    {{=TR(TD(),TD(contact.contact_type), TD(contact.contact_info), TD(A('Delete', _class='del-row',_name=contact.id)), TD(A('Update')) )}}
 {{pass}}
 </table>
 </td></tr>
