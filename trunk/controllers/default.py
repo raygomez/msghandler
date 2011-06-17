@@ -208,38 +208,6 @@ def add_contact():
     return `id`
 
 
-@auth.requires(auth.has_membership('Admin')
-               or auth.has_membership('Telehealth'))
-def update_contact():
-    id = request.vars.id
-    name = request.vars.name
-    user_id = request.vars.user_id
-    contact_type = request.vars.contact_type
-    contact_info = request.vars.contact_info
-    
-    contact = db.contact[id]    
-    
-    contact_name = (contact.user_id.first_name + ' '
-                    + contact.user_id.last_name) if contact.user_id else ''
-    details = []
-    if name != contact.name:
-        details.append('name changed from ' + contact.name + ' to ' + name)
-    if user_id != contact_name:
-        details.append('user changed from ' + contact_name + ' to ' + user_id)
-    if contact_type != contact.contact_type:
-        details.append('contact type changed from ' + contact.contact_type
-                       + ' to ' + contact_type)
-    if contact_info != contact.contact_info:
-        details.append('contact info changed from ' + contact.contact_info
-                       + ' to ' + contact_info)
-    details = ', '.join(details)
-    
-    dbutils.log_event(db, details=details, user_id=auth.user.id, item_id=id,
-                      table_name='contact', access='update')
-    db.contact[id] = dict(name=name, user_id=user_id,
-                          contact_type=contact_type, contact_info=contact_info)
-    return ''
-
 @auth.requires_login()
 def data():
     return dict(form=crud())
