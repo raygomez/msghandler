@@ -50,7 +50,24 @@ function addgroups(widget){
     })
 {{pass}}    
 
-
+    $('.update-row').live('click',function(){
+        contact_type = $(this).parent().prev().prev().children().first().val()
+        contact_info = $(this).parent().prev().children().first().val() 
+    
+        console.log(contact_type,contact_info)
+        if(contact_type =='') {alert('Contact type should not be blank.'); return }
+        if(contact_info ==''){alert('Contact info should not be blank.'); return }
+        $.ajax({
+            url: '{{=URL('contacts','update')}}',
+            data: 'id=' + this.name +'&' + 'contact_type=' + contact_type + '&' + 'contact_info=' + contact_info,
+            context: $(this).parent().parent(),
+            success: function(data){
+                
+                if(data == 0) msg = 'Contact successfully updated.'
+                $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
+            }
+        })        
+    })
 
 function click_once_group(){
     $('.groups-add').one('click', function(){
@@ -111,8 +128,10 @@ function click_once_group(){
 <table width='100%'>
 {{=TR(TH(), TH('Type'),TH('Details'))}}
 {{for contact in contacts:}}
-    {{=TR(TD(),TD(INPUT(_value=contact.contact_type)), TD(INPUT(_value=contact.contact_info)), TD(A('Delete', _class='del-row',_name=contact.id)), TD(A('Update')) )}}
+    {{=TR(TD(),TD(INPUT(_value=contact.contact_type, _name='contact_type')), TD(INPUT(_value=contact.contact_info, _name='contact_type')),
+    TD(A('Update', _name=contact.id, _class='update-row'),' | ',A('Delete',  _name=contact.id, _class='del-row')) )}}
 {{pass}}
+
 </table>
 </td></tr>
 {{=TR(TD(), TD(form.custom.submit))}}
