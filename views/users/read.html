@@ -111,7 +111,7 @@ function click_once_group(){
 <table width='100%'>
 {{=TR(TH(), TH('Type'),TH('Details'))}}
 {{for contact in contacts:}}
-    {{=TR(TD(),TD(contact.contact_type), TD(contact.contact_info), TD(A('Delete', _class='del-row',_name=contact.id)), TD(A('Update')) )}}
+    {{=TR(TD(),TD(INPUT(_value=contact.contact_type)), TD(INPUT(_value=contact.contact_info)), TD(A('Delete', _class='del-row',_name=contact.id)), TD(A('Update')) )}}
 {{pass}}
 </table>
 </td></tr>
