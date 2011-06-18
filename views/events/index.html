@@ -75,7 +75,7 @@ Things to Do
 {{=TD(INPUT(_type="checkbox",_name=".msg_attachment",_class='table',value=True),'attachments')}}
 </tr>
 </table>
-<br/>
+<hr/>
 {{if page:}}
 <div style="float: left;">
 <a href="{{=URL(args=[page-1])}}">[previous {{=items_per_page}} events]</a>
@@ -86,7 +86,6 @@ Things to Do
 <a href="{{=URL(args=[page+1])}}">[next {{=items_per_page}} events]</a>
 </div>
 {{pass}}
-<br/>
 <br/>
 
 <table id='events'>

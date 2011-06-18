@@ -223,9 +223,7 @@ def download():
 def get_contact(user):
     contact =  db(db.contact.user_id==user.id).select().first()
     if not contact:
-        contact = db.contact.insert(name='%s %s'
-                                        % (user.first_name, user.last_name),
-                                    user_id=user.id, contact_type='email',
+        contact = db.contact.insert(user_id=user.id, contact_type='email',
                                     contact_info=user.email)
     return contact
 
