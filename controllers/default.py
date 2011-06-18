@@ -199,15 +199,6 @@ def contacts():
     contacts = db(db.contact.id > 0).select(orderby=~db.contact.id)
     return dict(contacts=contacts, users=users)
 
-@auth.requires(auth.has_membership('Admin')
-               or auth.has_membership('Telehealth'))
-def add_contact():
-    id = db.contact.insert(**request.vars)
-    dbutils.log_event(db, user_id=auth.user.id, item_id=id,
-                      table_name='contact', access='create', details=','.join([request.vars.contact_type,request.vars.contact_info]))
-    return `id`
-
-
 @auth.requires_login()
 def data():
     return dict(form=crud())

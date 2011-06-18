@@ -2,6 +2,17 @@ dbutils = local_import('utils.dbutils')
 
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
+def create():
+    id = db.contact.insert(contact_info=request.vars.contact_info, 
+                           contact_type=request.vars.contact_type,
+                           user_id=request.vars.user_id)
+    dbutils.log_event(db, user_id=auth.user.id, item_id=id,
+                      table_name='contact', access='create', 
+                      details=','.join([request.vars.contact_type,request.vars.contact_info]))
+    return `id`
+
+@auth.requires(auth.has_membership('Admin')
+               or auth.has_membership('Telehealth'))
 def update():
     id = request.vars.id
     contact_type = request.vars.contact_type

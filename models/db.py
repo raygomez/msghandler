@@ -112,11 +112,10 @@ from datetime import datetime
 import os
 
 db.define_table('contact',
-    Field('name', notnull=True),
     Field('user_id', db.auth_user),
     Field('contact_type', notnull=True, requires=IS_IN_SET(('mobile', 'landline', 'email'))),
     Field('contact_info', notnull=True),
-    format='%(name)s')
+    format='%(contact_info)s')
 db.contact.user_id.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s')
 
 db.define_table('msg',
@@ -128,7 +127,7 @@ db.define_table('msg',
     Field('is_hidden', 'boolean', default=False),
     Field('is_closed', 'boolean', default=False),
     format='%(subject)s')
-db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
+db.msg.created_by.requires=IS_IN_DB(db, 'contact.id', '%(contact_info)s')
 db.msg.created_by.writable = db.msg.created_by.readable = False
 db.msg.create_time.writable = db.msg.create_time.readable = False
 db.msg.parent_msg.writable = db.msg.parent_msg.readable = False
@@ -154,9 +153,9 @@ db.define_table('msg_recipients',
     Field('msg_id', db.msg),
     Field('contact_id', db.contact),
     Field('process_time', 'datetime'),
-    format='%(msg_id.subject)s %(contact_id.name)s')
+    format='%(msg_id.subject)s %(contact_id.contact_info)s')
 db.msg_recipients.msg_id.requires=IS_IN_DB(db, 'msg.id', '%(subject)s')
-db.msg_recipients.contact_id.requires=IS_IN_DB(db, 'contact.id', '%(name)s')
+db.msg_recipients.contact_id.requires=IS_IN_DB(db, 'contact.id', '%(contact_info)s')
 
 db.define_table('tag',
     Field('name', notnull=True),
