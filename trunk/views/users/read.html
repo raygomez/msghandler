@@ -127,12 +127,21 @@ function click_once_group(){
 {{=json}}
 {{=form.custom.begin}}
 <table>
-
-{{=TR(TD(TABLE(
-    TR(TD(form.custom.widget.first_name),TD(form.custom.widget.last_name)),
-    TR(TD('First Name'),TD('Last Name'), _class='info'),
-    TR(TD(form.custom.widget.username)),
-    TR(TD('Username'), _class='info'),)))}}
+<tr>
+<td>
+<table>
+{{=TR(TD(form.custom.widget.first_name),TD(form.custom.widget.last_name))}}
+{{=TR(TD('First Name'),TD('Last Name'), _class='info')}}
+<tr>
+{{=TD(form.custom.widget.username)}}
+{{if auth.has_membership('Admin') and auth.user.id != id:}}
+{{=TD(A('Change password', _href=URL('change_password', args=id)))}}
+{{pass}}
+</tr>
+{{=TR(TD('Username'), _class='info')}}
+</table>
+</td>
+</tr>    
 {{=TR(TD(HR()))}}
 <tr>
     <td>
@@ -155,9 +164,7 @@ function click_once_group(){
     {{=TR(TD(), TD(DIV(_id='new-groups')))}}
     {{=TR(TD(LABEL('PRC #:')), TD(form.custom.widget.prc))}}    
     {{=TR(TD(LABEL('Profession:')), TD(form.custom.widget.profession))}}
-        </table>
-    
-    {{#=TR(TD('First Name'),TD('Last Name'), _class='info')}}
+        </table>    
 </tr>
 {{=TR(TD(HR()))}}
 {{=TR(TD(LABEL('Contact Information')), TD())}}

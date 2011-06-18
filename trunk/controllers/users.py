@@ -51,8 +51,9 @@ def read():
     db.auth_user.email.writable = False
     db.auth_user.username.writable = False
     db.auth_user.password.writable = False
+        
     form = SQLFORM.factory(db.auth_user,
-                Field('groups', label='Search Groups'),
+                Field('groups'),
                 hidden=dict(groups_new=None))
     form.element(_name='groups')['_autocomplete'] = 'off'
     
@@ -112,6 +113,17 @@ def create():
         redirect(URL('index'))
         
     return dict(form=form, json=SCRIPT('var groups=%s' % groups))
+
+@auth.requires_membership('Admin')
+def change_password():
+    id = request.args(0)
+
+    form = SQLFORM.factory(Field('password', 'password', requires=db.auth_user['password'].requires))
+    if form.accepts(request.vars, session):    
+        db.auth_user[id] = dict(password=form.vars.password)
+        session.flash= T('Password successfully changed.')
+        redirect(URL('read', args=id))
+    return dict(form=form)
 
 @auth.requires_membership('Admin')
 def delete():
