@@ -54,6 +54,7 @@ def read():
         
     form = SQLFORM.factory(db.auth_user,
                 Field('groups'),
+                submit_button='Update User',
                 hidden=dict(groups_new=None))
     form.element(_name='groups')['_autocomplete'] = 'off'
     
