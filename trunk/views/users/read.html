@@ -84,9 +84,9 @@ function addgroups(widget){
                     contact_type = $('input[name=contact_type]').val()
                     contact_info = $('input[name=contact_info]').val()
 {{if auth.has_membership('Admin'):}}                    
-    $('#add-row').before('<tr><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
+    $('#add-row').before('<tr><td></td><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
 {{else:}}
-    $('#add-row').after('<tr><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
+    $('#add-row').after('<tr><td></td><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
 {{pass}}                    
                     $('input[name=name]').val('')
                     $('input[name=description]').val('')                        

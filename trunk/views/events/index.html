@@ -114,9 +114,9 @@ Things to Do
 {{elif evnt['table'] == 'contact':}}
     {{if evnt['access'] == 'create':}}
         {{type,info = evnt['details'].split(',')}}
-        {{=evnt['user']}} added a new {{=type}} {{=info}} for contact {{=A(evnt['item'].name, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+        {{=evnt['user']}} added a new {{=type}} {{=info}} for contact {{=A(evnt['item'].contact_info, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
     {{elif evnt['access'] == 'update':}}
-        {{=evnt['user']}} updated the contact {{=A(evnt['item'].name, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> 
+        {{=evnt['user']}} updated the contact {{=A(evnt['item'].contact_info, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> 
     {{elif evnt['access'] == 'delete':}}
         {{name,type,info = evnt['details'].split(',')}}
         {{=evnt['user']}} deleted the {{=type}} {{=info}} for contact {{=name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>

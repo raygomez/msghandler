@@ -8,7 +8,8 @@ def create():
                            user_id=request.vars.user_id)
     dbutils.log_event(db, user_id=auth.user.id, item_id=id,
                       table_name='contact', access='create', 
-                      details=','.join([request.vars.contact_type,request.vars.contact_info]))
+                      details=','.join([request.vars.contact_type,
+                                        request.vars.contact_info]))
     return `id`
 
 @auth.requires(auth.has_membership('Admin')
