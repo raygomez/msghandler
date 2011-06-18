@@ -29,8 +29,13 @@ else:                                                                           
 #########################################################################
 
 from gluon.tools import *
-mail = Mail()                                                                                                                                                                                                                                                                # mailer
-auth = Auth(globals(),db)                                                                                                                                                    # authentication/authorization
+mail = Mail()                                                                                                                                             
+
+class MyAuth(Auth):
+     def __init__(self, environment, db = None):
+         Auth.__init__(self,environment,db)
+                                                                                                                   # mailer
+auth = MyAuth(globals(),db)                                                                                                                                                    # authentication/authorization
 
 db.define_table(
     auth.settings.table_user_name,
