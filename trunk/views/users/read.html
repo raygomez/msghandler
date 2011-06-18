@@ -1,5 +1,8 @@
 {{extend 'layout.html'}}
 <script src="{{=URL('static','js/grouping_ajax.js')}}"></script>
+{{types=[OPTION(type, _value=type) for type in ['mobile','landline','email']]}}
+{{types.insert(0, OPTION('Select Contact Type', _value=''))}}
+
 <script>
 
 var user_id = {{=id}};
@@ -70,7 +73,7 @@ function addgroups(widget){
 
     $('#add-contact').live('click', function(){
         contact_type = $('select[name=contact_type_new]').first().val()
-        contact_info = $('input[name=contact_info]').val()
+        contact_info = $('input[name=contact_info_new]').val()
         if(contact_type == '') {alert('Contact Type should not be blank.'); return }
         if(contact_info == ''){alert('Contact Info should not be blank.'); return }
     
@@ -80,15 +83,17 @@ function addgroups(widget){
             success: function(data){
                 if(data != 0) {
                     msg = 'Contact is successfully added.'
-                    contact_type = $('input[name=contact_type]').val()
-                    contact_info = $('input[name=contact_info]').val()
-{{if auth.has_membership('Admin'):}}                    
-    $('#add-row').before('<tr><td></td><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
+                    contact_type = $('select[name=contact_type_new]').first().val()
+                    contact_info = $('input[name=contact_info_new]').val()
+{{if auth.has_membership('Admin'):}}  
+    $('#add-row').before('<tr><td></td><td>{{=SELECT('mobile','landline','email', _name='contact_type')}}</td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a> | <a class="del-row" name="'+data+'">Delete</a></td></tr>')                        
 {{else:}}
-    $('#add-row').after('<tr><td></td><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
+    $('#add-row').before('<tr><td></td><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
 {{pass}}                    
-                    $('input[name=contact_type]').val('')
-                    $('input[name=contact_info]').val('')                        
+
+                    $('select[name=contact_type]').last().val(contact_type)
+                    $('select[name=contact_type_new]').val('')
+                    $('input[name=contact_info_new]').val('')                        
                 }
             
                 $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
@@ -157,16 +162,13 @@ function click_once_group(){
 <table width='100%'>
 {{=TR(TH(), TH('Type'),TH('Details'))}}
 
-{{types=[OPTION(type, _value=type) for type in ['mobile','landline','email']]}}
-{{types.insert(0, OPTION('Select Contact Type', _value=''))}}
-
 {{for contact in contacts:}}
     {{=TR(TD(),TD(SELECT(types, _name='contact_type', value=contact.contact_type)), TD(INPUT(_value=contact.contact_info)),
     TD(A('Update', _name=contact.id, _class='update-row'),' | ',
        A('Delete',  _name=contact.id, _class='del-row')))}}
 {{pass}}
-{{=TR(TD(),TD(SELECT('mobile','landline','email', _name='contact_type_new')), \
-      TD(INPUT(_name='contact_info', _placeholder='Contact Info')), \      
+{{=TR(TD(),TD(SELECT(types, _name='contact_type_new')), \
+      TD(INPUT(_name='contact_info_new', _placeholder='Contact Info')), \      
       TD(A('Add', _id='add-contact')), _id='add-row')}}
 
 </table>
