@@ -88,8 +88,8 @@ function addgroups(widget){
 {{else:}}
     $('#add-row').after('<tr><td></td><td><input type="text" value="'+contact_type+'"></td><td><input type="text" value="'+contact_info+'"></td><td><a class="update-row" name="'+data+'">Update</a></td></tr>')                        
 {{pass}}                    
-                    $('input[name=name]').val('')
-                    $('input[name=description]').val('')                        
+                    $('input[name=contact_type]').val('')
+                    $('input[name=contact_info]').val('')                        
                 }
             
                 $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
@@ -159,7 +159,8 @@ function click_once_group(){
 {{=TR(TH(), TH('Type'),TH('Details'))}}
 {{for contact in contacts:}}
     {{=TR(TD(),TD(INPUT(_value=contact.contact_type)), TD(INPUT(_value=contact.contact_info)),
-    TD(A('Update', _name=contact.id, _class='update-row'),' | ',A('Delete',  _name=contact.id, _class='del-row')) )}}
+    TD(A('Update', _name=contact.id, _class='update-row'),' | ',
+       A('Delete',  _name=contact.id, _class='del-row')))}}
 {{pass}}
 {{=TR(TD(),TD(INPUT(_name='contact_type', _placeholder='Contact Type')), \
       TD(INPUT(_name='contact_info', _placeholder='Contact Info')), \      
