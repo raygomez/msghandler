@@ -42,9 +42,11 @@ db.define_table(
     Field('first_name', length=128, default=''),
     Field('last_name', length=128, default=''),
     Field('email', length=128, default='', unique=True),
-    Field('username', length=128, default=""),    
+    Field('username', length=128, default=""),
     Field('password', 'password', length=512,
           readable=False, label='Password'),
+    Field('profession', length=128, default=''),
+    Field('prc', 'integer', default=''),    
     Field('registration_key', length=512,
           writable=False, readable=False, default=''),
     Field('reset_password_key', length=512,
@@ -81,7 +83,7 @@ auth.settings.registration_requires_verification = False
 auth.settings.registration_requires_approval = False
 auth.messages.verify_email = 'Click on the link http://'+request.env.http_host+URL('default','user',args=['verify_email'])+'/%(key)s to verify your email'
 auth.settings.reset_password_requires_verification = True
-auth.settings.actions_disabled.append('register') 
+auth.settings.actions_disabled = ['register','profile']
 auth.messages.reset_password = 'Click on the link http://'+request.env.http_host+URL('default','user',args=['reset_password'])+'/%(key)s to reset your password'
 
 #########################################################################

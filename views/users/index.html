@@ -58,13 +58,13 @@ $(function() {
 Things to Do
 <ol>
 <li>Fix password bug - hide password for now</li>
-<li>display own account. own user should be able to update his/her account. but not remove</li>
-<li>shift from email login to username</li>
+<li><del>display own account. own user should be able to update his/her account. but not remove</del></li>
+<li><del>shift from email login to username</del></li>
 <li>create custom user form</li>
 <li>add prc id field</li>
 <li>add profession type field (numbering not yet known)</li>
 <li>add active field</li>
-<li>add event log on own user changes. when user changes his own details, events are NOT generated.</li>
+<li><del>add event log on own user changes. when user changes his own details, events are NOT generated.</del></li>
 <li></li>
 </ol>
 <table>
@@ -98,10 +98,10 @@ Things to Do
 {{=TD(usr['fname'])}}
 {{=TD(usr['lname'])}}
 {{=TD(usr['groups'])}}
-{{if auth.has_membership('Admin'):}}    
+{{if auth.has_membership('Telehealth') or auth.user.id == usr['id']:}}
+{{=TD(A('Edit', _href=URL('read', args=usr['id'])), _width='15%')}}
+{{elif auth.has_membership('Admin'):}}    
 {{=TD(A('Edit', _href=URL('read', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%')}}
-{{elif auth.has_membership('Telehealth'):}}
-{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), _width='15%')}}
 {{pass}}
 </tr>
 {{pass}}
