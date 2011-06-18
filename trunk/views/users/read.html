@@ -152,9 +152,12 @@ function click_once_group(){
         </table>
     </td>    
             </tr>
-    {{=TR(TD(), TD(DIV(_id='new-groups')))}}        
+    {{=TR(TD(), TD(DIV(_id='new-groups')))}}
+    {{=TR(TD(LABEL('PRC #:')), TD(form.custom.widget.prc))}}    
+    {{=TR(TD(LABEL('Profession:')), TD(form.custom.widget.profession))}}
         </table>
-    </td>
+    
+    {{#=TR(TD('First Name'),TD('Last Name'), _class='info')}}
 </tr>
 {{=TR(TD(HR()))}}
 {{=TR(TD(LABEL('Contact Information')), TD())}}
