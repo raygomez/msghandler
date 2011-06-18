@@ -79,9 +79,13 @@ def index():
         cname = []
         for elem in comment:
             if elem not in cname:
-                cname.append(elem.created_by.name)
-        if message.created_by.name not in cname:
-            cname.append(message.created_by.name)
+                user = elem.created_by.user_id   
+                cname.append(user.first_name + ' ' + user.last_name)
+        
+        user = message.created_by.user_id
+        name = user.first_name + ' ' + user.last_name                
+        if name not in cname:
+            cname.append(name)
         msg['by'] = ', '.join(cname)
         msg['is_owner'] = (True if message.created_by.id==contact.id
                            else False)
