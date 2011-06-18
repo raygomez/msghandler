@@ -3,7 +3,7 @@ dbutils = local_import('utils.dbutils')
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def index():
-    tags = db(db.tag.id).select(orderby=~db.tag.id)
+    tags = db(db.tag.name <> 'Late').select(orderby=~db.tag.id)
     return dict(tags=tags)
 
 @auth.requires(auth.has_membership('Admin')
