@@ -118,8 +118,8 @@ Things to Do
     {{elif evnt['access'] == 'update':}}
         {{=evnt['user']}} updated the contact {{=A(evnt['item'].contact_info, _href=URL('contacts')) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> 
     {{elif evnt['access'] == 'delete':}}
-        {{name,type,info = evnt['details'].split(',')}}
-        {{=evnt['user']}} deleted the {{=type}} {{=info}} for contact {{=name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+        {{type,info = evnt['details'].split(',')}}
+        {{=evnt['user']}} deleted the {{=type}} {{=info}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
     {{pass}}
 
 {{elif evnt['table'] == 'auth_user':}}

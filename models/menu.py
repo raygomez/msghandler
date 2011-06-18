@@ -45,7 +45,6 @@ if auth.is_logged_in():
     if auth.has_membership('Admin', auth.user.id) or auth.has_membership('Telehealth', auth.user.id):
         response.menu+= [
             (T('Tags'), False, URL(request.application,'tags','index'), []),
-            (T('Contacts'), False, URL(request.application,'default','contacts'), []),
             (T('Help'), False, URL(request.application,'default','index'), []),    
         ]
 
