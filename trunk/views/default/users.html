@@ -98,10 +98,11 @@ Things to Do
 {{=TD(usr['fname'])}}
 {{=TD(usr['lname'])}}
 {{=TD(usr['groups'])}}
-{{if auth.has_membership('Admin'):}}    
-{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%')}}
-{{elif auth.has_membership('Telehealth'):}}
+{{if auth.has_membership('Telehealth') or auth.user.id == usr['id']:}}
 {{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), _width='15%')}}
+{{elif auth.has_membership('Admin'):}}    
+{{=TD(A('Edit', _href=URL('show_user', args=usr['id'])), ' | ', A('Delete', _class='del-row', _name=usr['id']), _width='15%')}}
+
 {{pass}}
 </tr>
 {{pass}}
