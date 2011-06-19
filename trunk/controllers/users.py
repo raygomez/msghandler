@@ -37,7 +37,6 @@ def read():
     
     for field in db.auth_user.fields:
         db.auth_user[field].default = user[field]
-    
     groups_query = db(db.auth_membership.user_id == user.id
                       )._select(db.auth_membership.group_id)
     not_groups = db(~db.auth_group.id.belongs(groups_query)
@@ -53,12 +52,18 @@ def read():
     db.auth_user.password.writable = False
         
     form = SQLFORM.factory(db.auth_user,
-                Field('groups'),
+                Field('groups'), 
+                Field('is_active', 'boolean'),
                 submit_button='Update User',
                 hidden=dict(groups_new=None))
-    form.element(_name='groups')['_autocomplete'] = 'off'
+    form.element(_name='groups')['_autocomplete'] = 'off' 
     
-    if form.accepts(request.vars, session):
+    if user.registration_key == '':
+        form.vars.is_active  = 'on'
+    else: form.vars.is_active  = 'off'
+    
+            
+    if form.accepts(request.vars, session, keepvalues=True):
         last_name = request.vars.last_name
         first_name = request.vars.first_name
         
@@ -75,9 +80,15 @@ def read():
         dbutils.log_event(db, details=details, user_id=auth.user.id,
                           item_id=user.id, table_name='auth_user',
                           access='update')
+
+        if form.vars.is_active:
+            form.vars.registration_key = ''
+        else: 
+            form.vars.registration_key = 'blocked'
+                          
         db(db.auth_user.id == user.id
            ).update(**db.auth_user._filter_fields(form.vars))
-        
+                
         request.flash = T('User successfully updated.')
     
     return dict(form=form, groups=groups, id=user.id, contacts=contacts,
@@ -95,6 +106,7 @@ def create():
                       requires=IS_EQUAL_TO(request.vars.password,
                             error_message='Passwords do not match.')),
                 Field('groups', label='Search groups'),
+                
                 hidden=dict(groups_new=None),
                 table_name='user')
     
