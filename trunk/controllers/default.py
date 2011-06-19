@@ -124,69 +124,6 @@ def download():
     return response.download(request,db)
 
 
-@auth.requires_login()
-def create_message():
-    import os
-    
-    form = SQLFORM.factory(db.msg,
-                Field('attachment', 'upload',
-                      uploadfolder=os.path.join(request.folder,'uploads')),
-                Field('tags', label='Search tags'),
-                Field('groups', label='Search groups'),
-                hidden=dict(tags_new=None, groups_new=None),
-                table_name='msg_attachment')
-    form.element(_name='tags')['_onkeyup'] = "showtags()"
-    form.element(_name='tags')['_autocomplete'] = 'off'    
-    form.element(_name='groups')['_onkeyup'] = "showgroups()"
-    form.element(_name='groups')['_autocomplete'] = 'off'
-    
-    tags = db(db.tag.name != 'Late').select(db.tag.id, db.tag.name).json()
-    groups = db().select(db.auth_group.id, db.auth_group.role).json()
-    
-    if form.accepts(request.vars, session):
-        contact = get_contact(auth.user)
-        form.vars.created_by = contact.id
-        
-        msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
-        form.vars.msg_id = msg_id
-        subject = form.vars.subject
-        if request.vars.attachment != '':
-            db.msg_attachment.msg_id.default = msg_id
-            db.msg_attachment.attach_by.default = contact.id
-            filename = request.vars.attachment.filename
-            form.vars.filename = filename
-            form.vars.attachment_type = filename[filename.rindex('.') + 1:]            
-            msg_attachment_id = db.msg_attachment.insert(
-                                **db.msg_attachment._filter_fields(form.vars))
-            dbutils.log_event(db, user_id=auth.user.id, item_id=msg_attachment_id,
-                          table_name='msg_attachment', access='create',
-                          details=','.join([subject,filename,`msg_id`]))
-                                
-        if request.vars.tags_new:
-            select_tags = request.vars.tags_new.split(',')[:-1]
-            for tag in select_tags:
-                id = db.msg_tag.insert(msg_id=msg_id, tag_id=int(tag[4:]))
-                tag_id = int(tag[4:])
-                tag = db.tag[tag_id].name
-                dbutils.log_event(db, user_id=auth.user.id, item_id=id,
-                                  table_name='msg_tag', access='create',
-                                  details=','.join([subject,tag]))
-        if request.vars.groups_new:
-            select_groups = request.vars.groups_new.split(',')[:-1]
-            for group in select_groups:
-                id = db.msg_group.insert(msg_id=msg_id, group_id=int(group[4:]),
-                                    assigned_by=auth.user.id)
-                dbutils.log_event(db, user_id=auth.user.id, item_id=id,
-                                  table_name='msg_group', access='create',
-                                  details=','.join([subject,group]))
-        
-        dbutils.log_event(db, user_id=auth.user.id, item_id=msg_id,
-                          table_name='msg', access='create')
-        
-        session.flash = T('Message successfully created.')
-        redirect(URL('index'))
-    return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s'
-                                       % (tags,groups)))
 
 file_types = ['pdf']
 
