@@ -60,7 +60,6 @@ custom_auth_table.first_name.requires = \
 custom_auth_table.last_name.requires = \
   IS_NOT_EMPTY(error_message=auth.messages.is_empty)
 custom_auth_table.password.requires = [CRYPT()]
-#custom_auth_table.password.requires = [IS_STRONG(), CRYPT()]
 custom_auth_table.username.requires = IS_NOT_IN_DB(db, custom_auth_table.username)
 custom_auth_table.email.requires = [
   IS_EMAIL(error_message=auth.messages.invalid_email),
