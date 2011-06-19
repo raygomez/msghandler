@@ -57,7 +57,7 @@ function addgroups(widget){
         contact_type = $(this).parent().prev().prev().children().first().val()
         contact_info = $(this).parent().prev().children().first().val() 
     
-        if(contact_type =='') {alert('Contact type should not be blank.'); return }
+        if(contact_type =='') {alert('Please select a contact type.'); return }
         if(contact_info ==''){alert('Contact info should not be blank.'); return }
         $.ajax({
             url: '{{=URL('contacts','update')}}',
@@ -183,8 +183,8 @@ function click_once_group(){
     TD(A('Update', _name=contact.id, _class='update-row'),' | ',
        A('Delete',  _name=contact.id, _class='del-row')))}}
 {{pass}}
-{{=TR(TD(),TD(SELECT(types, _name='contact_type_new')), \
-      TD(INPUT(_name='contact_info_new', _placeholder='Contact Info')), \      
+{{=TR(TD(),TD(SELECT(types, _name='contact_type_new', value='')), \
+      TD(INPUT(_name='contact_info_new', _placeholder='insert contact details here')), \      
       TD(A('Add', _id='add-contact')), _id='add-row')}}
 
 </table>
