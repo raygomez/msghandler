@@ -95,3 +95,10 @@ def index():
                    
     return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,late_msgs=late_msgs,
                 json=SCRIPT('var groups=%s' % groups))
+
+def get_contact(user):
+    contact =  db(db.contact.user_id==user.id).select().first()
+    if not contact:
+        contact = db.contact.insert(user_id=user.id, contact_type='email',
+                                    contact_info=user.email)
+    return contact
