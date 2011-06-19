@@ -1,0 +1,185 @@
+{{extend 'layout.html'}}
+<script type="text/javascript" src="/{{=request.application}}/static/js/jquery.timeago.js"></script>
+<script type="text/javascript" src="/{{=request.application}}/static/js/jquery-ui-1.8.13.custom.min.js"></script>
+<link rel="stylesheet" href="/{{=request.application}}/static/css/custom-theme/jquery-ui-1.8.13.custom.css">
+{{=json}}
+<script>
+function filter_group(message){
+       in_group = false;
+       
+       $('input[type=checkbox]:checked').each(function(){
+           name = $(this).attr('name');
+           if($(message).is(name)){
+               in_group = true
+               return false
+           }
+       })
+       return in_group
+}
+
+$(function(){
+    $( "#search_groups" ).autocomplete({
+        source: groups,
+        select : function(event, ui){
+            name = '.' + this.value.replace(' ','_')
+            list = $('.messages');
+            list.hide()
+            list.each(function(){
+                if($(this).is(name)){
+                    $(this).show()
+                }
+            })
+        }
+    });    
+    $( "#search_groups" ).focus(function(){
+        $(this).val('')    
+    })
+       
+   $('input[type=checkbox]').click(function(){
+       $('input[name^=s_]').keyup()
+   })
+
+    $('td.timestamp').timeago()
+    $('input[name^=s_]').keyup(function() {
+        list = $('.messages');
+    
+        var text1 = $('input[name=s_user]').val().toLowerCase();
+        if (text1 != '') var pattern1 = new RegExp('^.*' + text1 + '.*$', 'ig');
+        else var pattern1 = new RegExp('.*', 'ig');
+        
+        var text2 = $('input[name=s_subject]').val().toLowerCase();
+        if (text2 != '') var pattern2 = new RegExp('^.*' + text2 + '.*$', 'ig');
+        else var pattern2 = new RegExp('.*', 'ig');        
+        
+        var text3 = $('input[name=s_tag]').val().toLowerCase();
+        if (text3 != '') var pattern3 = new RegExp('^.*' + text3 + '.*$', 'ig');
+        else var pattern3 = new RegExp('.*', 'ig');
+
+        list.hide()
+                
+        $.each(list, function(){
+            message = $(this).children().eq(2).children().eq(2).text()
+            tags = $(this).children().eq(2).children().eq(1).text()
+             
+            if ($(this).children().eq(1).text().match(pattern1) && message.match(pattern2) && tags.match(pattern3) && filter_group(this)){
+                $(this).show() 
+            }
+        })
+    })
+
+    $('tr.messages').live('click', function(){
+        window.location.replace('/msghandler/default/read_message/' + $(this).children().first().text());
+    });
+
+    $('img.delete').one('click', function(){
+        var answer = confirm('Are you sure you want to delete this?')
+        if (answer){
+            $(this).parent().fadeOut( function() { $(this).remove();});
+            $.ajax({
+                url: '{{=URL('delete_ajax_id')}}',
+                data: 'id=' + this.id,
+                success: function(msg){
+                    $('.flash').html(msg).slideDown(function(){ $('.flash').delay(3000).fadeOut(function(){$('.flash').html('')});});
+                }                
+            })             
+        } 
+    })
+    $('.top-td').live('mouseenter', function(){$($(this).children()[1]).show();})
+    $('.top-td').live('mouseleave', function(){$($(this).children()[1]).hide();});
+
+});     
+</script>
+<style>
+.menu { border: 1px solid black}
+tr.messages:hover{background: lightgray;}
+input[type=text][name^=s_]{width:140px}
+input[type=text]{width:100px}
+td img {
+vertical-align: bottom;
+}
+//http://www.blakems.com/archives/000077.html
+table {
+    table-layout:fixed;
+}
+
+#list { table-layout:fixed; }
+#list td {
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+} 
+
+input[type="checkbox"] { vertical-align: middle; }
+span.content{color:gray;}
+.late{color:red;font-weight:bold}
+
+</style>
+<table width='99%'>
+    <tr>
+        <td width="15%">Logo</td>        
+        <td>{{=TABLE(TR(LABEL('Search: '),
+                        INPUT(_name='s_user', _placeholder='search by author'),
+                        INPUT(_name='s_subject', _placeholder='search by subject'),
+                        INPUT(_name='s_tag', _placeholder='search by tag'),
+                        TD(TAG.BUTTON('Clear search fields',_onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"),                 
+                                width='20%'),_width='100%'))}}
+        </td>
+    </tr>
+    <tr>
+        <td width="15%" class='menu'>
+            <table class='menu_table' width='100%'>
+                {{=LOAD('default','sidebar.load')}}
+                <tr><td><hr/></td></tr>
+                <tr>{{=TD(INPUT(_type='checkbox', value=True, _name='.owner'),'Owner')}}</tr>
+                {{if len(my_roles):}}
+                    {{for role in my_roles:}}
+                        {{=TR(TD(INPUT(_type='checkbox', value=True, _name='.' + role.group_id.role.replace(' ','_')),role.group_id.role))}}
+                    {{pass}}                
+                {{pass}}
+                {{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}
+                {{=TR(TD(LABEL('Search by group:')))}}
+                {{=TR(TD(INPUT(_id='search_groups', _placeholder='enter the group')))}}
+                {{pass}}
+            </table>        
+        </td>
+        <td class='menu'>
+            <table width='100%' id='list'>
+                <tr style="font-weight:bold;" id='message-hdr'>
+                    <td width='20%'>Created by</td>
+                    <td>Subject</td>
+                    <td width='5%'></td>
+                    <td width='20%'>Timestamp</td>
+                </tr>
+                {{if len(late_msgs):}}
+                    {{for message in late_msgs:}}
+                        <tr class='messages late {{=message['groups']}} {{='owner' if message['is_owner'] else ''}}'>
+                            <td style='display: none;'>{{=message['id']}}</td>
+                            <td>{{=message['by']}}</td>
+                            <td><span>{{=IMG(_src=URL('static','images/reply.png')) if message['replied'] else ''}}</span>
+                                {{=SPAN(message['tags'])}}
+                                {{=SPAN(message['subject'])}}
+                                {{=SPAN(' - ',message['content'][:80])}}</td>
+                            <td>{{=IMG(_src=URL('static','images/attachment.png')) if message['attachment'] else ''}}</td>
+                            <td class="timestamp" title={{=message['time'].isoformat()}}></td>
+                        </tr>
+                    {{pass}}
+                {{pass}}            
+                
+                {{if len(msgs):}}
+                    {{for message in msgs:}}
+                        <tr class='messages {{=message['groups']}} {{='owner' if message['is_owner'] else ''}}'>
+                            <td style='display: none;'>{{=message['id']}}</td>
+                            <td>{{=message['by']}}</td>
+                            <td><span>{{=IMG(_src=URL('static','images/reply.png')) if message['replied'] else ''}}</span>
+                                {{=SPAN(message['tags'])}}
+                                {{=SPAN(message['subject'])}}
+                                {{=SPAN(' - ',message['content'][:80],_class='content')}}</td>
+                            <td>{{=IMG(_src=URL('static','images/attachment.png')) if message['attachment'] else ''}}</td>
+                            <td class="timestamp" title={{=message['time'].isoformat()}}></td>
+                        </tr>
+                    {{pass}}
+                {{pass}}            
+            </table>
+        </td>
+    </tr>    
+</table>
