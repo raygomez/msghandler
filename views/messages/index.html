@@ -68,7 +68,7 @@ $(function(){
     })
 
     $('tr.messages').live('click', function(){
-        window.location.replace('/msghandler/default/read_message/' + $(this).children().first().text());
+        window.location.replace('/msghandler/messages/read/' + $(this).children().first().text());
     });
 
     $('img.delete').one('click', function(){
