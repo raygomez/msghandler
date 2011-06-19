@@ -36,17 +36,22 @@ response.menu = [
 ##########################################
 
 if auth.is_logged_in(): 
-    response.menu+= [(T('Messages'), False, URL(request.application,'default','index'), []),
-                    (T('Users'), False, URL(request.application,'users','index'), []),
-                    (T('Groups'), False, URL(request.application,'groups','index'), []),            
-                    (T('Events'), False, URL(request.application,'events','index'), []),]
-    
+    response.menu+= [(T('Reports'), False, URL(request.application,'default','index'), []),
+                    (T('Events'), False, URL(request.application,'events','index'), []),]    
 
     if auth.has_membership('Admin', auth.user.id) or auth.has_membership('Telehealth', auth.user.id):
-        response.menu+= [
-            (T('Tags'), False, URL(request.application,'tags','index'), []),
+        menu = [
+            (T('Management'), False, None, [
+                (T('Users'), False, URL(request.application,'users','index')),
+                (T('Groups'), False, URL(request.application,'groups','index')),
+                (T('Tags'), False, URL(request.application,'tags','index')),
+            ]),
             (T('Help'), False, URL(request.application,'default','index'), []),    
         ]
+
+        
+
+    response.menu += menu
 
 response.menu+=[
     (T('This App'), False, URL('admin', 'default', 'design/%s' % request.application), 
