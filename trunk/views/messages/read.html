@@ -106,7 +106,7 @@ REFERRAL
 </table>
 <br/>
 </table>
-ATTACHMENTS | {{=A('Upload new attachments', _href=URL('create_attachment', args=id))}}<br />
+ATTACHMENTS | {{=A('Upload new attachments', _href=URL('attachments','create',args=id))}}<br />
 {{if len(attachs) > 0:}}
 <table id='attachments' width=95%>
 {{for attach in attachs:}}
