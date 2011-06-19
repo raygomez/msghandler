@@ -123,71 +123,8 @@ def user():
 def download():
     return response.download(request,db)
 
-
-
 file_types = ['pdf']
 
-@auth.requires_login()
-def read_message():
-    if len(request.args) == 0 or not request.args(0).isdigit():
-        redirect(URL('index'))
-    message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
-    
-    groups_query = db(db.msg_group.msg_id == message.id
-                      )._select(db.msg_group.group_id)
-    not_groups = db(~db.auth_group.id.belongs(groups_query)
-                    & (db.auth_group.role != 'Admin')
-                    ).select(db.auth_group.id, db.auth_group.role).json()
-    groups = db(db.msg_group.msg_id == message.id
-                ).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
-    
-    tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
-    not_tags = db(~db.tag.id.belongs(tags_query) & (db.tag.name!='Late')
-                  ).select(db.tag.id, db.tag.name).json()
-    tags = db(db.msg_tag.msg_id == message.id
-              ).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
-    
-    attachments = db(db.msg_attachment.msg_id == message.id
-                     ).select(orderby=db.msg_attachment.attach_time)
-    attachs = []
-    for attachment in attachments:
-        attach = {}
-        attach['attachment'] = attachment
-        file_type = attachment.attachment[attachment.attachment.rindex('.')
-                                          + 1:]
-        if file_type in file_types:
-            attach['src'] = URL('static','images/' + file_type + '.png')
-        elif file_type in ['png','jpg','jpg','gif','bmp']:
-            attach['src'] = URL('download', args=attachment.attachment)
-        else:
-            attach['src'] = URL('static','images/binary.png')
-        attachs.append(attach)
-        
-    db.msg.subject.writable = db.msg.subject.readable = False
-    form = SQLFORM.factory(db.msg, submit_button='Post comment')
-    
-    if form.accepts(request.vars, session):
-        contact = get_contact(auth.user)
-        form.vars.created_by = contact.id
-        form.vars.parent_msg = message.id
-        form.vars.subject = 'Re:'
-        msg_id = db.msg.insert(**db.msg._filter_fields(form.vars))
-        late = db(db.tag.name == 'Late').select().first()
-        db((db.msg_tag.msg_id == message.id) & (db.msg_tag.tag_id == late.id)).delete()
-        dbutils.log_event(db, user_id=auth.user.id, item_id=msg_id,
-                          table_name='msg', access='create')
-        
-        response.flash = T('Comment successfully created.')
-    
-    replies = db(db.msg.parent_msg == message.id
-                 ).select(orderby=db.msg.create_time)
-    update_time = replies.last().create_time if replies else 0
-    
-    return dict(message=message, form=form, groups=groups, tags=tags,
-                attachs=attachs, update_time=update_time,
-                json=SCRIPT('var tags=%s; var groups=%s'
-                            % (not_tags,not_groups)),
-                id=message.id, replies=replies)
 
 @auth.requires_login()
 def create_attachment():
