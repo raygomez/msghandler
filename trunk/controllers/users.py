@@ -115,9 +115,6 @@ def create():
 
     if form.accepts(request.vars, session):
         id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
-        db.contact.insert(user_id=id, contact_type='email',
-                          contact_info=form.vars.email,
-                name=form.vars.first_name + ' ' + form.vars.last_name)
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1],id)
         dbutils.log_event(db, user_id=auth.user.id, item_id=id,
