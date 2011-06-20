@@ -122,6 +122,7 @@ def create():
     
     form.element(_name='groups')['_onkeyup'] = "showgroups()"
     form.element(_name='groups')['_autocomplete'] = 'off'    
+    form.element(_name='contact_info')['_placeholder'] = 'insert contact details here'
     form.vars.is_active  = 'on'        
 
     if form.accepts(request.vars, session):
