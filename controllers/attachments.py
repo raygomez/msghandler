@@ -1,8 +1,5 @@
 def get_contact(user):
     contact =  db(db.contact.user_id==user.id).select().first()
-    if not contact:
-        contact = db.contact.insert(user_id=user.id, contact_type='email',
-                                    contact_info=user.email)
     return contact
 
 @auth.requires_login()
