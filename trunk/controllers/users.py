@@ -61,7 +61,6 @@ def read():
     if user.registration_key == '':
         form.vars.is_active  = 'on'
     else: form.vars.is_active  = 'off'
-    
             
     if form.accepts(request.vars, session, keepvalues=True):
         last_name = request.vars.last_name
@@ -105,8 +104,9 @@ def create():
                 Field('password_again', 'password',
                       requires=IS_EQUAL_TO(request.vars.password,
                             error_message='Passwords do not match.')),
+                Field('is_active', 'boolean'),
                 Field('groups', label='Search groups'),
-                
+                submit_button='Create User',                
                 hidden=dict(groups_new=None),
                 table_name='user')
     
@@ -114,6 +114,11 @@ def create():
     form.element(_name='groups')['_autocomplete'] = 'off'
 
     if form.accepts(request.vars, session):
+        if form.vars.is_active:
+            form.vars.registration_key = ''
+        else: 
+            form.vars.registration_key = 'blocked'
+    
         id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1],id)

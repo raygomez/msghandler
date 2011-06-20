@@ -21,7 +21,7 @@
 {{=TD(form.custom.widget.first_name)}}
 {{=TD(form.custom.widget.last_name)}}
 {{if auth.has_membership('Admin'):}}
-{{#=TD(LABEL('Active: '),form.custom.widget.is_active)}}
+{{=TD(LABEL('Active: '),form.custom.widget.is_active)}}
 {{pass}}
 </tr>
 {{=TR(TD('First Name'),TD('Last Name'), _class='info')}}
