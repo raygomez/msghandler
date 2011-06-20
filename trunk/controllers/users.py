@@ -47,7 +47,6 @@ def read():
                          distinct=True)
     groups.exclude(lambda row: row.group_id.role == 'Admin')
     
-    db.auth_user.email.writable = False
     db.auth_user.username.writable = False
     db.auth_user.password.writable = False
         
@@ -57,7 +56,7 @@ def read():
                 submit_button='Update User',
                 hidden=dict(groups_new=None))
     form.element(_name='groups')['_autocomplete'] = 'off' 
-    
+        
     if user.registration_key == '':
         form.vars.is_active  = 'on'
     else: form.vars.is_active  = 'off'
@@ -122,7 +121,8 @@ def create():
                 table_name='user')
     
     form.element(_name='groups')['_onkeyup'] = "showgroups()"
-    form.element(_name='groups')['_autocomplete'] = 'off'
+    form.element(_name='groups')['_autocomplete'] = 'off'    
+    form.vars.is_active  = 'on'        
 
     if form.accepts(request.vars, session):
         if form.vars.is_active:
