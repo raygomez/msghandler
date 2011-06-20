@@ -48,9 +48,16 @@ if auth.is_logged_in():
             ]),
             (T('Help'), False, URL(request.application,'default','index'), []),    
         ]
-
-        
-
+    else:
+        menu = [
+            (T('Management'), False, None, [
+                (T('Users'), False, URL(request.application,'users','index')),
+                (T('Groups'), False, URL(request.application,'groups','index')),
+                (T('Tags'), False, URL(request.application,'tags','index')),
+            ]),
+            (T('Help'), False, URL(request.application,'default','index'), []),    
+        ]
+    
     response.menu += menu
 
 response.menu+=[
