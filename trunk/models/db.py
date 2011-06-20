@@ -62,9 +62,6 @@ custom_auth_table.last_name.requires = \
   IS_NOT_EMPTY(error_message=auth.messages.is_empty)
 custom_auth_table.password.requires = [CRYPT()]
 custom_auth_table.username.requires = IS_NOT_IN_DB(db, custom_auth_table.username)
-#custom_auth_table.email.requires = [
-#  IS_EMAIL(error_message=auth.messages.invalid_email),
-#  IS_NOT_IN_DB(db, custom_auth_table.email)]
 
 auth.settings.table_user = custom_auth_table # tell auth to use custom_auth_table
 
@@ -119,7 +116,7 @@ from datetime import datetime
 import os
 
 db.define_table('contact',
-    Field('user_id', db.auth_user),
+    Field('user_id', db.auth_user, readable=False, writable=False),
     Field('contact_type', notnull=True, requires=IS_IN_SET(('mobile', 'landline', 'email'))),
     Field('contact_info', notnull=True),
     format='%(contact_info)s')
@@ -196,7 +193,10 @@ db.define_table('event',
     Field('user_id', db.auth_user),
     Field('item_id', 'integer'),
     Field('details'),
-    Field('table_name', requires=IS_IN_SET(('msg','auth_user','auth_group','tag','contact', 'auth_membership', 'msg_attachment','msg_tag', 'msg_group'))),
+    Field('table_name', 
+          requires=IS_IN_SET(('msg','auth_user','auth_group',
+                              'tag','contact', 'auth_membership',
+                              'msg_attachment','msg_tag', 'msg_group'))),
     Field('access', requires=IS_IN_SET(('create','read','update','delete'))),    
     format='%(description)s')
 db.event.user_id.requires=IS_IN_DB(db, 'auth_user.id', '%(first_name)s %(last_name)s')

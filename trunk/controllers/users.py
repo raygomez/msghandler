@@ -93,6 +93,17 @@ def read():
     return dict(form=form, groups=groups, id=user.id, contacts=contacts,
                 json=SCRIPT('var groups=%s' % not_groups))
 
+def insert_groups(selected, user_id):
+    for group in selected:
+        user = db.auth_user[user_id].email
+        role = db.auth_group[int(group[4:])].role
+    
+        membership_id = db.auth_membership.insert(user_id=user_id, 
+                                                  group_id=int(group[4:]))
+        dbutils.log_event(db, user_id=auth.user.id, item_id=membership_id,
+                          table_name='auth_membership', access='create',
+                          details=','.join([user,role,`user_id`]))
+
 @auth.requires_login()
 def create():
 
@@ -100,7 +111,7 @@ def create():
                 ).select(db.auth_group.id, db.auth_group.role,
                          orderby=db.auth_group.role).json()
         
-    form = SQLFORM.factory(db.auth_user,
+    form = SQLFORM.factory(db.auth_user, db.contact,
                 Field('password_again', 'password',
                       requires=IS_EQUAL_TO(request.vars.password,
                             error_message='Passwords do not match.')),
@@ -120,6 +131,8 @@ def create():
             form.vars.registration_key = 'blocked'
     
         id = db.auth_user.insert(**db.auth_user._filter_fields(form.vars))
+        form.vars.user_id = id
+        db.contact.insert(**db.contact._filter_fields(form.vars))
         if request.vars.groups_new:
             insert_groups(request.vars.groups_new.split(',')[:-1],id)
         dbutils.log_event(db, user_id=auth.user.id, item_id=id,
