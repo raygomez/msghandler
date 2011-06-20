@@ -5,20 +5,67 @@
         $('.top-td').live('mouseleave', function(){$(this).children('img').hide();});
     })
 </script>
+<style>
+.info {
+    text-align : center;
+    font-size : smaller;
+    font-style : italic;
+}
+</style>
 {{=form.custom.begin}}
 <table>
-{{=TR(TD(LABEL('First Name:')), TD(form.custom.widget.first_name))}}
-{{=TR(TD(LABEL('Last Name:')), TD(form.custom.widget.last_name))}}
-{{=TR(TD(LABEL('Email:')), TD(form.custom.widget.email))}}
-{{=TR(TD(LABEL('Username:')), TD(form.custom.widget.username))}}
-{{=TR(TD(LABEL('Password:')), TD(form.custom.widget.password))}}
-{{=TR(TD(LABEL('Password Again:')), TD(form.custom.widget.password_again))}}
-{{=TR(TD(LABEL('Groups:')), TD(TABLE(TR()), _id='tr-groups-new'))}}
-{{=TR(TD(LABEL('Search groups:'), TD(form.custom.widget.groups)))}}
-{{=TR(TD(),TD(DIV(_id='new-groups')))}}
-{{=TR(TD(), TD(form.custom.submit))}}
+<tr>
+<td>
+<table>
+<tr>
+{{=TD(form.custom.widget.first_name)}}
+{{=TD(form.custom.widget.last_name)}}
+{{if auth.has_membership('Admin'):}}
+{{#=TD(LABEL('Active: '),form.custom.widget.is_active)}}
+{{pass}}
+</tr>
+{{=TR(TD('First Name'),TD('Last Name'), _class='info')}}
+<tr>
+{{=TD(form.custom.widget.username)}}
+</tr>
+{{=TR(TD('Username'), _class='info')}}
+<tr>
+{{=TD(form.custom.widget.password)}}
+{{=TD(form.custom.widget.password_again)}}
+</tr>
+{{=TR(TD('Password'),TD('Password Again'), _class='info')}}
+</table>
+</td>
+</tr>    
+{{=TR(TD(HR()))}}
+<tr>
+    <td>
+        <table>
+            <tr>
+    {{=TD(LABEL('Groups:'))}}
+    {{=TD(form.custom.widget.groups)}}
+    <td id="tr-groups-new">
+        <table>
+            <tr>
+            </tr>
+        </table>
+    </td>    
+            </tr>
+    {{=TR(TD(), TD(DIV(_id='new-groups')))}}
+    {{=TR(TD(LABEL('PRC #:')), TD(form.custom.widget.prc))}}    
+    {{=TR(TD(LABEL('Profession:')), TD(form.custom.widget.profession))}}
+        </table>    
+</tr>
+{{=TR(TD(HR()))}}
+{{=TR(TD(LABEL('Contact Information')), TD())}}
+<tr><td>
+<table width='100%'>
+{{=TR(TH(), TH('Type'),TH('Details'))}}
+</table>
+</td></tr>
+{{=TR(BR())}}
+{{=TR(TD(form.custom.submit))}}
 </table>
 {{=form.custom.end}}
 {{=json}}
-
 <script src="{{=URL('static','js/grouping.js')}}"></script>
