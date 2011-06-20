@@ -41,7 +41,8 @@ db.define_table(
     auth.settings.table_user_name,
     Field('first_name', length=128, default=''),
     Field('last_name', length=128, default=''),
-    Field('email', length=128, default='', unique=True),
+    Field('email', length=128, default='', unique=True,
+        writable=False, readable=False, ),
     Field('username', length=128, default=""),
     Field('password', 'password', length=512,
           readable=False, label='Password'),
@@ -61,9 +62,9 @@ custom_auth_table.last_name.requires = \
   IS_NOT_EMPTY(error_message=auth.messages.is_empty)
 custom_auth_table.password.requires = [CRYPT()]
 custom_auth_table.username.requires = IS_NOT_IN_DB(db, custom_auth_table.username)
-custom_auth_table.email.requires = [
-  IS_EMAIL(error_message=auth.messages.invalid_email),
-  IS_NOT_IN_DB(db, custom_auth_table.email)]
+#custom_auth_table.email.requires = [
+#  IS_EMAIL(error_message=auth.messages.invalid_email),
+#  IS_NOT_IN_DB(db, custom_auth_table.email)]
 
 auth.settings.table_user = custom_auth_table # tell auth to use custom_auth_table
 
