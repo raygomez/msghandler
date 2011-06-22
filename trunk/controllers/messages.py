@@ -1,3 +1,5 @@
+dbutils = local_import('utils.dbutils')
+
 @auth.requires_login()
 def index():
     grps = db(db.auth_membership.user_id == auth.user_id).select()
