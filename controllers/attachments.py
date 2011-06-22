@@ -1,3 +1,5 @@
+dbutils = local_import('utils.dbutils')
+
 def get_contact(user):
     contact =  db(db.contact.user_id==user.id).select().first()
     return contact
