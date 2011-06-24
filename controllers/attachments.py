@@ -21,6 +21,8 @@ def create():
         
         dbutils.log_event(db, user_id=auth.user.id, item_id=msg_attachment_id,
                           table_name='msg_attachment', access='create',
-                          details=','.join([subject,filename,msg_id]))
+                          details=','.join([subject,filename,msg_id]))                          
+
+        session.flash = 'File successfully attached.'
         redirect(URL('messages','read', args=msg_id))
     return dict(form = form)
