@@ -110,11 +110,11 @@ ATTACHMENTS | {{=A('Upload new attachments', _href=URL('attachments','create',ar
 {{if len(attachs) > 0:}}
 <table id='attachments' width=95%>
 {{for attach in attachs:}}
-
+{{user = attach['attachment'].attach_by.user_id.first_name + ' ' + attach['attachment'].attach_by.user_id.last_name}}
 <tr class='attachment'>
 {{=TD(A(IMG(_src=attach['src'], _alt="attachments", _height='50px'),
       _href=URL('default','download',args=attach['attachment'].attachment)), _class='td_img')}}
-{{=TD(attach['attachment'].filename,' | ',A('Remove this attachment', _href='#'),BR(),'added by ', SPAN(attach['attachment'].attach_by.name,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
+{{=TD(attach['attachment'].filename,' | ',A('Remove this attachment', _href='#'),BR(),'added by ', SPAN(user,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
 </tr>
 {{pass}}
 </table>
