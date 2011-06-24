@@ -65,7 +65,7 @@ REFERRAL
 <table width='95%'>
 <tr><td><h4>{{=message.subject}}</h4></td><tr/>
 <tr>
-    <td>From:{{=message.created_by.name}} ({{=SPAN(_title=message.create_time,_class='timestamp')}}) | {{=A('Remove referral', _href='#')}}</td></tr>
+    <td>From:{{=message.created_by.user_id.first_name + ' ' + message.created_by.user_id.last_name}} ({{=SPAN(_title=message.create_time,_class='timestamp')}}) | {{=A('Remove referral', _href='#')}}</td></tr>
 {{if update_time:}}
 <tr><td>Updated {{=SPAN(_title=update_time,_class='timestamp')}}</td></tr>
 {{pass}}
