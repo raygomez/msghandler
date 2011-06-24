@@ -123,7 +123,8 @@ ATTACHMENTS | {{=A('Upload new attachments', _href=URL('attachments','create',ar
 REPLIES
 <table width=95%>
 {{for reply in replies:}}
-<tr><td>From {{=reply.created_by.name}} {{=SPAN(_title=reply.create_time,_class='timestamp')}} | {{=A('Remove reply', _href='#')}}</td></tr>
+{{user = reply.created_by.user_id.first_name + ' ' + reply.created_by.user_id.last_name}}
+<tr><td>From {{=user}} {{=SPAN(_title=reply.create_time,_class='timestamp')}} | {{=A('Remove reply', _href='#')}}</td></tr>
 <tr class='content'><td colspan=2>{{=reply.content}}</td></tr>
 {{pass}}
 {{=form}}
