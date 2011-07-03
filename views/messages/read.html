@@ -14,6 +14,19 @@ $(function(){
     click_once_group();            
 })
 
+{{if auth.has_membership('Admin'):}}    
+    $('.delete').live('click', function(){
+        var answer = confirm('Are you sure you want to delete this?')
+        if (answer){
+            return true
+        }     
+        return false
+        
+    })
+{{pass}}    
+
+
+
 function addgroups(widget){    
     groups = $.grep(groups, function(group){ return group.role != widget.target.name } )
     
@@ -114,7 +127,7 @@ ATTACHMENTS | {{=A('Upload new attachments', _href=URL('attachments','create',ar
 <tr class='attachment'>
 {{=TD(A(IMG(_src=attach['src'], _alt="attachments", _height='50px'),
       _href=URL('default','download',args=attach['attachment'].attachment)), _class='td_img')}}
-{{=TD(attach['attachment'].filename,' | ',A('Remove this attachment', _href=URL('attachments','delete', vars=dict(id=attach['attachment'].id,msg_id=id))),BR(),'added by ', SPAN(user,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
+{{=TD(attach['attachment'].filename,' | ',A('Remove this attachment', _class='delete', _href=URL('attachments','delete', vars=dict(id=attach['attachment'].id,msg_id=id))),BR(),'added by ', SPAN(user,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
 </tr>
 {{pass}}
 </table>
