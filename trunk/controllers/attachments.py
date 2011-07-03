@@ -27,10 +27,17 @@ def create():
         redirect(URL('messages','read', args=msg_id))
     return dict(form = form)
 
-@auth.requires_membership('Admin')
 def delete():
     attachment = db.msg_attachment[request.vars.id]
+    contacts =  db(db.contact.user_id==auth.user.id).select()
+
     filename = attachment.filename
+    
+    if not(auth.has_membership('Admin') or auth.has_membership('Telehealth') or 
+       contacts.find(lambda row: row.id==attachment.attach_by)):
+        session.flash = 'Insufficient privileges'
+        redirect(URL('default','user',args='not_authorized'))
+
     dbutils.log_event(db, user_id=auth.user.id,
                       item_id=request.vars.id, table_name='msg_attachment',
                       access='delete', details=','.join([filename]))
