@@ -233,3 +233,20 @@ def read():
                 json=SCRIPT('var tags=%s; var groups=%s'
                             % (not_tags,not_groups)),
                 id=message.id, replies=replies)
+
+def delete():
+    msg = db.msg[request.vars.id]
+    contacts =  db(db.contact.user_id==auth.user.id).select()
+
+    if not(auth.has_membership('Admin') or auth.has_membership('Telehealth') or 
+       contacts.find(lambda row: row.id==attachment.attach_by)):
+        session.flash = 'Insufficient privileges'
+        redirect(URL('default','user',args='not_authorized'))
+
+    dbutils.log_event(db, user_id=auth.user.id,
+                      item_id=request.vars.id, table_name='msg',
+                      access='delete', details=','.join([msg.subject]))
+
+    db.msg[request.vars.id] = dict(is_hidden=True)    
+    session.flash = 'Comment successfully deleted.'
+    redirect(URL('messages','read', args=request.vars.msg_id))
