@@ -26,3 +26,15 @@ def create():
         session.flash = 'File successfully attached.'
         redirect(URL('messages','read', args=msg_id))
     return dict(form = form)
+
+@auth.requires_membership('Admin')
+def delete():
+    attachment = db.msg_attachment[request.vars.id]
+    filename = attachment.filename
+    dbutils.log_event(db, user_id=auth.user.id,
+                      item_id=request.vars.id, table_name='msg_attachment',
+                      access='delete', details=','.join([filename]))
+    del db.msg_attachment[request.vars.id]
+    session.flash = 'File successfully deleted.'
+    
+    redirect(URL('messages','read', args=request.vars.msg_id))
