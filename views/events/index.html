@@ -116,7 +116,7 @@ $(function(){
 
 {{elif evnt['table'] == 'auth_user':}}
     {{if evnt['access'] == 'create':}}
-        {{=evnt['user']}} added a new user {{=A(evnt['item'].first_name + ' ' + evnt['item'].last_name, _href=URL('show_user', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+        {{=evnt['user']}} added a new user {{=A(evnt['item'].first_name + ' ' + evnt['item'].last_name, _href=URL('users','read', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
     {{elif evnt['access'] == 'update':}}
         {{=evnt['user']}} updated the user {{=A(evnt['item'].first_name + ' ' + evnt['item'].last_name, _href=URL('show_user'), args=evnt['item'].id) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> 
     {{elif evnt['access'] == 'delete':}}
