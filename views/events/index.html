@@ -126,9 +126,9 @@ $(function(){
 {{elif evnt['table'] == 'msg':}}
     {{if evnt['access'] == 'create':}}
         {{if evnt['item'].parent_msg == 0:}}
-            {{=evnt['user']}} added a new message {{=A(evnt['item'].subject, _href=URL('read_message', args=evnt['item'].id))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+            {{=evnt['user']}} added a new message {{=A(evnt['item'].subject, _href=URL('messages','read', args=evnt['item'].id))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
         {{else:}}    
-            {{=evnt['user']}} replied to the message {{=A(evnt['item'].parent_msg.subject, _href=URL('read_message', args=evnt['item'].parent_msg.id))}} by {{=evnt['item'].parent_msg.created_by.name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>        
+            {{=evnt['user']}} replied to the message {{=A(evnt['item'].parent_msg.subject, _href=URL('messages','read', args=evnt['item'].parent_msg.id))}} by {{=evnt['item'].parent_msg.created_by.name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>        
         {{pass}}
     {{pass}}
 
@@ -168,7 +168,7 @@ $(function(){
 
     {{if evnt['access'] == 'create':}}
         {{if evnt['item']:}}
-            {{=evnt['user']}} added the user {{=A(evnt['item'].user_id.email, _href=URL('show_user', args=evnt['item'].user_id.id))}} to {{=A(evnt['item'].group_id.role, _href=URL('groups'))}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+            {{=evnt['user']}} added the user {{=A(evnt['item'].user_id.first_name + ' ' + evnt['item'].user_id.last_name, _href=URL('users','read', args=evnt['item'].user_id.id))}} to {{=A(evnt['item'].group_id.role, _href=URL('groups'))}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
         {{else:}}
             {{=evnt['user']}} added the user {{=A(email, _href=URL('show_user', args=user_id))}} to {{=A(group, _href=URL('groups'))}} group [Already removed]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
         {{pass}}
