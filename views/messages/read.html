@@ -142,8 +142,18 @@ REPLIES
 <table width=95%>
 {{for reply in replies:}}
 {{user = reply.created_by.user_id.first_name + ' ' + reply.created_by.user_id.last_name}}
-<tr><td>From {{=user}} {{=SPAN(_title=reply.create_time,_class='timestamp')}} | {{=A('Remove reply', _href='#')}}</td></tr>
+    {{if reply.is_hidden:}}
+<tr><td><del>From {{=user}} {{=SPAN(_title=reply.create_time,_class='timestamp')}}</del></td></tr>
+<tr class='content'><td colspan=2><del>{{=reply.content}}</del></td></tr>
+    {{else:}}
+        {{if auth.has_membership('Admin') or auth.has_membership('Telehealth') or contacts.find(lambda row: row.id==reply.created_by):}}
+<tr><td>From {{=user}} {{=SPAN(_title=reply.create_time,_class='timestamp')}} | {{=A('Remove reply', _class='delete', _href=URL('delete', vars=dict(id=reply.id, msg_id=id)))}}</td></tr>
 <tr class='content'><td colspan=2>{{=reply.content}}</td></tr>
+        {{else:}}
+<tr><td>From {{=user}} {{=SPAN(_title=reply.create_time,_class='timestamp')}}</td></tr>
+<tr class='content'><td colspan=2>{{=reply.content}}</td></tr>        
+        {{pass}}
+    {{pass}}
 {{pass}}
 {{=form}}
 </table>
