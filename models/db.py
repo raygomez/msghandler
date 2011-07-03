@@ -5,15 +5,16 @@
 ## This scaffolding model makes your app work on Google App Engine too
 #########################################################################
 
-if request.env.web2py_runtime_gae:                                                          # if running on Google App Engine
-    db = DAL('gae')                                                                                                                                                                                                 # connect to Google BigTable
-                                                                                                                                                                                                                                                                                                                                                                            # optional DAL('gae://namespace')
+if request.env.web2py_runtime_gae:    # if running on Google App Engine
+    db = DAL('gae') # connect to Google BigTable
+    # optional DAL('gae://namespace')
     session.connect(request, response, db = db) # and store sessions and tickets there
     ### or use the following lines to store sessions in Memcache
     # from gluon.contrib.memdb import MEMDB
     # from google.appengine.api.memcache import Client
     # session.connect(request, response, db = MEMDB(Client()))
-else:                                                                                                                                                                                                                                                                                                                               # else use a normal relational database
+else:
+# else use a normal relational database
     db = DAL('sqlite://storage.sqlite')             # if not, use SQLite or other DB
 ## if no need for session
 # session.forget()
@@ -144,7 +145,7 @@ db.define_table('msg_attachment',
     Field('attachment_type', notnull=True, default='image'),
     Field('attach_by', db.contact, notnull=True),
     Field('filename'),
-    Field('attachment', 'upload', notnull=True),
+    Field('attachment', 'upload', autodelete=True, notnull=True),
     format='%(filename)s')
 db.msg_attachment.msg_id.requires = IS_IN_DB(db, 'msg.id')
 db.msg_attachment.msg_id.writable = db.msg_attachment.msg_id.readable = False
