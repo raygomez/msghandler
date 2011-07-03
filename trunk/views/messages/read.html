@@ -127,7 +127,12 @@ ATTACHMENTS | {{=A('Upload new attachments', _href=URL('attachments','create',ar
 <tr class='attachment'>
 {{=TD(A(IMG(_src=attach['src'], _alt="attachments", _height='50px'),
       _href=URL('default','download',args=attach['attachment'].attachment)), _class='td_img')}}
+{{if auth.has_membership('Admin') or auth.has_membership('Telehealth') or contacts.find(lambda row: row.id==attach['attachment'].attach_by):}}
 {{=TD(attach['attachment'].filename,' | ',A('Remove this attachment', _class='delete', _href=URL('attachments','delete', vars=dict(id=attach['attachment'].id,msg_id=id))),BR(),'added by ', SPAN(user,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
+{{else:}}
+{{=TD(attach['attachment'].filename,BR(),'added by ', SPAN(user,' ', SPAN(_title=attach['attachment'].attach_time,_class='timestamp') ))}}
+
+{{pass}}
 </tr>
 {{pass}}
 </table>

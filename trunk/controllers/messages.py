@@ -177,6 +177,7 @@ def read():
         redirect(URL('index'))
     message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
     
+    contacts =  db(db.contact.user_id==auth.user.id).select()
     groups_query = db(db.msg_group.msg_id == message.id
                       )._select(db.msg_group.group_id)
     not_groups = db(~db.auth_group.id.belongs(groups_query)
@@ -228,7 +229,7 @@ def read():
     update_time = replies.last().create_time if replies else 0
     
     return dict(message=message, form=form, groups=groups, tags=tags,
-                attachs=attachs, update_time=update_time,
+                attachs=attachs, update_time=update_time, contacts=contacts,
                 json=SCRIPT('var tags=%s; var groups=%s'
                             % (not_tags,not_groups)),
                 id=message.id, replies=replies)
