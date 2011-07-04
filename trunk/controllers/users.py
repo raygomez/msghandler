@@ -72,23 +72,22 @@ def read():
         if first_name != user.first_name:
             details.append('first name changed from ' + user.first_name
                            + ' to ' + first_name)
-        
-        details = ', '.join(details)
-        
-        dbutils.log_event(db, details=details, user_id=auth.user.id,
-                          item_id=user.id, table_name='auth_user',
-                          access='update')
 
         if form.vars.is_active:
             form.vars.registration_key = ''
         else: 
             form.vars.registration_key = 'blocked'
-                          
-        db(db.auth_user.id == user.id
-           ).update(**db.auth_user._filter_fields(form.vars))
-                
-        request.flash = T('User successfully updated.')
-    
+        
+        if len(details) != 0:
+            details = ', '.join(details)
+        
+            dbutils.log_event(db, details=details, user_id=auth.user.id,
+                              item_id=user.id, table_name='auth_user',
+                              access='update')           
+            db(db.auth_user.id == user.id
+               ).update(**db.auth_user._filter_fields(form.vars))
+               
+            request.flash = T('User successfully updated.')
     return dict(form=form, groups=groups, id=user.id, contacts=contacts,
                 json=SCRIPT('var groups=%s' % not_groups))
 
