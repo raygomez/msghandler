@@ -168,7 +168,7 @@ $(function(){
 
     {{if evnt['access'] == 'create':}}
         {{if evnt['item']:}}
-            {{=evnt['user']}} added the user {{=A(evnt['item'].user_id.first_name + ' ' + evnt['item'].user_id.last_name, _href=URL('users','read', args=evnt['item'].user_id.id))}} to {{=A(evnt['item'].group_id.role, _href=URL('groups'))}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+            {{=evnt['user']}} added the user {{=A(evnt['item'].user_id.first_name + ' ' + evnt['item'].user_id.last_name, _href=URL('users','read', args=evnt['item'].user_id.id))}} to {{=A(evnt['item'].group_id.role, _href=URL(c='groups'))}} group. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
         {{else:}}
             {{=evnt['user']}} added the user {{=A(email, _href=URL('users','read', args=user_id))}} to {{=A(group, _href=URL(c='groups'))}} group [Already removed]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
         {{pass}}
