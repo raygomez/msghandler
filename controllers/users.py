@@ -146,7 +146,10 @@ def create():
 def change_password():
     id = request.args(0)
 
-    form = SQLFORM.factory(Field('password', 'password', requires=db.auth_user['password'].requires))
+    form = SQLFORM.factory(
+        Field('password', 'password', requires=db.auth_user['password'].requires),
+        Field('password_again', 'password', requires=IS_EQUAL_TO(request.vars.password,
+                                                    error_message=T('Passwords do not match.'))))
     if form.accepts(request.vars, session):    
         db.auth_user[id] = dict(password=form.vars.password)
         session.flash= T('Password successfully changed.')
