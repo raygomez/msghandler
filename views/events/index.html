@@ -184,7 +184,7 @@ $(function(){
 
     {{if evnt['access'] == 'create':}}
         {{if evnt['item']:}}
-            {{=evnt['user']}} attach the file {{=A(filename, _href=URL('default','download', args=evnt['item'].attachment))}} to the message  {{=A(evnt['item'].msg_id.subject, _href=URL('messages','read', args=msg_id))}} by {{=evnt['item'].msg_id.created_by.name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+            {{=evnt['user']}} attach the file {{=A(filename, _href=URL('default','download', args=evnt['item'].attachment))}} to the message  {{=A(evnt['item'].msg_id.subject, _href=URL('messages','read', args=msg_id))}} by {{=evnt['item'].msg_id.created_by.user_id.first_name + ' ' +  evnt['item'].msg_id.created_by.user_id.last_name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
             {{pass}}
     {{pass}}    
 {{pass}}
