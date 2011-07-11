@@ -10,7 +10,7 @@ def index():
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def create():
-    groups = db(db.auth_group.role == request.vars.role).select()
+    groups = db(db.auth_group.role.like(request.vars.role)).select()
     
     if len(groups) == 0:
         id = db.auth_group.insert(**request.vars)
