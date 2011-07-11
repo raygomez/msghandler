@@ -40,7 +40,7 @@ def delete():
 
     dbutils.log_event(db, user_id=auth.user.id,
                       item_id=request.vars.id, table_name='msg_attachment',
-                      access='delete', details=','.join([filename]))
+                      access='delete', details=','.join([attachment.msg_id.subject, filename,`attachment.msg_id.id`]))
     del db.msg_attachment[request.vars.id]
     session.flash = 'File successfully deleted.'
     
