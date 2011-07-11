@@ -117,7 +117,7 @@ $(function() {
 </td>
 <td>
 <table id='list'>
-{{=TR(TH('Role'), TH('Description', _colspan=2))}}
+{{=TR(TH('Name'), TH('Description', _colspan=2))}}
 {{if auth.has_membership('Admin') or auth.has_membership('Telehealth'):}}    
 {{=TR(TD(INPUT(_name='new_role')),TD(INPUT(_name='new_description')), TD(A('Add', _id='add-group')), _id='add-row')}}
 {{pass}}
