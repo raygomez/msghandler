@@ -151,6 +151,11 @@ def change_password():
         Field('password_again', 'password', requires=IS_EQUAL_TO(request.vars.password,
                                                     error_message=T('Passwords do not match.'))))
     if form.accepts(request.vars, session):    
+
+        dbutils.log_event(db, user_id=auth.user.id, item_id=id,
+                          table_name='auth_user', access='change password',
+                          details='')
+    
         db.auth_user[id] = dict(password=form.vars.password)
         session.flash= T('Password successfully changed.')
         redirect(URL('read', args=id))
