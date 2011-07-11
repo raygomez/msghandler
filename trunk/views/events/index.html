@@ -121,6 +121,9 @@ $(function(){
         {{=evnt['user']}} updated the user {{=A(evnt['item'].first_name + ' ' + evnt['item'].last_name, _href=URL('users','read', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}} [{{=evnt['details']}}]. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> 
     {{elif evnt['access'] == 'delete':}}
         {{=evnt['user']}} deleted the user {{=evnt['details']}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+    {{elif evnt['access'] == 'change password':}}        
+        {{=evnt['user']}} changed the password for user {{=A(evnt['item'].first_name + ' ' + evnt['item'].last_name, _href=URL('users','read', args=evnt['item'].id)) if evnt['item'] else '[was deleted]'}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span> </td>
+    
     {{pass}}
 
 {{elif evnt['table'] == 'msg':}}
