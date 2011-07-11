@@ -179,13 +179,18 @@ $(function(){
     {{pass}}    
 
 {{elif evnt['table'] == 'msg_attachment':}}
-    {{filename = evnt['details'].split(',')[1]}}
-    {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
 
     {{if evnt['access'] == 'create':}}
+        {{filename = evnt['details'].split(',')[1]}}
+        {{subject,msg_id = evnt['details'].split(',')[0],evnt['details'].split(',')[2]}}
+
         {{if evnt['item']:}}
             {{=evnt['user']}} attach the file {{=A(filename, _href=URL('default','download', args=evnt['item'].attachment))}} to the message  {{=A(evnt['item'].msg_id.subject, _href=URL('messages','read', args=msg_id))}} by {{=evnt['item'].msg_id.created_by.user_id.first_name + ' ' +  evnt['item'].msg_id.created_by.user_id.last_name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
-            {{pass}}
+        {{else:}}
+            {{=evnt['user']}} attach the file {{=filename + ' [already deleted]'}} to the message {{=A(subject, _href=URL('messages','read', args=msg_id))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
+
+        {{pass}}
+        
     {{pass}}    
 {{pass}}
 </td>
