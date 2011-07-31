@@ -65,8 +65,9 @@ def index():
     msgs = []
     late_msgs = []
     for message in messages:
-        comment = db(db.msg.parent_msg == message.id
-                     ).select(orderby= ~db.msg.create_time)
+        comment = db((db.msg.parent_msg == message.id) & 
+                     (db.msg.is_hidden == False)
+                    ).select(orderby= ~db.msg.create_time)
         msg = {}
         msg['id'] = message.id
         msg['subject'] = message.subject
@@ -89,8 +90,7 @@ def index():
                           else message.content)
         msg['attachment'] = (True if db(db.msg_attachment.msg_id == message.id
                                         ).count() else False)
-        replies = db((db.msg.parent_msg == message.id)  & (db.msg.is_hidden == False)).select()
-        msg['replied'] = (True if len(replies) else False)
+        msg['replied'] = (True if len(comment) else False)
         tags = db(db.msg_tag.msg_id == message.id).select()
         msg['tags'] = ' '.join(['[' + tag.tag_id.name + ']' for tag in tags])
         msg['groups'] = ' '.join([group.group_id.role.replace(' ', '_')
