@@ -128,7 +128,6 @@ $(function(){
 
 {{elif evnt['table'] == 'msg':}}
 	{{name = evnt['item'].created_by.user_id.first_name + ' ' + evnt['item'].created_by.user_id.last_name}}
-	{{print name}}
     {{if evnt['access'] == 'create':}}
         {{if evnt['item'].parent_msg == 0:}}
             {{=evnt['user']}} added a new message {{=A(evnt['item'].subject, _href=URL('messages','read', args=evnt['item'].id))}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>

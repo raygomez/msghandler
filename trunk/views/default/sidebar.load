@@ -1,12 +1,12 @@
 <tr><td><input type="button" width='100%' value='    Compose    ' onclick='window.location = "/msghandler/messages/create";'></input></td></tr>
 
 {{if late_count:}}
-<tr><td>{{=A('Late (',late_count,')',_href=URL('index', args='late'))}}</td></tr>
+<tr><td>{{=A('Late (',late_count,')',_href=URL('messages','index.html', args='late'))}}</td></tr>
 {{else:}}
-<tr><td>{{=A('Late',_href=URL('index', args='late'))}}</td></tr>
+<tr><td>{{=A('Late',_href=URL('messages','index.html', args='late'))}}</td></tr>
 {{pass}}
 
-<tr><td>{{=A('Inbox',_href=URL('index'))}}</td></tr>
-<tr><td>{{=A('Drafts',_href=URL('index', args='drafts'))}}</td></tr>
-<tr><td>{{=A('Sent',_href=URL('index', args='sent'))}}</td></tr>
-<tr><td>{{=A('Trash',_href=URL('index', args='Trash'))}}</td></tr>
+<tr><td>{{=A('Inbox',_href=URL('messages','index.html'))}}</td></tr>
+<tr><td>{{=A('Drafts',_href=URL('messages','index.html', args='drafts'))}}</td></tr>
+<tr><td>{{=A('Sent',_href=URL('messages','index.html', args='sent'))}}</td></tr>
+<tr><td>{{=A('Trash',_href=URL('messages','index.html', args='trash'))}}</td></tr>
