@@ -1,6 +1,18 @@
 # -*- coding: utf-8 -*-
 # this file is released under public domain and you can use without limitations
 
+if 0:
+    from gluon.sql import *
+    from gluon.validators import *
+
+if 0:
+    from gluon.globals import *
+    from gluon.html import *
+    from gluon.http import *
+    from gluon.sqlhtml import SQLFORM, SQLTABLE, form_factory
+    session = Session()
+    request = Request()
+    response = Response()
 #########################################################################
 ## This scaffolding model makes your app work on Google App Engine too
 #########################################################################

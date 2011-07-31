@@ -1,3 +1,13 @@
+if 0:
+    from gluon.globals import *
+    from gluon.html import *
+    from gluon.http import *
+    from gluon.sqlhtml import SQLFORM, SQLTABLE, form_factory
+    session = Session()
+    request = Request()
+    response = Response()
+
+
 @auth.requires_login()
 def index():
     page = int(request.args[0]) if len(request.args) else 0
