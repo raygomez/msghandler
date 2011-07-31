@@ -9,6 +9,16 @@
 ## - call exposes all registered services (none by default)
 #########################################################################
 
+if 0:
+    from gluon.globals import *
+    from gluon.html import *
+    from gluon.http import *
+    from gluon.sqlhtml import SQLFORM, SQLTABLE, form_factory
+    session = Session()
+    request = Request()
+    response = Response()
+
+
 dbutils = local_import('utils.dbutils')
 
 @auth.requires_login()
