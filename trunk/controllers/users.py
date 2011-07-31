@@ -23,7 +23,7 @@ def index():
         grps = ''
         for group in groups:
             if group.group_id.role != 'Admin':
-                grps = grps + ' ['+group.group_id.role+']'
+                grps = grps + ' [' + group.group_id.role + ']'
         usr['groups'] = grps
         usrs.append(usr)
     return dict(users=users, usrs=usrs)
@@ -39,7 +39,8 @@ def read():
         db.auth_user[field].default = user[field]
     groups_query = db(db.auth_membership.user_id == user.id
                       )._select(db.auth_membership.group_id)
-    not_groups = db(~db.auth_group.id.belongs(groups_query)
+    not_groups = db(~db.auth_group.id.belongs(groups_query) & 
+                     (db.auth_group.role != ('Admin'))
                     ).select(db.auth_group.id, db.auth_group.role).json()
     
     groups = db(db.auth_membership.user_id == user.id
@@ -51,15 +52,15 @@ def read():
     db.auth_user.password.writable = False
         
     form = SQLFORM.factory(db.auth_user,
-                Field('groups'), 
+                Field('groups'),
                 Field('is_active', 'boolean'),
                 submit_button='Update User',
                 hidden=dict(groups_new=None))
     form.element(_name='groups')['_autocomplete'] = 'off' 
         
     if user.registration_key == '':
-        form.vars.is_active  = 'on'
-    else: form.vars.is_active  = 'off'
+        form.vars.is_active = 'on'
+    else: form.vars.is_active = 'off'
             
     if form.accepts(request.vars, session, keepvalues=True):
         last_name = request.vars.last_name
@@ -104,11 +105,11 @@ def insert_groups(selected, user_id):
         user = db.auth_user[user_id].email
         role = db.auth_group[int(group[4:])].role
     
-        membership_id = db.auth_membership.insert(user_id=user_id, 
+        membership_id = db.auth_membership.insert(user_id=user_id,
                                                   group_id=int(group[4:]))
         dbutils.log_event(db, user_id=auth.user.id, item_id=membership_id,
                           table_name='auth_membership', access='create',
-                          details=','.join([user,role,`user_id`]))
+                          details=','.join([user, role, `user_id`]))
 
 @auth.requires_login()
 def create():
@@ -123,14 +124,14 @@ def create():
                             error_message='Passwords do not match.')),
                 Field('is_active', 'boolean'),
                 Field('groups', label='Search groups'),
-                submit_button='Create User',                
+                submit_button='Create User',
                 hidden=dict(groups_new=None),
                 table_name='user')
     
     form.element(_name='groups')['_onkeyup'] = "showgroups()"
     form.element(_name='groups')['_autocomplete'] = 'off'    
     form.element(_name='contact_info')['_placeholder'] = 'insert contact details here'
-    form.vars.is_active  = 'on'        
+    form.vars.is_active = 'on'        
 
     if form.accepts(request.vars, session):
         if form.vars.is_active:
@@ -142,7 +143,7 @@ def create():
         form.vars.user_id = id
         db.contact.insert(**db.contact._filter_fields(form.vars))
         if request.vars.groups_new:
-            insert_groups(request.vars.groups_new.split(',')[:-1],id)
+            insert_groups(request.vars.groups_new.split(',')[:-1], id)
         dbutils.log_event(db, user_id=auth.user.id, item_id=id,
                           table_name='auth_user', access='create')
         session.flash = T('User successfully added.')
@@ -165,7 +166,7 @@ def change_password():
                           details='')
     
         db.auth_user[id] = dict(password=form.vars.password)
-        session.flash= T('Password successfully changed.')
+        session.flash = T('Password successfully changed.')
         redirect(URL('read', args=id))
     return dict(form=form)
 
