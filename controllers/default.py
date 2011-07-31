@@ -23,7 +23,7 @@ dbutils = local_import('utils.dbutils')
 
 @auth.requires_login()
 def index():
-    redirect(URL('messages', 'index'))
+    redirect(URL('messages', 'index',request.args(0)))
     return dict()
 
 @auth.requires_login()

@@ -28,7 +28,7 @@ def index():
     late_select = db.msg.id.belongs(late_query) if request.args(0) == 'late' else db.msg.id > 0
         
     if auth.has_membership('Admin'):
-        messages = db((db.msg.parent_msg == 0) & late_select).select(db.msg.ALL,orderby=db.msg.create_time)            
+        messages = db((db.msg.parent_msg == 0) & late_select & (db.msg.is_hidden == False)).select(db.msg.ALL,orderby=db.msg.create_time)            
        
     elif auth.has_membership('Telehealth'):     
         messages = db(db.msg.parent_msg == 0
