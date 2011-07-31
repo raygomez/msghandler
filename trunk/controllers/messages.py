@@ -254,8 +254,13 @@ def delete():
 
     dbutils.log_event(db, user_id=auth.user.id,
                       item_id=request.vars.id, table_name='msg',
-                      access='delete', details=','.join([msg.subject]))
+                      access='delete', details=','.join([msg_id,msg.subject]))
 
     db.msg[request.vars.id] = dict(is_hidden=True)    
-    session.flash = 'Comment successfully deleted.'
-    redirect(URL('messages','read', args=request.vars.msg_id))
+
+    if msg_id == 0:
+        session.flash = 'Referral successfully deleted.'
+        redirect(URL('messages','index'))
+    else:    
+        session.flash = 'Comment successfully deleted.'
+        redirect(URL('messages','read', args=request.vars.msg_id))
