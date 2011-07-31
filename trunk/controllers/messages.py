@@ -245,6 +245,7 @@ def read():
 
 def delete():
     msg = db.msg[request.vars.id]
+    parent_id = request.vars.msg_id
     contacts =  db(db.contact.user_id==auth.user.id).select()
 
     if not(auth.has_membership('Admin') or auth.has_membership('Telehealth') or 
@@ -254,13 +255,13 @@ def delete():
 
     dbutils.log_event(db, user_id=auth.user.id,
                       item_id=request.vars.id, table_name='msg',
-                      access='delete', details=','.join([msg_id,msg.subject]))
+                      access='delete', details='')
 
     db.msg[request.vars.id] = dict(is_hidden=True)    
 
-    if msg_id == 0:
+    if parent_id == 0:
         session.flash = 'Referral successfully deleted.'
         redirect(URL('messages','index'))
     else:    
         session.flash = 'Comment successfully deleted.'
-        redirect(URL('messages','read', args=request.vars.msg_id))
+        redirect(URL('messages','read', args=parent_id))
