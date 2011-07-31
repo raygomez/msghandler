@@ -138,7 +138,7 @@ $(function(){
         {{if evnt['item'].parent_msg == 0:}}
             {{=evnt['user']}} deleted the message {{=A(evnt['item'].subject, _href=URL('messages','read', args=evnt['item'].id))}} by {{=name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>
         {{else:}}    
-            {{=evnt['user']}} deleted the reply {{=A(evnt['item'].subject, _href=URL('messages','read', args=evnt['item'].id))}} by {{=name}} of message {{=A(evnt['item'].parent_msg.subject, _href=URL('message','read',args=evnt['item'].parent_msg.id))}} by {{=evnt['item'].parent_msg.created_by.user_id.first_name  + ' ' + evnt['item'].parent_msg.created_by.user_id.last_name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>        
+            {{=evnt['user']}} deleted the reply {{=A(evnt['item'].subject, _href=URL('messages','read', args=evnt['item'].id))}} by {{=name}} of message {{=A(evnt['item'].parent_msg.subject, _href=URL('messages','read',args=evnt['item'].parent_msg.id))}} by {{=evnt['item'].parent_msg.created_by.user_id.first_name  + ' ' + evnt['item'].parent_msg.created_by.user_id.last_name}}. <span class='timestamp' title={{=evnt['timestamp'].isoformat()}}></span>        
         {{pass}}
     {{pass}}
 
