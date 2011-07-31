@@ -9,7 +9,7 @@ def index():
 @auth.requires(auth.has_membership('Admin')
                or auth.has_membership('Telehealth'))
 def create():
-    tags = db(db.tag.name == request.vars.name).select()
+    tags = db(db.tag.name.like(request.vars.name)).select()
     if len(tags) == 0:
         id = db.tag.insert(**request.vars)
         dbutils.log_event(db, user_id=auth.user.id, item_id=id,
