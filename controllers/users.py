@@ -64,6 +64,11 @@ def read():
     if form.accepts(request.vars, session, keepvalues=True):
         last_name = request.vars.last_name
         first_name = request.vars.first_name
+
+        if form.vars.is_active:
+            form.vars.registration_key = ''
+        else: 
+            form.vars.registration_key = 'blocked'
         
         details = []
         if last_name != user.last_name:
@@ -72,11 +77,14 @@ def read():
         if first_name != user.first_name:
             details.append('first name changed from ' + user.first_name
                            + ' to ' + first_name)
+        
 
-        if form.vars.is_active:
-            form.vars.registration_key = ''
-        else: 
-            form.vars.registration_key = 'blocked'
+        if form.vars.registration_key != user.registration_key:
+            if form.vars.registration_key == '':
+                details.append('User status changed from blocked to active.')
+            else:
+                details.append('User status changed from active to blocked.')
+
         
         if len(details) != 0:
             details = ', '.join(details)
@@ -86,7 +94,7 @@ def read():
                               access='update')           
             db(db.auth_user.id == user.id
                ).update(**db.auth_user._filter_fields(form.vars))
-               
+                              
             request.flash = T('User successfully updated.')
     return dict(form=form, groups=groups, id=user.id, contacts=contacts,
                 json=SCRIPT('var groups=%s' % not_groups))
