@@ -14,7 +14,7 @@ def index():
     grps = db(db.auth_membership.user_id == auth.user_id).select()
     grps.exclude(lambda row: row.group_id.role == 'Admin')
     groups_query = db(db.msg_group.id > 0
-                      )._select(db.msg_group.group_id,distinct=True)
+                      )._select(db.msg_group.group_id, distinct=True)
     groups = db((db.auth_group.role != 'Admin')
                 & (db.auth_group.id.belongs(groups_query))
                 ).select(db.auth_group.role)
@@ -25,32 +25,34 @@ def index():
     
     late_tag = db(db.tag.name == 'Late').select().first()    
     late_query = db(db.msg_tag.tag_id == late_tag.id)._select(db.msg_tag.msg_id)
-    late_select = db.msg.id.belongs(late_query) if request.args(0) == 'late' else db.msg.id > 0
+    late = db.msg.id.belongs(late_query) if request.args(0) == 'late' else db.msg.id > 0
+        
+    if request.args(0) == 'trash':
+        hidden = db.msg.is_hidden == True 
+    else:
+        hidden = db.msg.is_hidden == False
         
     if auth.has_membership('Admin'):
-        messages = db((db.msg.parent_msg == 0) & late_select & (db.msg.is_hidden == False)).select(db.msg.ALL,orderby=db.msg.create_time)            
-       
-    elif auth.has_membership('Telehealth'):     
-        messages = db(db.msg.parent_msg == 0
-                      ).select(db.msg.ALL, orderby=~db.msg.create_time)
-    
+        messages = db((db.msg.parent_msg == 0) & late & hidden
+                      ).select(db.msg.ALL, orderby=db.msg.create_time)            
+               
     elif auth.has_membership('Telehealth'):
         nurse_record = db(db.contact.user_id == auth.user.id).select().first()
         msg_query_group = db(db.msg_group.id > 0)._select(db.msg_group.msg_id)
         msg_query_assigned = db(db.msg_group.assigned_by == auth.user.id
                                 )._select(db.msg_group.msg_id)
-        messages = db((db.msg.parent_msg == 0)
+        messages = db((db.msg.parent_msg == 0) & late
                       & ((db.msg.created_by == nurse_record.id)
                          | ~db.msg.id.belongs(msg_query_group)
-                         | db.msg.id.belongs(msg_query_assigned))).select()
+                         | db.msg.id.belongs(msg_query_assigned)) & hidden).select()
     else:
         groups_query = db(db.auth_membership.user_id == auth.user.id
                           )._select(db.auth_membership.group_id)
         msg_query = db(db.msg_group.group_id.belongs(groups_query)
                        )._select(db.msg_group.msg_id)
-        messages = db((db.msg.parent_msg == 0)
+        messages = db((db.msg.parent_msg == 0) & late
                       & (db.msg.id.belongs(msg_query)
-                         | (db.msg.created_by==contact.id))).select()
+                         | (db.msg.created_by == contact.id)) & hidden).select()
         
         users_query = db(db.auth_membership.group_id.belongs(groups_query)
                          & (db.auth_membership.user_id != auth.user.id)
@@ -64,7 +66,7 @@ def index():
     late_msgs = []
     for message in messages:
         comment = db(db.msg.parent_msg == message.id
-                     ).select(orderby=~db.msg.create_time)
+                     ).select(orderby= ~db.msg.create_time)
         msg = {}
         msg['id'] = message.id
         msg['subject'] = message.subject
@@ -79,7 +81,7 @@ def index():
         if name not in cname:
             cname.append(name)
         msg['by'] = ', '.join(cname)
-        msg['is_owner'] = (True if message.created_by.id==contact.id
+        msg['is_owner'] = (True if message.created_by.id == contact.id
                            else False)
         msg['time'] = (comment[0].create_time if comment
                        else message.create_time)
@@ -90,12 +92,12 @@ def index():
         msg['replied'] = (True if db(db.msg.parent_msg == message.id
                                      ).count() else False)
         tags = db(db.msg_tag.msg_id == message.id).select()
-        msg['tags'] = ' '.join(['['+tag.tag_id.name+']' for tag in tags])
-        msg['groups'] = ' '.join([group.group_id.role.replace(' ','_')
+        msg['tags'] = ' '.join(['[' + tag.tag_id.name + ']' for tag in tags])
+        msg['groups'] = ' '.join([group.group_id.role.replace(' ', '_')
                                   for group in db(db.msg_group.msg_id == message
                                                   ).select()])
         
-        if db((db.msg_tag.msg_id == message.id) & (db.msg_tag.tag_id == late_tag.id )).count() != 0:
+        if db((db.msg_tag.msg_id == message.id) & (db.msg_tag.tag_id == late_tag.id)).count() != 0:
             late_msgs.append(msg)
         else: msgs.append(msg)
     
@@ -104,11 +106,11 @@ def index():
     else:        
         msgs = sorted(msgs, key=lambda msg : msg['time'], reverse=True)
                    
-    return dict(my_roles=grps, contact_id=contact.id, msgs=msgs,late_msgs=late_msgs,
+    return dict(my_roles=grps, contact_id=contact.id, msgs=msgs, late_msgs=late_msgs,
                 json=SCRIPT('var groups=%s' % groups))
 
 def get_contact(user):
-    contact =  db(db.contact.user_id==user.id).select().first()
+    contact = db(db.contact.user_id == user.id).select().first()
     if not contact:
         contact = db.contact.insert(user_id=user.id, contact_type='email',
                                     contact_info=user.email)
@@ -120,7 +122,7 @@ def create():
     
     form = SQLFORM.factory(db.msg,
                 Field('attachment', 'upload',
-                      uploadfolder=os.path.join(request.folder,'uploads')),
+                      uploadfolder=os.path.join(request.folder, 'uploads')),
                 Field('tags', label='Search tags'),
                 Field('groups', label='Search groups'),
                 hidden=dict(tags_new=None, groups_new=None),
@@ -150,7 +152,7 @@ def create():
                                 **db.msg_attachment._filter_fields(form.vars))
             dbutils.log_event(db, user_id=auth.user.id, item_id=msg_attachment_id,
                           table_name='msg_attachment', access='create',
-                          details=','.join([subject,filename,`msg_id`]))
+                          details=','.join([subject, filename, `msg_id`]))
                                 
         if request.vars.tags_new:
             select_tags = request.vars.tags_new.split(',')[:-1]
@@ -160,7 +162,7 @@ def create():
                 tag = db.tag[tag_id].name
                 dbutils.log_event(db, user_id=auth.user.id, item_id=id,
                                   table_name='msg_tag', access='create',
-                                  details=','.join([subject,tag]))
+                                  details=','.join([subject, tag]))
         if request.vars.groups_new:
             select_groups = request.vars.groups_new.split(',')[:-1]
             for group in select_groups:
@@ -168,7 +170,7 @@ def create():
                                     assigned_by=auth.user.id)
                 dbutils.log_event(db, user_id=auth.user.id, item_id=id,
                                   table_name='msg_group', access='create',
-                                  details=','.join([subject,group]))
+                                  details=','.join([subject, group]))
         
         dbutils.log_event(db, user_id=auth.user.id, item_id=msg_id,
                           table_name='msg', access='create')
@@ -176,7 +178,7 @@ def create():
         session.flash = T('Message successfully created.')
         redirect(URL('index'))
     return dict(form=form, json=SCRIPT('var tags=%s; var groups=%s'
-                                       % (tags,groups)))
+                                       % (tags, groups)))
 
 file_types = ['pdf']
 
@@ -186,7 +188,7 @@ def read():
         redirect(URL('index'))
     message = db(db.msg.id == int(request.args(0))).select().first() or redirect(URL('index'))
     
-    contacts =  db(db.contact.user_id==auth.user.id).select()
+    contacts = db(db.contact.user_id == auth.user.id).select()
     groups_query = db(db.msg_group.msg_id == message.id
                       )._select(db.msg_group.group_id)
     not_groups = db(~db.auth_group.id.belongs(groups_query)
@@ -196,7 +198,7 @@ def read():
                 ).select(db.msg_group.id, db.msg_group.group_id, distinct=True)
     
     tags_query = db(db.msg_tag.msg_id == message.id)._select(db.msg_tag.tag_id)
-    not_tags = db(~db.tag.id.belongs(tags_query) & (db.tag.name!='Late')
+    not_tags = db(~db.tag.id.belongs(tags_query) & (db.tag.name != 'Late')
                   ).select(db.tag.id, db.tag.name).json()
     tags = db(db.msg_tag.msg_id == message.id
               ).select(db.msg_tag.id, db.msg_tag.tag_id, distinct=True)
@@ -210,11 +212,11 @@ def read():
         file_type = attachment.attachment[attachment.attachment.rindex('.')
                                           + 1:]
         if file_type in file_types:
-            attach['src'] = URL('static','images/' + file_type + '.png')
-        elif file_type in ['png','jpg','jpg','gif','bmp']:
+            attach['src'] = URL('static', 'images/' + file_type + '.png')
+        elif file_type in ['png', 'jpg', 'jpg', 'gif', 'bmp']:
             attach['src'] = URL('default', 'download', args=attachment.attachment)
         else:
-            attach['src'] = URL('static','images/binary.png')
+            attach['src'] = URL('static', 'images/binary.png')
         attachs.append(attach)
         
     db.msg.subject.writable = db.msg.subject.readable = False
@@ -240,18 +242,18 @@ def read():
     return dict(message=message, form=form, groups=groups, tags=tags,
                 attachs=attachs, update_time=update_time, contacts=contacts,
                 json=SCRIPT('var tags=%s; var groups=%s'
-                            % (not_tags,not_groups)),
+                            % (not_tags, not_groups)),
                 id=message.id, replies=replies)
 
 def delete():
     msg = db.msg[request.vars.id]
     parent_id = request.vars.msg_id
-    contacts =  db(db.contact.user_id==auth.user.id).select()
+    contacts = db(db.contact.user_id == auth.user.id).select()
 
     if not(auth.has_membership('Admin') or auth.has_membership('Telehealth') or 
-       contacts.find(lambda row: row.id==attachment.attach_by)):
+       contacts.find(lambda row: row.id == attachment.attach_by)):
         session.flash = 'Insufficient privileges'
-        redirect(URL('default','user',args='not_authorized'))
+        redirect(URL('default', 'user', args='not_authorized'))
 
     dbutils.log_event(db, user_id=auth.user.id,
                       item_id=request.vars.id, table_name='msg',
@@ -261,7 +263,7 @@ def delete():
 
     if parent_id == 0:
         session.flash = 'Referral successfully deleted.'
-        redirect(URL('messages','index'))
+        redirect(URL('messages', 'index'))
     else:    
         session.flash = 'Comment successfully deleted.'
-        redirect(URL('messages','read', args=parent_id))
+        redirect(URL('messages', 'read', args=parent_id))
