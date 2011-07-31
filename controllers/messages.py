@@ -89,8 +89,8 @@ def index():
                           else message.content)
         msg['attachment'] = (True if db(db.msg_attachment.msg_id == message.id
                                         ).count() else False)
-        msg['replied'] = (True if db(db.msg.parent_msg == message.id
-                                     ).count() else False)
+        replies = db((db.msg.parent_msg == message.id)  & (db.msg.is_hidden == False)).select()
+        msg['replied'] = (True if len(replies) else False)
         tags = db(db.msg_tag.msg_id == message.id).select()
         msg['tags'] = ' '.join(['[' + tag.tag_id.name + ']' for tag in tags])
         msg['groups'] = ' '.join([group.group_id.role.replace(' ', '_')
