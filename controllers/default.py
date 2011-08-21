@@ -102,22 +102,6 @@ def delete_ajax():
                           table_name='msg_tag', access='delete',
                           details=','.join([subject,tag,`id`]))        
 
-@auth.requires(auth.has_membership('Admin')
-               or auth.has_membership('Telehealth'))
-def contacts():
-    users = db(db.auth_user.id > 0).select(orderby=~db.auth_user.id)
-    contacts = db(db.contact.id > 0).select(orderby=~db.contact.id)
-    return dict(contacts=contacts, users=users)
-
-@auth.requires_login()
-def data():
-    return dict(form=crud())
-
-@auth.requires_login()
-def delete_attach():    
-    session.flash = T('Attachment successfully deleted.')
-    db(db.msg_attachment.id==request.args(0)).delete()
-    redirect(URL(f='show_message', args=request.args(1)))
 
 def user():
     return dict(form=auth())
