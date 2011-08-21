@@ -116,13 +116,13 @@ span.content{color:gray;}
 </style>
 <table width='99%'>
     <tr>
-        <td width="15%">Logo</td>        
+        <td width="15%"></td>        
         <td>{{=TABLE(TR(LABEL('Search: '),
                         INPUT(_name='s_user', _placeholder='search by author'),
                         INPUT(_name='s_subject', _placeholder='search by subject'),
                         INPUT(_name='s_tag', _placeholder='search by tag'),
                         TD(TAG.BUTTON('Clear search fields',_onclick="$('[name^=s_]').val('');$('[name^=s_]').keyup();"),                 
-                                width='20%'),_width='100%'))}}
+                                _width='50%'),_width='100%'))}}
         </td>
     </tr>
     <tr>
